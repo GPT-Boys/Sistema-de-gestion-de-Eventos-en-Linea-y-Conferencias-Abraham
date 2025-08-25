@@ -1,0 +1,98 @@
+/* ==== Base global & tokens ==== */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+:root{
+  --bg:#ffffff;
+  --ink:#0b0b0d;
+  --muted:#6b7280;
+  --paper:#ffffff;
+
+  --purple-900:#4c1d95;
+  --purple-700:#6d28d9;
+  --purple-600:#7c3aed;        /* necesario para los gradientes de botones */
+  --purple-500:#8b5cf6;
+
+  --ring: 0 0 0 3px rgba(109,40,217,.25);
+  --header-h: 80px;            /* altura consistente en todo el sitio */
+}
+
+/* Reset mínimo */
+*{ box-sizing:border-box; }
+html,body{ margin:0; padding:0; }
+body{ font-family:Poppins,system-ui; color:var(--ink); background:var(--bg); }
+a{ color:inherit; text-decoration:none; }
+img{ display:block; height:auto; }
+
+/* Skip link accesible (opcional) */
+.skip-link{
+  position:absolute; left:-999px; top:auto; width:1px; height:1px; overflow:hidden;
+}
+.skip-link:focus{
+  left:16px; top:16px; width:auto; height:auto; padding:8px 12px; background:#fff; border-radius:10px;
+  box-shadow:var(--ring);
+}
+
+/* ===== Utilidades ===== */
+.container{ width:min(1280px,92%); margin-inline:auto; }  /* <= CLAVE: igual que el landing */
+.section{ padding:64px 0; }
+.center{ text-align:center; }
+
+/* ===== Header/Nav global ===== */
+.header{
+  position: fixed; top:0; left:0; right:0; z-index:100;
+  height: var(--header-h);
+  background:#fff;
+  box-shadow:0 2px 8px rgba(17,24,39,.06);
+}
+
+/* <= CLAVE: mismo padding que usas en el landing; sin width:95% */
+.header .header-inner{
+  height: var(--header-h);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+  padding: 0 12px;
+}
+
+.brand{ display:inline-flex; align-items:center; gap:10px; }
+/* No fijamos altura de .logo globalmente para no interferir con el landing.
+   Si quieres un tamaño específico en auth, hazlo en HeaderAuth.vue con estilos scoped. */
+
+/* Navegación */
+.nav{ display:flex; gap:26px; }
+.nav a{
+  font-weight:600; color:#1f2937; position:relative; padding:4px 0;
+}
+.nav a::after{
+  content:''; position:absolute; left:0; bottom:-6px; width:0; height:2px;
+  background:var(--purple-700); transition:width .2s;
+}
+.nav a:hover::after{ width:100%; }
+.nav a:focus-visible{ outline:none; box-shadow:var(--ring); border-radius:8px; }
+
+/* ===== Botones reutilizables ===== */
+.btn{
+  display:inline-block; padding:12px 20px; border-radius:14px; font-weight:700;
+  transition: transform .18s ease, filter .18s ease, box-shadow .18s ease;
+  border:none; cursor:pointer;
+}
+.btn:focus-visible{ outline:none; box-shadow:var(--ring); }
+
+/* Botón blanco (como CTA “Crear cuenta” del hero) */
+.btn-primary{
+  background:#fff; color:var(--purple-900);
+}
+.btn-primary:hover{ transform:translateY(-3px); filter:brightness(.96); }
+
+/* Botón morado (como “Iniciar sesión” del hero) */
+.btn-secondary{
+  background:var(--purple-700); color:#fff; border:1px solid rgba(255,255,255,.15);
+}
+.btn-secondary:hover{ transform:translateY(-3px); filter:brightness(1.03); }
+
+/* Botón fantasma (útil para header auth si lo usas) */
+.btn-ghost{
+  background:transparent; color:var(--purple-700); border:1px solid rgba(109,40,217,.25);
+}
+.btn-ghost:hover{ transform:translateY(-2px); background:rgba(124,58,237,.06); }

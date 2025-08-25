@@ -1,16 +1,24 @@
-import 'bootswatch/dist/united/bootstrap.min.css'
-import 'bootstrap/dist/js/bootstrap.bundle.min.js'
-import 'bootstrap-icons/font/bootstrap-icons.css'
-
 import { createApp } from 'vue'
-import { createPinia } from 'pinia'
-
+import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'
-import router from './router'
+import LandingPage from './views/HomeView.vue'
+import Login from './views/Login.vue'
+import Register from './views/Register.vue'
+import './styles.css' // tus estilos
+// main.js
+import 'bootstrap/dist/css/bootstrap.min.css'
+import 'bootstrap-icons/font/bootstrap-icons.css'
+// Opcional (para tooltips, etc.):
+// import 'bootstrap'
 
-const app = createApp(App)
 
-app.use(createPinia())
-app.use(router)
+const router = createRouter({
+  history: createWebHistory(),
+  routes: [
+    { path: '/', component: LandingPage },
+    { path: '/login', component: Login },
+    { path: '/register', component: Register },
+  ],
+})
 
-app.mount('#app')
+createApp(App).use(router).mount('#app')
