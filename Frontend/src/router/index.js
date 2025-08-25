@@ -1,20 +1,23 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '@/views/HomeView.vue'
+import { createRouter, createWebHistory } from 'vue-router';
+import GestionUsuarios from '@/views/GestionUsuarios.vue';
+
+const routes = [
+  {
+
+    path: '/',
+    // '/usuarios'.
+    redirect: '/usuarios'
+  },
+  {
+    path: '/usuarios',
+    name: 'GestionUsuarios',
+    component: GestionUsuarios,
+  },
+];
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
-  routes: [
-    {
-      path: '/',
-      name: 'home',
-      component: HomeView,
-    },
-    {
-      path: '/Conferences',
-      name: 'Conferences',
-      component: () => import('@/views/ConferencesView.vue'),
-    },
-  ],
-})
+  history: createWebHistory(import.meta.env.BASE_URL || '/'),
+  routes,
+});
 
-export default router
+export default router;
