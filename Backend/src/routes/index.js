@@ -5,7 +5,7 @@ const router = Router();
 // Ruta principal
 router.get("/", (req, res) => {
   res.send(
-    "¡Welcome to Our Software Architecture Project: AbrahamEventSphere! 💻✨"
+    "¡Welcome to Our First Software Architecture Project: AbrahamEventSphere! 💻✨"
   );
 });
 

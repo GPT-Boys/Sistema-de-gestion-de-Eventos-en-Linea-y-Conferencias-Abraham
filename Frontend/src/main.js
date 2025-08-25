@@ -1,24 +1,27 @@
+import 'bootswatch/dist/united/bootstrap.min.css'
+import 'bootstrap/dist/js/bootstrap.bundle.min.js'
+import 'bootstrap-icons/font/bootstrap-icons.css'
+import '../node_modules/animate.css/animate.min.css'
+import 'sweetalert2/dist/sweetalert2.min.css'
+
 import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'
-import LandingPage from './views/HomeView.vue'
-import Login from './views/Login.vue'
-import Register from './views/Register.vue'
-import './styles.css' // tus estilos
-// main.js
-import 'bootstrap/dist/css/bootstrap.min.css'
-import 'bootstrap-icons/font/bootstrap-icons.css'
-// Opcional (para tooltips, etc.):
-// import 'bootstrap'
+import router from './router'
+import VueCookies from 'vue-cookies'
+import VueSweetalert2 from 'vue-sweetalert2'
+import Axios from 'axios'
 
+Axios.defaults.withCredentials = true
 
-const router = createRouter({
-  history: createWebHistory(),
-  routes: [
-    { path: '/', component: LandingPage },
-    { path: '/login', component: Login },
-    { path: '/register', component: Register },
-  ],
+const app = createApp(App)
+
+app.use(createPinia())
+app.use(router)
+app.use(VueCookies, {
+  expires: '7d',
+  path: '/',
 })
+app.use(VueSweetalert2)
 
-createApp(App).use(router).mount('#app')
+app.mount('#app')

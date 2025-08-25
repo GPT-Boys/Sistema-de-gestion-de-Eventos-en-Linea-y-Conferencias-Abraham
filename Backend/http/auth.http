@@ -1,0 +1,50 @@
+@baseURL = http://localhost:3000/auth
+
+### Login ADMINISTRADOR
+POST {{baseURL}}/login HTTP/1.1
+Content-Type: application/json
+Accept: application/json
+
+{
+    "user": "admin",
+    "password": "admin"
+}
+
+### Login ORADOR
+POST {{baseURL}}/login HTTP/1.1
+Content-Type: application/json
+Accept: application/json
+
+{
+    "user": "orador1",
+    "password": "orador1"
+}
+
+### Login ASISTENTE
+POST {{baseURL}}/login HTTP/1.1
+Content-Type: application/json
+Accept: application/json
+
+{
+    "user": "asistente1",
+    "password": "asistente1"
+}
+
+### Login PERSONAL
+POST {{baseURL}}/login HTTP/1.1
+Content-Type: application/json
+Accept: application/json
+
+{
+    "user": "empleado1",
+    "password": "empleado1"
+}
+
+
+### Logout
+GET {{baseURL}}/logout HTTP/1.1
+Accept: application/json
+
+### Verify Authentication Status
+GET {{baseURL}}/status HTTP/1.1
+Accept: application/json
