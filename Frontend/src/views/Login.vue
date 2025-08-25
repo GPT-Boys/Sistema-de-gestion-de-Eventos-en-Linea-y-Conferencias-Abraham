@@ -28,7 +28,7 @@
           </div>
         </transition>
 
-        <form @submit.prevent="simulateLogin" novalidate>
+        <form @submit.prevent="doLogin" novalidate>
           <label class="label" for="email">Correo electrónico</label>
           <div class="control">
             <span class="icon left" aria-hidden="true">
@@ -85,6 +85,8 @@
 <script setup>
 import HeaderAuth from '@/components/HeaderAuth.vue'
 import { ref, onMounted, onUnmounted } from 'vue'
+import axios from 'axios'
+import { useRouter } from 'vue-router'
 
 const email = ref('')
 const password = ref('')
@@ -96,19 +98,34 @@ const notification = ref({ message: '', type: '' })
 const showNotification = (m, t='ok') => { notification.value = { message:m, type:t } }
 const hideNotification = () => { notification.value = { message:'', type:'' } }
 
-const simulateLogin = () => {
+const router = useRouter()
+
+const doLogin = async () => {
   if (!email.value || !password.value) return showNotification('Por favor, completa todos los campos.', 'error')
   const okEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)
   if (!okEmail) return showNotification('Introduce un correo válido.', 'error')
   loading.value = true
-  setTimeout(() => { loading.value = false; showNotification('Inicio de sesión simulado correctamente.', 'ok') }, 900)
+  try {
+    const res = await axios.post('http://localhost:3000/auth/login', {
+      usuario: email.value,
+      contrasena: password.value
+    }, { withCredentials: true })
+    loading.value = false
+    showNotification('Inicio de sesión exitoso.', 'ok')
+    setTimeout(() => router.push('/conferences'), 800)
+  } catch (err) {
+    loading.value = false
+    showNotification(
+      err.response?.data?.message || 'Usuario o contraseña incorrectos.',
+      'error'
+    )
+  }
 }
-
 /* Bloquea scroll SOLO en Login */
 onMounted(() => document.documentElement.classList.add('no-scroll'))
 onUnmounted(() => document.documentElement.classList.remove('no-scroll'))
-</script>
 
+</script>
 <style scoped>
 :root{
   --purple-700:#6d28d9;

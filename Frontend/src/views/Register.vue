@@ -27,7 +27,8 @@
           </div>
         </transition>
 
-        <form @submit.prevent="simulateRegister" novalidate>
+        <!-- IMPORTANTE: ahora llama a onSubmitRegister -->
+        <form @submit.prevent="onSubmitRegister" novalidate>
           <!-- Cols -->
           <div class="grid-2">
             <!-- Col 1: acceso -->
@@ -114,6 +115,14 @@
                 <input id="apellidos" v-model.trim="apellidos" type="text" placeholder="Tus apellidos" required />
               </div>
 
+              <label class="label" for="fechaNacimiento">Fecha de nacimiento <span class="req">*</span></label>
+              <div class="control">
+                <span class="icon left" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/></svg>
+                </span>
+                <input id="fechaNacimiento" v-model="fechaNacimiento" type="date" required />
+              </div>
+
               <label class="label" for="ciudad">Ciudad/Departamento <span class="req">*</span></label>
               <div class="control">
                 <span class="icon left" aria-hidden="true">
@@ -197,8 +206,16 @@
 import HeaderAuth from '@/components/HeaderAuth.vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import axios from 'axios'
 
 const router = useRouter()
+
+/* Axios base */
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api',
+  withCredentials: true,
+  headers: { 'Content-Type': 'application/json' }
+})
 
 /* Campos */
 const usuario = ref('')
@@ -207,6 +224,7 @@ const confirmPassword = ref('')
 const tipoUsuario = ref('')
 const nombres = ref('')
 const apellidos = ref('')
+const fechaNacimiento = ref('') // NUEVO
 const ciudad = ref('')
 const telefono = ref('')
 const email = ref('')
@@ -243,6 +261,20 @@ const departamentosBolivia = [
   { value: 'pn', text: 'Pando' }
 ]
 
+/* Mapas a IDs de tu BD */
+const mapTipoUsuarioToId = (v) => {
+  // 1 Admin | 2 Personal | 3 Orador | 4 Asistente
+  if (v === 'personal_apoyo') return 2
+  if (v === 'orador') return 3
+  if (v === 'asistente') return 4
+  return null
+}
+const mapCiudadToId = (v) => {
+  // pn:1, bn:2, lp:3, cb:4, sc:5, or:6, pt:7, ch:8, tj:9
+  const mapa = { pn:1, bn:2, lp:3, cb:4, sc:5, or:6, pt:7, ch:8, tj:9 }
+  return mapa[v] ?? null
+}
+
 /* Helpers */
 const showNotification = (message, type) => {
   notification.value = { message, type }
@@ -261,11 +293,12 @@ const openModal = (type) => {
 }
 const closeModal = () => { showModal.value = false }
 
-/* Validación y submit simulado */
-const simulateRegister = () => {
+/* Validación + POST real */
+const onSubmitRegister = async () => {
+  // Validaciones
   if (!usuario.value || !password.value || !confirmPassword.value ||
       !tipoUsuario.value || !nombres.value || !apellidos.value ||
-      !ciudad.value || !telefono.value || !email.value) {
+      !fechaNacimiento.value || !ciudad.value || !telefono.value || !email.value) {
     return showNotification('Por favor, completa todos los campos.', 'error')
   }
   if (password.value.length < 8) return showNotification('La contraseña debe tener al menos 8 caracteres.', 'error')
@@ -274,15 +307,48 @@ const simulateRegister = () => {
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   if (!emailRegex.test(email.value)) return showNotification('Introduce un email válido.', 'error')
-  const phoneRegex = /^[0-9+]{7,15}$/
-  if (!phoneRegex.test(telefono.value)) return showNotification('Introduce un teléfono válido.', 'error')
+  const phoneDigits = (telefono.value || '').replace(/\D/g, '')
+  if (phoneDigits.length < 7) return showNotification('Introduce un teléfono válido.', 'error')
 
-  loading.value = true
-  setTimeout(() => {
+  const idTipo = mapTipoUsuarioToId(tipoUsuario.value)
+  const idCiudad = mapCiudadToId(ciudad.value)
+  if (!idTipo) return showNotification('Tipo de usuario inválido.', 'error')
+  if (!idCiudad) return showNotification('Ciudad inválida.', 'error')
+
+  // Payload según tu esquema
+  const payload = {
+    USUARIO: usuario.value,
+    CONTRASENIA: password.value,        // el backend debe hashearla
+    ID_TIPO_USUARIO: idTipo,
+    NOMBRES: nombres.value,
+    APELLIDOS: apellidos.value,
+    FECHA_NACIMIENTO: fechaNacimiento.value, // YYYY-MM-DD
+    ID_CIUDAD: idCiudad,
+    TELEFONO: phoneDigits,              // si tu backend lo guarda como INT
+    CORREO_ELECTRONICO: email.value
+  }
+
+  try {
+    loading.value = true
+    // Ajusta el endpoint si es distinto
+    const { status } = await api.post('/auth/register', payload)
+
+    if (status === 200 || status === 201) {
+      showNotification('Registro exitoso. Redirigiendo…', 'ok')
+      setTimeout(() => router.push('/login'), 1200)
+    } else {
+      showNotification('No se pudo registrar. Intenta nuevamente.', 'error')
+    }
+  } catch (err) {
+    const msg =
+      err?.response?.data?.message ||
+      (err?.response?.status === 409 ? 'Usuario o correo ya registrados.' : null) ||
+      (err?.response?.status === 400 ? 'Datos inválidos.' : null) ||
+      'Error de conexión con el servidor.'
+    showNotification(msg, 'error')
+  } finally {
     loading.value = false
-    showNotification('Registro simulado correctamente. Redirigiendo…', 'ok')
-    setTimeout(() => { router.push('/') }, 1200)
-  }, 1200)
+  }
 }
 </script>
 
@@ -290,7 +356,7 @@ const simulateRegister = () => {
 :root{
   --purple-900:#4c1d95;
   --purple-700:#6d28d9;
-  --purple-600:#7c3aed; /* por si no existe en tu styles.css */
+  --purple-600:#7c3aed;
   --purple-500:#8b5cf6;
 
   --ink:#0b0b0d; --paper:#ffffff; --muted:#6b7280;

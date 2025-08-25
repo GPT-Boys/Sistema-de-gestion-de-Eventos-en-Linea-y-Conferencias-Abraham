@@ -186,6 +186,7 @@
 <section id="about" class="section">
   <div class="container">
     <h2 class="h2 center">Acerca de</h2>
+
     <p class="center" style="max-width:75ch;margin:8px auto 0;">
       <strong>AbrahamEventSphere</strong> es una plataforma innovadora diseñada para transformar la manera en que 
       se organizan, administran y viven las conferencias y eventos académicos y profesionales. 
@@ -200,15 +201,16 @@
       Todo esto con un diseño pensado para la simplicidad y la eficiencia.
     </p>
 
+    <!-- 🔧 Aquí estaba el <ul> dentro del <p>. Separarlo así: -->
     <p class="center" style="max-width:75ch;margin:16px auto 0;">
       Entre las principales características destacan:
-      <ul style="max-width:70ch;margin:16px auto;text-align:left;line-height:1.6;">
-        <li>✔️ Gestión integral de conferencias, talleres y charlas.</li>
-        <li>✔️ Sistema de votación y encuestas en vivo para obtener feedback inmediato.</li>
-        <li>✔️ Notificaciones en tiempo real sobre cambios de agenda o ubicación.</li>
-        <li>✔️ Repositorio centralizado de materiales y presentaciones.</li>
-      </ul>
     </p>
+    <ul class="center" style="max-width:70ch;margin:16px auto;text-align:left;line-height:1.6;">
+      <li>✔️ Gestión integral de conferencias, talleres y charlas.</li>
+      <li>✔️ Sistema de votación y encuestas en vivo para obtener feedback inmediato.</li>
+      <li>✔️ Notificaciones en tiempo real sobre cambios de agenda o ubicación.</li>
+      <li>✔️ Repositorio centralizado de materiales y presentaciones.</li>
+    </ul>
 
     <p class="center" style="max-width:75ch;margin:16px auto 0;">
       Con <strong>AbrahamEventSphere</strong>, buscamos no solo optimizar la logística de los eventos, 
@@ -218,6 +220,7 @@
     </p>
   </div>
 </section>
+
 
     <!-- Footer -->
     <footer class="footer" role="contentinfo">

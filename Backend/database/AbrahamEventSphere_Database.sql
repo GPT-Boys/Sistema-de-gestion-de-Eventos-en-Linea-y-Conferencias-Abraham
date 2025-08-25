@@ -1,5 +1,4 @@
--- Created by Vertabelo (http://vertabelo.com)
--- Last modification date: 2025-08-24 22:29:03.443
+
 
 CREATE DATABASE IF NOT EXISTS AbrahamEventSphere_Database;
 
