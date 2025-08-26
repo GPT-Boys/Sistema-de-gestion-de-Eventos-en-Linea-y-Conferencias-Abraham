@@ -3,9 +3,10 @@ import GestionUsuarios from '@/views/GestionUsuarios.vue';
 
 const routes = [
   {
-
+    // Esta línea es la más importante:
+    // Cuando alguien entre a la página principal ('/')...
     path: '/',
-    // '/usuarios'.
+    // ...redirígelo inmediatamente a '/usuarios'.
     redirect: '/usuarios'
   },
   {
@@ -13,6 +14,7 @@ const routes = [
     name: 'GestionUsuarios',
     component: GestionUsuarios,
   },
+  // Aquí pueden estar tus otras rutas como /Conferences
 ];
 
 const router = createRouter({

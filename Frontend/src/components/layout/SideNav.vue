@@ -10,8 +10,7 @@
         <router-link to="/notificaciones" class="nav-boton">Notificaciones</router-link>
         <router-link to="/configuracion" class="nav-boton">Configuracion</router-link>
       </nav>
-
-    </div>
+      </div>
     <div class="seccion-inferior">
       <span class="version">Version 1.0.0</span>
     </div>
@@ -19,6 +18,7 @@
 </template>
 
 <style scoped>
+/* Estos estilos ya usan las variables --purple, por lo que ahora deberían funcionar */
 .barra-lateral {
   width: 250px;
   height: 100vh;
@@ -26,7 +26,7 @@
   color: var(--paper);
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: space-between; /* Para empujar la versión abajo */
   padding: 1.5rem 1rem;
   box-sizing: border-box;
 }

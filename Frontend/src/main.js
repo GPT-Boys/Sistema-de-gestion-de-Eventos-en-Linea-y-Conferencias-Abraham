@@ -8,8 +8,7 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 
-import './assets/main.css'; 
-
+// AÑADE ESTA LÍNEA para importar los iconos
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
 const app = createApp(App)
