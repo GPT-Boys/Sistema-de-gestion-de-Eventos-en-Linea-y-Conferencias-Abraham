@@ -96,3 +96,10 @@ img{ display:block; height:auto; }
   background:transparent; color:var(--purple-700); border:1px solid rgba(109,40,217,.25);
 }
 .btn-ghost:hover{ transform:translateY(-2px); background:rgba(124,58,237,.06); }
+/* NProgress a tu paleta */
+#nprogress .bar { background: #6d28d9 !important; }
+#nprogress .peg {
+  box-shadow: 0 0 10px #6d28d9, 0 0 5px #6d28d9 !important;
+}
+#nprogress .spinner-icon { border-top-color: #6d28d9; border-left-color: #6d28d9; }
+

@@ -21,9 +21,10 @@ const UsuarioENT = sequelize.define(
       type: DataTypes.STRING(100),
       allowNull: false,
     },
-    id_tipo_usuario: {
+    id_tipo_usuario: { 
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: false, 
+      field: "ID_TIPO_USUARIO" 
     },
     nombres: {
       type: DataTypes.STRING(100),
@@ -40,10 +41,13 @@ const UsuarioENT = sequelize.define(
         isDate: true,
       },
     },
-    id_ciudad: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
+    
+    id_ciudad: { 
+      type: DataTypes.INTEGER, 
+      allowNull: false, 
+      field: "ID_CIUDAD" 
     },
+  
     telefono: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -77,13 +81,13 @@ const UsuarioENT = sequelize.define(
 );
 
 UsuarioENT.belongsTo(TipoUsuarioENT, {
-  foreignKey: "ID_TIPO_USUARIO",
+  foreignKey: "id_TIPO_USUARIO",
   as: "TIPO_USUARIO",
   targetKey: "id_tipo_usuario",
 });
 
 UsuarioENT.belongsTo(CiudadENT, {
-  foreignKey: "ID_CIUDAD",
+  foreignKey: "id_CIUDAD",
   as: "CIUDAD",
   targetKey: "id_ciudad",
 });

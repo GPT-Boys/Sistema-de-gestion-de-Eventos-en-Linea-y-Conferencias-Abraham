@@ -49,5 +49,70 @@ router.get("/status", isAuthenticated, (req, res) => {
       .json(new ResponseDTO("AUTH-001", 401, null, "User Not Authenticated."));
   }
 });
+router.post('/register', async (req, res) => {
+  try {
+    const {
+      USUARIO,
+      CONTRASENIA,
+      ID_TIPO_USUARIO,
+      NOMBRES,
+      APELLIDOS,
+      FECHA_NACIMIENTO,
+      ID_CIUDAD,
+      TELEFONO,
+      CORREO_ELECTRONICO
+    } = req.body
+
+    // Validaciones mínimas
+    if (!USUARIO || !CONTRASENIA || !ID_TIPO_USUARIO || !NOMBRES || !APELLIDOS ||
+        !FECHA_NACIMIENTO || !ID_CIUDAD || !TELEFONO || !CORREO_ELECTRONICO) {
+      return res.status(400).json(new ResponseDTO('AUTH-400', 400, null, 'Datos incompletos.'))
+    }
+
+    // (Opcional) duplicados
+    if (UsuarioService.existsByUserOrEmail) {
+      const exists = await UsuarioService.existsByUserOrEmail(USUARIO, CORREO_ELECTRONICO)
+      if (exists) return res.status(409).json(new ResponseDTO('AUTH-409', 409, null, 'Usuario o correo ya registrados.'))
+    }
+
+    // Hash de contraseña
+    const hash = await bcrypt.hash(CONTRASENIA, 10)
+
+    // Crear usuario (ajusta nombres de campos según tu modelo)
+    const nuevo = await (UsuarioService.createUser
+      ? UsuarioService.createUser({
+          usuario: USUARIO,
+          contrasenia: hash,
+          id_tipo_usuario: ID_TIPO_USUARIO,
+          nombres: NOMBRES,
+          apellidos: APELLIDOS,
+          fecha_nacimiento: FECHA_NACIMIENTO,
+          id_ciudad: ID_CIUDAD,
+          telefono: TELEFONO,
+          correo_electronico: CORREO_ELECTRONICO
+        })
+      : UsuarioService.create({
+          usuario: USUARIO,
+          contrasenia: hash,
+          id_tipo_usuario: ID_TIPO_USUARIO,
+          nombres: NOMBRES,
+          apellidos: APELLIDOS,
+          fecha_nacimiento: FECHA_NACIMIENTO,
+          id_ciudad: ID_CIUDAD,
+          telefono: TELEFONO,
+          correo_electronico: CORREO_ELECTRONICO
+        }))
+
+    return res
+      .status(201)
+      .json(new ResponseDTO('AUTH-200', 201,
+        { id_usuario: nuevo.id_usuario, usuario: nuevo.usuario },
+        'Usuario registrado.'
+      ))
+  } catch (e) {
+    console.error(e)
+    return res.status(500).json(new ResponseDTO('AUTH-500', 500, null, 'Error creando usuario.'))
+  }
+})
 
 module.exports = router;

@@ -1,11 +1,8 @@
-<template>
-  <router-view />
-</template>
+<template><router-view /></template>
 
 <script setup>
-// vacío
 </script>
 
 <style>
-/* vacío o tus estilos globales si necesitas */
+html, body, #app { height: 100%; margin: 0; }
 </style>

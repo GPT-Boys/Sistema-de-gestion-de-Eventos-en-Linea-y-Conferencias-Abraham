@@ -4,7 +4,19 @@
     <div class="container header-inner">
       <!-- Logo que vuelve al Home -->
       <RouterLink to="/" class="brand" aria-label="Ir al inicio">
-        <img src="/Logo.png" alt="AbrahamEventSphere" class="logo" />
+        <picture class="logo-wrap">
+            <img
+                :src="logoPng"
+                alt="AbrahamEventSphere"
+                class="logo"
+                width="320"
+                height="120"
+                fetchpriority="high"
+                decoding="async"
+                loading="eager"
+                sizes="(max-width: 640px) 110px, (max-width: 900px) 140px, 180px"
+            />
+        </picture>
       </RouterLink>
 
       <!-- Botones de Auth (sin conflicto con Bootstrap) -->
@@ -17,6 +29,7 @@
 </template>
 
 <script setup>
+import logoPng  from '@/assets/brand/Logo.png'
 import { RouterLink } from 'vue-router'
 </script>
 
