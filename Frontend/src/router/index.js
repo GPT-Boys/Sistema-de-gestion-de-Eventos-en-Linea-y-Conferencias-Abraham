@@ -16,32 +16,32 @@ import PublicLayout from '@/layouts/PublicLayout.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 
 const routes = [
-    {
-      path: '/',
-      component: PublicLayout,
-      children: [
-        { path: '', name: 'Home', component: HomeView, meta: { public: true } },
-        { path: 'login', name: 'Login', component: Login, meta: { public: true } },
-        { path: 'register', name: 'Register', component: Register, meta: { public: true } },
-      ],
-    },
-    {
-      path: '/app',
-      component: AppLayout,
-      children: [
-        { path: '', redirect: { name: 'Dashboard' } },                // /app → /app/dashboard
-        { path: 'dashboard', name: 'Dashboard', component: Dashboard },
-        { path: 'usuarios', name: 'Usuarios', component: GestionUsuarios },
-      ],
-    },
+  {
+    path: '/',
+    component: PublicLayout,
+    children: [
+      { path: '', name: 'Home', component: HomeView, meta: { public: true } },
+      { path: 'login', name: 'Login', component: Login, meta: { public: true } },
+      { path: 'register', name: 'Register', component: Register, meta: { public: true } },
+    ],
+  },
+  {
+    path: '/app',
+    component: AppLayout,
+    children: [
+      { path: '', redirect: { name: 'Dashboard' } }, // /app → /app/dashboard
+      { path: 'dashboard', name: 'Dashboard', component: Dashboard },
+      { path: 'usuarios', name: 'Usuarios', component: GestionUsuarios },
+    ],
+  },
 
-    // opcional: que /usuarios también funcione
-    { path: '/usuarios', redirect: { name: 'Usuarios' } },
-    { path: '/dashboard', redirect: { name: 'Dashboard' } },
+  // opcional: que /usuarios también funcione
+  { path: '/usuarios', redirect: { name: 'Usuarios' } },
+  { path: '/dashboard', redirect: { name: 'Dashboard' } },
 
-    // opcional 404
-    // { path: '/:pathMatch(.*)*', component: NotFound },
-  ]
+  // opcional 404
+  // { path: '/:pathMatch(.*)*', component: NotFound },
+]
 const router = createRouter({
   history: createWebHistory(),
   routes,
@@ -53,7 +53,7 @@ const router = createRouter({
     if (to.hash) {
       return {
         el: to.hash,
-        top: 88,                 // ≈ altura del header (ajústalo si usas otra)
+        top: 88, // ≈ altura del header (ajústalo si usas otra)
         behavior: 'smooth',
       }
     }
@@ -83,4 +83,3 @@ router.afterEach(() => {
 })
 
 export default router
-

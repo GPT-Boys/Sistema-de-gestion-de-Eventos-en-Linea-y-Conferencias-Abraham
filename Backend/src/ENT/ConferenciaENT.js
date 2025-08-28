@@ -7,7 +7,7 @@ const TipoConferenciaENT = require("./TipoConferenciaENT");
 const ConferenciaENT = sequelize.define(
   "Conferencia",
   {
-    idConferencia: {
+    id_conferencia: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
@@ -21,24 +21,24 @@ const ConferenciaENT = sequelize.define(
       type: DataTypes.STRING(255),
       allowNull: false,
     },
-    idMarcaConferencia: {
+    id_marca_conferencia: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    idOrador: {
+    id_orador: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    idTipoConferencia: {
+    id_tipo_conferencia: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    votosAFavor: {
+    votos_a_favor: {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0,
     },
-    votosEnContra: {
+    votos_en_contra: {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0,
@@ -50,11 +50,11 @@ const ConferenciaENT = sequelize.define(
         isDate: true,
       },
     },
-    horaEmpieza: {
+    hora_empieza: {
       type: DataTypes.TIME,
       allowNull: false,
     },
-    horaTermina: {
+    hora_termina: {
       type: DataTypes.TIME,
       allowNull: false,
     },
@@ -78,21 +78,21 @@ const ConferenciaENT = sequelize.define(
 );
 
 ConferenciaENT.belongsTo(MarcaConferenciaENT, {
-  foreignKey: "ID_MARCA_CONFERENCIA",
-  as: "MARCA_CONFERENCIA",
-  targetKey: "ID_MARCA_CONFERENCIA",
+  foreignKey: "id_marca_conferencia",
+  as: "marca_conferencia",
+  targetKey: "id_marca_conferencia",
 });
 
 ConferenciaENT.belongsTo(OradorENT, {
-  foreignKey: "ID_ORADOR",
-  as: "ORADOR",
-  targetKey: "ID_ORADOR",
+  foreignKey: "id_orador",
+  as: "orador",
+  targetKey: "id_orador",
 });
 
 ConferenciaENT.belongsTo(TipoConferenciaENT, {
-  foreignKey: "ID_TIPO_CONFERENCIA",
-  as: "TIPO_CONFERENCIA",
-  targetKey: "ID_TIPO_CONFERENCIA",
+  foreignKey: "id_tipo_conferencia",
+  as: "tipo_conferencia",
+  targetKey: "id_tipo_conferencia",
 });
 
 module.exports = ConferenciaENT;

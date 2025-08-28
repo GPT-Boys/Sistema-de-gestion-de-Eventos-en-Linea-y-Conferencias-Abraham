@@ -8,14 +8,18 @@
   </div>
 </template>
 
-
 <script setup>
 import SideNav from '@/components/SideNav.vue'
 </script>
 
 <style scoped>
-.app-shell{ display:flex; min-height:100vh; }
-.app-main{ flex:1; padding:20px; background:#f5f7fb; }
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+}
+.app-main {
+  flex: 1;
+  padding: 20px;
+  background: #f5f7fb;
+}
 </style>
-
-

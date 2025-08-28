@@ -1,7 +1,7 @@
 class TipoUsuarioDTO {
-  constructor(idTipoUsuario, tipoUsuario) {
-    this.idTipoUsuario = idTipoUsuario;
-    this.tipoUsuario = tipoUsuario;
+  constructor(id_tipo_usuario, tipo_usuario) {
+    this.id_tipo_usuario = id_tipo_usuario;
+    this.tipo_usuario = tipo_usuario;
   }
 }
 

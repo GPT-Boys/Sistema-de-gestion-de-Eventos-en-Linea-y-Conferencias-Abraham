@@ -11,25 +11,32 @@ passport.use(
   new LocalStrategy(
     {
       usernameField: "usuario",
-      passwordField: "password",   // <-- explícito
+      passwordField: "password", // <-- explícito
       passReqToCallback: true,
     },
     async (req, usuario, password, done) => {
       try {
-        // <-- FALTABA EL await
+        console.log(`Searching User by User ID: ${usuario}.`);
         const user = await UsuarioENT.findOne({
-          where: { usuario },
-          include: [{ model: TipoUsuarioENT, as: "TIPO_USUARIO" }],
+          where: { usuario: usuario },
+          include: [{ model: TipoUsuarioENT, as: "tipo_usuario" }],
         });
 
         if (!user) {
-          return done(null, false, new ResponseDTO("AUTH-100", 404, null, "User Not Found."));
+          return done(
+            null,
+            false,
+            new ResponseDTO("AUTH-100", 404, null, "User Not Found.")
+          );
         }
 
-        // evita comparar contra undefined
         const ok = await bcrypt.compare(password, user.contrasenia || "");
         if (!ok) {
-          return done(null, false, new ResponseDTO("AUTH-101", 401, null, "Incorrect Password."));
+          return done(
+            null,
+            false,
+            new ResponseDTO("AUTH-101", 401, null, "Incorrect Password.")
+          );
         }
 
         req.session.user = {
@@ -38,15 +45,26 @@ passport.use(
         };
 
         const tipoUsuarioDTO = new TipoUsuarioDTO(
-          user.TIPO_USUARIO?.id_tipo_usuario,
-          user.TIPO_USUARIO?.tipo_usuario
+          user.tipo_usuario.id_tipo_usuario,
+          user.tipo_usuario.tipo_usuario
         );
-        const logInDTO = new LogInDTO(user.id_usuario, user.usuario, tipoUsuarioDTO);
-
-        return done(null, user, new ResponseDTO("AUTH-000", 200, logInDTO, "Successful Login."));
+        const logInDTO = new LogInDTO(
+          user.id_usuario,
+          user.usuario,
+          tipoUsuarioDTO
+        );
+        return done(
+          null,
+          user,
+          new ResponseDTO("AUTH-000", 200, logInDTO, "Successful Login.")
+        );
       } catch (error) {
-        console.error("LocalStrategy error:", error);
-        return done(error, false, new ResponseDTO("AUTH-103", 500, null, "Authentication error."));
+        console.error(`LocalStrategy Error: ${error}.`);
+        return done(
+          error,
+          false,
+          new ResponseDTO("AUTH-103", 500, null, "Authentication Error.")
+        );
       }
     }
   )
@@ -64,14 +82,18 @@ passport.deserializeUser(async (id, done) => {
 
 function isAuthenticated(req, res, next) {
   if (req.isAuthenticated()) return next();
-  res.status(401).json(new ResponseDTO("AUTH-001", 401, null, "User Not Authenticated."));
+  res
+    .status(401)
+    .json(new ResponseDTO("AUTH-001", 401, null, "User Not Authenticated."));
 }
 
 function checkRole(requiredRole) {
   return function (req, res, next) {
     const userRole = req.user.id_tipo_usuario;
     if (String(userRole) === String(requiredRole)) return next();
-    res.status(403).json(new ResponseDTO("AUTH-002", 403, null, "Access denied"));
+    res
+      .status(403)
+      .json(new ResponseDTO("AUTH-002", 403, null, "Access Denied."));
   };
 }
 

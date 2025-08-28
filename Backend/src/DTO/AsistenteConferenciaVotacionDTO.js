@@ -1,12 +1,12 @@
 class AsistenteConferenciaVotacionDTO {
   constructor(
-    idAsistenteConferenciaVotacion,
-    idAsistenteConferencia,
-    idVotacion
+    id_asistente_conferencia_votacion,
+    id_asistente_conferencia,
+    id_votacion
   ) {
-    this.idAsistenteConferenciaVotacion = idAsistenteConferenciaVotacion;
-    this.idAsistenteConferencia = idAsistenteConferencia;
-    this.idVotacion = idVotacion;
+    this.id_asistente_conferencia_votacion = id_asistente_conferencia_votacion;
+    this.id_asistente_conferencia = id_asistente_conferencia;
+    this.id_votacion = id_votacion;
   }
 }
 

@@ -6,10 +6,10 @@ const listaDeUsuarios = [
   { id: 2, nombre: 'Ana Jimenez', correo: 'ana.j@email.com', estado: 'Activo' },
   { id: 3, nombre: 'Pedro Pascal', correo: 'pedro.p@email.com', estado: 'Bloqueado' },
   { id: 4, nombre: 'Lucia Mendez', correo: 'lucia.m@email.com', estado: 'Activo' },
-];
+]
 
 export const obtenerUsuarios = async () => {
-  console.log('Obteniendo usuarios simulados...');
-  await new Promise(res => setTimeout(res, 500)); // demora de red
-  return listaDeUsuarios;
-};
+  console.log('Obteniendo usuarios simulados...')
+  await new Promise((res) => setTimeout(res, 500)) // demora de red
+  return listaDeUsuarios
+}

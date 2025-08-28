@@ -1,28 +1,28 @@
 class UsuarioDTO {
   constructor(
-    idUsuario,
+    id_usuario,
     usuario,
     contrasenia,
-    idTipoUsuario,
+    id_tipo_usuario,
     nombres,
-    aprllidos,
-    fechaNacimiento,
-    idCiudad,
+    apellidos,
+    fecha_nacimiento,
+    id_ciudad,
     telefono,
-    correoElectronico,
-    fechaCreacion
+    correo_electronico,
+    fecha_creacion
   ) {
-    this.idUsuario = idUsuario;
+    this.id_usuario = id_usuario;
     this.usuario = usuario;
     this.contrasenia = contrasenia;
-    this.idTipoUsuario = idTipoUsuario;
+    this.id_tipo_usuario = id_tipo_usuario;
     this.nombres = nombres;
-    this.aprllidos = aprllidos;
-    this.fechaNacimiento = fechaNacimiento;
-    this.idCiudad = idCiudad;
+    this.apellidos = apellidos;
+    this.fecha_nacimiento = fecha_nacimiento;
+    this.id_ciudad = id_ciudad;
     this.telefono = telefono;
-    this.correoElectronico = correoElectronico;
-    this.fechaCreacion = fechaCreacion;
+    this.correo_electronico = correo_electronico;
+    this.fecha_creacion = fecha_creacion;
   }
 }
 

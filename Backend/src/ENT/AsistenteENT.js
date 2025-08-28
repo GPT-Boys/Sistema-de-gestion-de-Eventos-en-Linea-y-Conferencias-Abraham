@@ -5,13 +5,13 @@ const UsuarioENT = require("./UsuarioENT");
 const AsistenteENT = sequelize.define(
   "Asistente",
   {
-    idAsistente: {
+    id_asistente: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
       allowNull: false,
     },
-    idUsuario: {
+    id_usuario: {
       type: DataTypes.INTEGER,
       allowNull: false,
       unique: true,
@@ -28,9 +28,9 @@ const AsistenteENT = sequelize.define(
 );
 
 AsistenteENT.belongsTo(UsuarioENT, {
-  foreignKey: "ID_USUARIO",
-  as: "USUARIO",
-  targetKey: "ID_USUARIO",
+  foreignKey: "id_usuario",
+  as: "usuario",
+  targetKey: "id_usuario",
 });
 
 module.exports = AsistenteENT;

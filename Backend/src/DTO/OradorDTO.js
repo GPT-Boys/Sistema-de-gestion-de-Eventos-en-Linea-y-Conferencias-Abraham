@@ -1,7 +1,7 @@
 class OradorDTO {
-  constructor(idOrador, idUsuario, descripcion, experiencia, contacto) {
-    this.idOrador = idOrador;
-    this.idUsuario = idUsuario;
+  constructor(id_orador, id_usuario, descripcion, experiencia, contacto) {
+    this.id_orador = id_orador;
+    this.id_usuario = id_usuario;
     this.descripcion = descripcion;
     this.experiencia = experiencia;
     this.contacto = contacto;

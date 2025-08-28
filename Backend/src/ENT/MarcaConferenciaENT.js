@@ -4,13 +4,13 @@ const sequelize = require("../../database/db");
 const MarcaConferenciaENT = sequelize.define(
   "MarcaConferencia",
   {
-    idMarcaConferencia: {
+    id_marca_conferencia: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
       allowNull: false,
     },
-    marcaConferencia: {
+    marca_conferencia: {
       type: DataTypes.STRING(100),
       allowNull: false,
     },

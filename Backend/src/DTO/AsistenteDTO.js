@@ -1,7 +1,7 @@
 class AsistenteDTO {
-  constructor(idAsistente, idUsuario, descripcion) {
-    this.idAsistente = idAsistente;
-    this.idUsuario = idUsuario;
+  constructor(id_asistente, id_usuario, descripcion) {
+    this.id_asistente = id_asistente;
+    this.id_usuario = id_usuario;
     this.descripcion = descripcion;
   }
 }
