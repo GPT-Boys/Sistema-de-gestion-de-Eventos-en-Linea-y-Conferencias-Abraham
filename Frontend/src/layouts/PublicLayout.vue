@@ -1,5 +1,3 @@
-
-
 <template>
   <div>
     <a class="skip-link" href="#main">Saltar al contenido</a>

@@ -1,15 +1,15 @@
 <script setup>
-import { ref, onMounted } from 'vue';
-import { obtenerUsuarios } from '../API/usuarios.js';
+import { ref, onMounted } from 'vue'
+import { obtenerUsuarios } from '../API/usuarios.js'
 
-const usuarios = ref([]);
-const cargando = ref(true);
+const usuarios = ref([])
+const cargando = ref(true)
 
 onMounted(async () => {
-  cargando.value = true;
-  usuarios.value = await obtenerUsuarios();
-  cargando.value = false;
-});
+  cargando.value = true
+  usuarios.value = await obtenerUsuarios()
+  cargando.value = false
+})
 </script>
 
 <template>
@@ -46,7 +46,7 @@ onMounted(async () => {
           </div>
         </div>
       </div>
-      </div>
+    </div>
   </div>
 </template>
 
@@ -56,13 +56,45 @@ onMounted(async () => {
   color: var(--ink);
   margin-bottom: 1.5rem;
 }
-.barra-herramientas { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; gap: 1rem; }
-.boton-accion { padding: 0.5rem 1rem; border: 1px solid #ccc; background-color: var(--paper); border-radius: 5px; cursor: pointer; color: var(--ink); }
-.campo-busqueda { flex-grow: 1; padding: 0.5rem; border: 1px solid #ccc; border-radius: 5px; }
-.area-contenido { display: flex; gap: 2rem; }
-.panel-lista-usuarios { flex-grow: 1; min-height: 500px; }
-.mensaje-carga { text-align: center; padding: 2rem; color: var(--muted); }
-.grid-usuarios { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
+.barra-herramientas {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  gap: 1rem;
+}
+.boton-accion {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ccc;
+  background-color: var(--paper);
+  border-radius: 5px;
+  cursor: pointer;
+  color: var(--ink);
+}
+.campo-busqueda {
+  flex-grow: 1;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+.area-contenido {
+  display: flex;
+  gap: 2rem;
+}
+.panel-lista-usuarios {
+  flex-grow: 1;
+  min-height: 500px;
+}
+.mensaje-carga {
+  text-align: center;
+  padding: 2rem;
+  color: var(--muted);
+}
+.grid-usuarios {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
 .tarjeta-usuario {
   background-color: var(--paper);
   padding: 1rem;
@@ -70,7 +102,9 @@ onMounted(async () => {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 .tarjeta-usuario:hover {
   transform: translateY(-5px);
@@ -80,9 +114,18 @@ onMounted(async () => {
   color: var(--muted);
   font-size: 0.9rem;
 }
-.tarjeta-usuario .estado { padding: 0.2rem 0.5rem; border-radius: 10px; font-size: 0.8rem; color: var(--paper); }
-.tarjeta-usuario .estado.activo { background-color: #28a745; }
-.tarjeta-usuario .estado.bloqueado { background-color: #dc3545; }
+.tarjeta-usuario .estado {
+  padding: 0.2rem 0.5rem;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  color: var(--paper);
+}
+.tarjeta-usuario .estado.activo {
+  background-color: #28a745;
+}
+.tarjeta-usuario .estado.bloqueado {
+  background-color: #dc3545;
+}
 .acciones-tarjeta {
   margin-top: auto;
   align-self: flex-end;
