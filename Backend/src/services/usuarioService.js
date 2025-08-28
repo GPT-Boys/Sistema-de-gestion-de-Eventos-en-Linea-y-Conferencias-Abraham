@@ -3,13 +3,17 @@ const TipoUsuarioDTO = require("../DTO/TipoUsuarioDTO");
 const UsuarioDTO = require("../DTO/UsuarioDTO");
 const CiudadDTO = require("../DTO/CiudadDTO");
 const UsuarioENT = require("../ENT/UsuarioENT");
-
 const bcrypt = require("bcrypt");
 
 const createUser = async (userData) => {
   console.log("Creating a new User...");
   try {
-    const hashedPassword = await bcrypt.hash(userData.contrasenia, 10);
+    const plain = (userData?.contrasenia ?? '').toString();
+    if (!plain) {
+      throw new Error('Missing "contrasenia"');
+    }
+
+    const hashedPassword = await bcrypt.hash(plain, 10);
 
     const newUser = await UsuarioENT.create({
       usuario: userData.usuario,
@@ -22,6 +26,7 @@ const createUser = async (userData) => {
       telefono: userData.telefono,
       correo_electronico: userData.correo_electronico,
     });
+
     const tipoUsuarioDTO = new TipoUsuarioDTO(
       userData.tipo_usuario.id_tipo_usuario,
       userData.tipo_usuario.tipo_usuario
@@ -43,21 +48,12 @@ const createUser = async (userData) => {
       newUser.correo_electronico,
       newUser.fecha_creacion
     );
+
     console.log("User created Successfully.");
-    return new ResponseDTO(
-      "U-000",
-      200,
-      newUserDTO,
-      "User created Successfully."
-    );
+    return new ResponseDTO("U-000", 201, newUserDTO, "User created Successfully.");
   } catch (error) {
     console.error(`Error Creating New User: ${error}.`);
-    return new ResponseDTO(
-      "U-103",
-      500,
-      null,
-      `Error Creating New User: ${error}.`
-    );
+    return new ResponseDTO("U-103", 500, null, `Error Creating New User: ${error}.`);
   }
 };
 

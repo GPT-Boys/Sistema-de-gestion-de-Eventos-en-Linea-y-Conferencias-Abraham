@@ -1,65 +1,18 @@
-import axios from '@/API/axios'
-import { rutaAPI } from '@/assets/APIConfig'
+import api from '@/API/axios';
 
-export const login = async () => {
-  try {
-    const response = await axios.post(
-      `${rutaAPI}/auth/login`,
-      {
-        user: '',
-        password: '',
-      },
-      {
-        withCredentials: true,
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-      },
-    )
-    console.log(response.data)
-  } catch (error) {
-    console.error(`Hubo un Error al Iniciar Sesión: ${error}.`)
-    throw error
-  }
-}
+export const login = async (usuario, password) => {
+  // Passport LocalStrategy usa { usuario, password }
+  const { data } = await api.post('/auth/login', { usuario, password },
+    {withCredentials: true,});
+  return data;
+};
 
-export const createUser = async (userData, token) => {
-  try {
-    const response = await axios.post(`${rutaAPI}/usuario`, userData, {
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-    })
-    const data = response.data
-    if (data.code === 'U-000') {
-      alert('User Created Successfully.')
-      return data
-    } else {
-      alert('Could Not Create User.')
-      return null
-    }
-  } catch (error) {
-    console.error(`There was an Error Creating the User: ${error}.`)
-    throw error
-  }
-}
+export const createUser = async (userData) => {
+  const { data } = await api.post('/usuario', userData);
+  return data;
+};
 
 export const logout = async () => {
-  try {
-    const response = await axios.get(`${rutaAPI}/auth/logout`)
-    const data = response.data
-    if (data.code === 'AUTH-003') {
-      alert('Cerraste Sesión Correctamente.')
-      return true
-    } else {
-      alert('No se pudo Cerrar Sesión.')
-      return false
-    }
-  } catch (error) {
-    console.error(`Hubo un Error al Cerrar Sesión: ${error}.`)
-    throw error
-  }
-}
+  const { data } = await api.get('/auth/logout');
+  return data;
+};
