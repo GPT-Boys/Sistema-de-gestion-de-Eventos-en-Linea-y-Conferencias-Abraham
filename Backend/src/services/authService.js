@@ -11,7 +11,7 @@ passport.use(
   new LocalStrategy(
     {
       usernameField: "usuario",
-      passwordField: "contrasenia", // <-- explícito
+      passwordField: "password", // <-- explícito
       passReqToCallback: true,
     },
     async (req, usuario, password, done) => {
