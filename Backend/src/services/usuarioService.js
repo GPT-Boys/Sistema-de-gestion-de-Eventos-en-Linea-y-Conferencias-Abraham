@@ -14,23 +14,24 @@ const createUser = async (userData) => {
     const newUser = await UsuarioENT.create({
       usuario: userData.usuario,
       contrasenia: hashedPassword,
-      id_tipo_usuario: userData.TIPO_USUARIO.id_tipo_usuario,
+      id_tipo_usuario: userData.tipo_usuario.id_tipo_usuario,
       nombres: userData.nombres,
       apellidos: userData.apellidos,
       fecha_nacimiento: userData.fecha_nacimiento,
-      id_ciudad: userData.CIUDAD.id_ciudad,
+      id_ciudad: userData.ciudad.id_ciudad,
       telefono: userData.telefono,
       correo_electronico: userData.correo_electronico,
     });
     const tipoUsuarioDTO = new TipoUsuarioDTO(
-      userData.TIPO_USUARIO.id_tipo_usuario,
-      userData.TIPO_USUARIO.tipo_usuario
+      userData.tipo_usuario.id_tipo_usuario,
+      userData.tipo_usuario.tipo_usuario
     );
     const ciudadDTO = new CiudadDTO(
-      userData.CIUDAD.id_ciudad,
-      userData.CIUDAD.ciudad
+      userData.ciudad.id_ciudad,
+      userData.ciudad.ciudad
     );
     const newUserDTO = new UsuarioDTO(
+      newUser.id_usuario,
       newUser.usuario,
       newUser.contrasenia,
       tipoUsuarioDTO,
@@ -39,7 +40,8 @@ const createUser = async (userData) => {
       newUser.fecha_nacimiento,
       ciudadDTO,
       newUser.telefono,
-      newUser.correo_electronico
+      newUser.correo_electronico,
+      newUser.fecha_creacion
     );
     console.log("User created Successfully.");
     return new ResponseDTO(

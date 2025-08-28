@@ -19,7 +19,7 @@ passport.use(
         console.log(`Searching User by User ID: ${user}.`);
         const user_ = UsuarioENT.findOne({
           where: { usuario: user },
-          include: [{ model: TipoUsuarioENT, as: "TIPO_USUARIO" }],
+          include: [{ model: TipoUsuarioENT, as: "tipo_usuario" }],
         });
 
         if (!user_) {
@@ -58,8 +58,8 @@ passport.use(
         console.log(`User Authenticated Successfully: ${user}.`);
 
         const tipoUsuarioDTO = new TipoUsuarioDTO(
-          user_.TIPO_USUARIO.id_tipo_usuario,
-          user_.TIPO_USUARIO.tipo_usuario
+          user_.tipo_usuario.id_tipo_usuario,
+          user_.tipo_usuario.tipo_usuario
         );
         const logInDTO = new LogInDTO(
           user_.id_usuario,

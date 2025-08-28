@@ -17,12 +17,12 @@ sequelize
   .authenticate()
   .then(() => {
     console.log(
-      `Database '${sequelize.getDatabaseName()}' Connected Successfully! ✅`
+      `¡Database '${sequelize.getDatabaseName()}' Connected Successfully! ✅`
     );
   })
   .catch((error) => {
     console.error(
-      `Unable to Connect to the Database '${sequelize.getDatabaseName()}': ${error}`
+      `Unable to Connect to the Database '${sequelize.getDatabaseName()}': ${error}.`
     );
   });
 

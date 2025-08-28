@@ -77,14 +77,14 @@ const UsuarioENT = sequelize.define(
 );
 
 UsuarioENT.belongsTo(TipoUsuarioENT, {
-  foreignKey: "ID_TIPO_USUARIO",
-  as: "TIPO_USUARIO",
+  foreignKey: "id_tipo_usuario",
+  as: "tipo_usuario",
   targetKey: "id_tipo_usuario",
 });
 
 UsuarioENT.belongsTo(CiudadENT, {
-  foreignKey: "ID_CIUDAD",
-  as: "CIUDAD",
+  foreignKey: "id_ciudad",
+  as: "ciudad",
   targetKey: "id_ciudad",
 });
 

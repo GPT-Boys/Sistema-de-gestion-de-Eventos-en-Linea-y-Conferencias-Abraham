@@ -6,17 +6,17 @@ const VotacionENT = require("./VotacionENT");
 const AsistenteConferenciaVotacionENT = sequelize.define(
   "AsistenteConferenciaVotacion",
   {
-    idAsistenteConferenciaVotacion: {
+    id_asistente_conferencia_votacion: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
       allowNull: false,
     },
-    idAsistenteConferencia: {
+    id_asistente_conferencia: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    idVotacion: {
+    id_votacion: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
@@ -28,15 +28,15 @@ const AsistenteConferenciaVotacionENT = sequelize.define(
 );
 
 AsistenteConferenciaVotacionENT.belongsTo(AsistenteConferenciaENT, {
-  foreignKey: "ID_ASISTENTE_CONFERENCIA",
-  as: "ASISTENTE_CONFERENCIA",
-  targetKey: "ID_ASISTENTE_CONFERENCIA",
+  foreignKey: "id_asistente_conferencia",
+  as: "asistente_conferencia",
+  targetKey: "id_asistente_conferencia",
 });
 
 AsistenteConferenciaVotacionENT.belongsTo(VotacionENT, {
-  foreignKey: "ID_VOTACION",
-  as: "VOTACION",
-  targetKey: "ID_VOTACION",
+  foreignKey: "id_votacion",
+  as: "votacion",
+  targetKey: "id_votacion",
 });
 
 module.exports = AsistenteConferenciaVotacionENT;

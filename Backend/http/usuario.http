@@ -8,13 +8,13 @@ Accept: application/json
 {
   "usuario": "orador1",
   "contrasenia": "orador1",
-  "TIPO_USUARIO": {
+  "tipo_usuario": {
     "id_tipo_usuario": 2
   },
   "nombres": "Oscar Alfredo",
   "apellidos": "Menacho Silva",
   "fecha_nacimiento": "08/28/2002",
-  "CIUDAD": {
+  "ciudad": {
     "id_ciudad": 3
   },
   "telefono": 75483958,
