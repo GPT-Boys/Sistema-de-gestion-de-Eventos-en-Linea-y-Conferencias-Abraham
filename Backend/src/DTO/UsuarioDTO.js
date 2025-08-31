@@ -2,7 +2,6 @@ class UsuarioDTO {
   constructor(
     id_usuario,
     usuario,
-    contrasenia,
     id_tipo_usuario,
     nombres,
     apellidos,
@@ -14,7 +13,6 @@ class UsuarioDTO {
   ) {
     this.id_usuario = id_usuario;
     this.usuario = usuario;
-    this.contrasenia = contrasenia;
     this.id_tipo_usuario = id_tipo_usuario;
     this.nombres = nombres;
     this.apellidos = apellidos;

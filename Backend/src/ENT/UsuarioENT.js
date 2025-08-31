@@ -41,13 +41,11 @@ const UsuarioENT = sequelize.define(
         isDate: true,
       },
     },
-
     id_ciudad: {
       type: DataTypes.INTEGER,
       allowNull: false,
       field: "ID_CIUDAD",
     },
-
     telefono: {
       type: DataTypes.INTEGER,
       allowNull: false,
