@@ -71,14 +71,18 @@ passport.use(
 );
 
 passport.serializeUser((user, done) => done(null, user.id_usuario));
+
 passport.deserializeUser(async (id, done) => {
   try {
-    const user = await UsuarioENT.findByPk(id);
+    const user = await UsuarioENT.findByPk(id, {
+      include: [{ model: TipoUsuarioENT, as: "TIPO_USUARIO" }],
+    });
     done(null, user);
-  } catch (e) {
-    done(e);
+  } catch (error) {
+    done(error);
   }
 });
+
 
 function isAuthenticated(req, res, next) {
   if (req.isAuthenticated()) return next();

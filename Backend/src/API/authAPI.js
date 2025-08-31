@@ -1,8 +1,11 @@
+//authAPI.js - rutas de login, logout, status y register
+const bcrypt = require("bcrypt");
 const express = require("express");
 const { passport, isAuthenticated } = require("../services/authService");
 const ResponseDTO = require("../DTO/ResponseDTO");
 const LogInDTO = require("../DTO/LogInDTO");
 const router = express.Router();
+const TipoUsuarioDTO = require("../DTO/TipoUsuarioDTO"); 
 
 router.post("/login", (req, res, next) => {
   passport.authenticate("local", (err, user, response) => {
@@ -14,6 +17,15 @@ router.post("/login", (req, res, next) => {
     req.logIn(user, (loginError) => {
       if (loginError) {
         return res.status(500).json(response);
+      }
+      // ⬇️ Persistencia de sesión
+      const remember = !!req.body?.remember;
+      if (remember) {
+        // 7 días
+        req.session.cookie.maxAge = 1000 * 60 * 60 * 24 * 7;
+      } else {
+        // cookie de sesión (se borra al cerrar el navegador)
+        req.session.cookie.expires = false;
       }
 
       const logInDTO = response.data;
@@ -39,16 +51,16 @@ router.get("/logout", isAuthenticated, (req, res) => {
 
 router.get("/status", isAuthenticated, (req, res) => {
   if (req.isAuthenticated()) {
-    const userDTO = new LogInDTO(req.user.id_usuario, req.user.usuario);
-    res
+    const t = req.user.TIPO_USUARIO;
+    const tipoDTO = t ? new TipoUsuarioDTO(t.id_tipo_usuario, t.tipo_usuario) : null;
+    const userDTO = new LogInDTO(req.user.id_usuario, req.user.usuario, tipoDTO);
+    return res
       .status(200)
       .json(new ResponseDTO("AUTH-000", 200, userDTO, "User Authenticated."));
-  } else {
-    res
-      .status(401)
-      .json(new ResponseDTO("AUTH-001", 401, null, "User Not Authenticated."));
   }
+  res.status(401).json(new ResponseDTO("AUTH-001", 401, null, "User Not Authenticated."));
 });
+
 router.post('/register', async (req, res) => {
   try {
     const {
