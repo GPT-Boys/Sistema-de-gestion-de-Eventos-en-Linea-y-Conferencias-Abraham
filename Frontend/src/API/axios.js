@@ -1,10 +1,8 @@
-import axios from 'axios'
+// /src/API/axios.js
+import axios from 'axios';
 
-const axiosInstance = axios.create({
-  baseURL: 'http://localhost:3000/apiexpress',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-})
-
-export default axiosInstance
+export default axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api',
+  withCredentials: true,
+  headers: { 'Content-Type': 'application/json', Accept: 'application/json' }
+});
