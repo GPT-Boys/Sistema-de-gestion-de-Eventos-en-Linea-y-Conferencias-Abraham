@@ -77,7 +77,7 @@ const isActive = (path) => route.path.startsWith(path)
 .sidenav{
   --w: 280px; --w-collapsed: 90px;
   --bg:#0e0f16; --ink:#cdd2df; --ink-muted:#8a90a3; --accent:#7c3aed;
-  --danger:#ef4444; --danger-900:#991b1b;
+  --danger:#e3e3e3; --danger-900:#1f1f1f;
 
   position: sticky; top:0; height:100svh;
   width: var(--w); background: var(--bg); color: var(--ink);
@@ -122,12 +122,12 @@ const isActive = (path) => route.path.startsWith(path)
 }
 .logout-btn{
   width:100%;
-  background: linear-gradient(134deg, var(--danger), #54000e67);
-  color:#fff; font-weight:800;
-  border:1px solid rgba(83, 0, 0, 0.6);
+  background: linear-gradient(134deg, var(--danger), #ffffff67);
+  color:#000000; font-weight:800;
+  border:1px solid rgba(255, 255, 255, 0.6);
 }
 .logout-btn:hover{ filter: brightness(1.05); }
-.logout-btn:focus-visible{ outline:none; box-shadow:0 0 0 3px rgba(239,68,68,.35); }
+.logout-btn:focus-visible{ outline:none; box-shadow:0 0 0 3px rgba(255, 255, 255, 0.35); }
 
 /* En modo colapsado, que sea un botón icónico cuadrado */
 .sidenav.collapsed .logout-btn{

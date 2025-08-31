@@ -1,6 +1,5 @@
 <script setup>
-import { ref, computed, watch, onMounted, nextTick } from 'vue'
-import VoteWidget from '@/components/VoteWidget.vue'  // 👈 import
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 
 const props = defineProps({
   open:   { type: Boolean, default: false },
@@ -14,7 +13,7 @@ const snack = ref('')
 // helpers
 const toDate = (d, t = '00:00') => new Date(`${d}T${t}:00`)
 const fmtFecha = (d) =>
-  d ? new Date(d).toLocaleDateString(undefined, { weekday:'long', day:'2-digit', month:'short', year:'numeric' }) : ''
+  d ? new Date(d).toLocaleDateString(undefined, { weekday:'short', day:'2-digit', month:'short', year:'numeric' }) : ''
 const fmtHora = (t) => t || ''
 
 const status = computed(() => {
@@ -30,11 +29,16 @@ const canJoinZoom = computed(() => status.value === 'live' || status.value === '
 const canEvaluate = computed(() => status.value === 'finished' && !!props.charla?.evaluacion)
 const hasMaterial = computed(() => !!props.charla?.materialUrl)
 
+function lockBody(){ document.body.style.overflow = 'hidden' }
+function unlockBody(){ document.body.style.overflow = '' }
+
 function close () {
   emit('update:open', false)
   emit('close')
 }
+
 function onBackdropClick(e) { if (e.target === e.currentTarget) close() }
+
 function onKeydown(e) {
   if (e.key === 'Escape') { e.preventDefault(); close(); return }
   if (e.key !== 'Tab') return
@@ -47,14 +51,28 @@ function onKeydown(e) {
   if (!e.shiftKey && active === last) { e.preventDefault(); first.focus(); return }
 }
 
+// ✅ Bloqueo/Desbloqueo robusto
 watch(() => props.open, async (v) => {
-  document.body.style.overflow = v ? 'hidden' : ''
   if (v) {
+    lockBody()
     await nextTick()
     dialogRef.value?.querySelector('.modal-title')?.focus({ preventScroll: true })
+  } else {
+    unlockBody()
   }
 })
 
+onMounted(() => {
+  // si el modal ya viene abierto por estado inicial
+  if (props.open) lockBody()
+})
+
+onUnmounted(() => {
+  // ✅ pase lo que pase, restaurar scroll al desmontar
+  unlockBody()
+})
+
+// snack
 function toast(msg) {
   snack.value = msg
   setTimeout(() => { snack.value = '' }, 1800)
@@ -65,7 +83,6 @@ async function copyZoom() {
     toast('Enlace de Zoom copiado')
   } catch { toast('No se pudo copiar') }
 }
-onMounted(() => { if (props.open) document.body.style.overflow = 'hidden' })
 </script>
 
 <template>
@@ -123,9 +140,6 @@ onMounted(() => { if (props.open) document.body.style.overflow = 'hidden' })
                   </a>
                 </div>
               </div>
-
-              <!-- ✅ VoteWidget integrado -->
-              <VoteWidget v-if="charla" :charla-id="charla.idConferencia" :status="status" />
             </section>
 
             <!-- Footer -->
@@ -141,20 +155,21 @@ onMounted(() => { if (props.open) document.body.style.overflow = 'hidden' })
   </Teleport>
 </template>
 
-
-
 <style scoped>
+/* animaciones */
 .fade-enter-active,.fade-leave-active{ transition: opacity .2s ease; }
 .fade-enter-from,.fade-leave-to{ opacity:0; }
 .pop-enter-active,.pop-leave-active{ transition: transform .25s ease, opacity .25s ease; }
 .pop-enter-from,.pop-leave-to{ transform: scale(.97); opacity:0; }
 
+/* contenedor */
 .aes-modal{ position:fixed; inset:0; background:rgba(17,24,39,.6); backdrop-filter:blur(6px);
   display:grid; place-items:center; z-index:9999; padding:20px; }
 .aes-modal__dialog{ width:min(720px,95vw); background:#fff; border-radius:18px;
   box-shadow:0 25px 60px rgba(0,0,0,.35); border:1px solid #e5e7eb;
   display:grid; gap:16px; padding:20px; position:relative; }
 
+/* header */
 .aes-modal__head{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
 .title-wrap{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
 .modal-title{ margin:0; font-size:20px; font-weight:800; color:#4c1d95; outline:none; }
@@ -162,6 +177,7 @@ onMounted(() => { if (props.open) document.body.style.overflow = 'hidden' })
   display:grid; place-items:center; border-radius:10px; color:#374151; }
 .icon-btn:hover{ background:#f3f4f6; }
 
+/* body */
 .aes-modal__body{ display:grid; gap:12px; }
 .desc{ margin:0; color:#374151; line-height:1.6; }
 .meta{ display:grid; gap:6px; list-style:none; padding:0; margin:0; color:#4b5563; font-size:14px; }
@@ -172,9 +188,9 @@ onMounted(() => { if (props.open) document.body.style.overflow = 'hidden' })
 .badge.live{ background:#ecfeff; color:#0e7490; }
 .badge.finished{ background:#f1f5f9; color:#334155; }
 
+/* cta */
 .cta{ display:flex; justify-content:flex-start; }
 .cta-left{ display:flex; gap:10px; flex-wrap:wrap; }
-
 .btn{ border:1px solid #d1d5db; background:#fff; padding:9px 14px; border-radius:10px;
   cursor:pointer; font-weight:600; color:#111827; }
 .btn:hover{ background:#f9fafb; }
@@ -183,8 +199,10 @@ onMounted(() => { if (props.open) document.body.style.overflow = 'hidden' })
 .btn.primary:hover{ filter:brightness(1.07); }
 .btn.ghost{ background:#fff; color:#7c3aed; border:1px solid #e9d5ff; }
 
+/* foot */
 .aes-modal__foot{ display:flex; justify-content:flex-end; }
 
+/* snack */
 .snack{ position:absolute; left:50%; bottom:12px; transform:translateX(-50%);
   background:#111827; color:#fff; font-size:12px; padding:6px 10px; border-radius:8px; }
 </style>

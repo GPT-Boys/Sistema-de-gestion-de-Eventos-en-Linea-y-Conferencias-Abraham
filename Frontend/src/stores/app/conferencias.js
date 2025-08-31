@@ -1,4 +1,4 @@
-// src/stores/app/conferencias.js
+// Pinia store - Charlas
 import { defineStore } from 'pinia'
 
 // helpers de fecha/hora -> estado
@@ -13,7 +13,6 @@ function statusFor(conf, now = new Date()) {
   return 'live'
 }
 
-// localStorage keys
 const LS_ALL = 'conf:all'
 const LS_ENR = (uid) => `conf:enrolled:${uid}`
 const LS_VOT = (uid) => `conf:votes:${uid}`
@@ -25,7 +24,6 @@ export const useConferenciasStore = defineStore('conf', {
   }),
 
   getters: {
-    // Lista ordenada
     ordered: (s) => [...s.list].sort((a,b) => {
       const A = buildDate(a.fecha, a.horaEmpieza).getTime()
       const B = buildDate(b.fecha, b.horaEmpieza).getTime()
@@ -33,13 +31,21 @@ export const useConferenciasStore = defineStore('conf', {
     }),
     getById: (s) => (id) => s.list.find(c => String(c.idConferencia) === String(id)),
     statusOf: () => (conf) => statusFor(conf),
+    byOrador: (s) => (oradorId) => s.ordered.filter(c => String(c.idOrador) === String(oradorId)),
+
+    // listas por estado
     upcomingList: (s) => s.ordered.filter(c => statusFor(c) === 'upcoming'),
     liveList:     (s) => s.ordered.filter(c => statusFor(c) === 'live'),
     finishedList: (s) => s.ordered.filter(c => statusFor(c) === 'finished'),
+
+    // 👇 NUEVO getter para explorar
+    activeList: (s) => s.ordered.filter(c => {
+      const st = statusFor(c)
+      return st === 'upcoming' || st === 'live'
+    }),
   },
 
   actions: {
-    // Persistencia base
     _saveAll() {
       localStorage.setItem(LS_ALL, JSON.stringify(this.list))
     },
@@ -50,12 +56,7 @@ export const useConferenciasStore = defineStore('conf', {
       this.loaded = true
     },
 
-    // 🔑 Ahora byOrador es ACTION, ya no getter
-    byOrador(oradorId) {
-      this._loadAll()
-      return this.ordered.filter(c => String(c.idOrador) === String(oradorId))
-    },
-
+    // ... resto sin cambios (inscripciones, votos, createFromOrador, etc.)
     // --- Enrolamientos por usuario
     _getEnrollSet(userId) {
       const raw = localStorage.getItem(LS_ENR(userId))
@@ -69,11 +70,22 @@ export const useConferenciasStore = defineStore('conf', {
       return set.has(String(confId))
     },
     toggleEnroll(userId, confId) {
+      this._loadAll()
+      const conf = this.getById(confId)
+      if (!conf) return { ok:false, reason:'not_found' }
+
+      const st = statusFor(conf)
+      if (st !== 'upcoming') {
+        // Bloquea inscribir/desinscribir si no es Próxima
+        return { ok:false, reason:'time_locked', status:st }
+      }
+
       const set = this._getEnrollSet(userId)
       const key = String(confId)
-      if (set.has(key)) set.delete(key); else set.add(key)
+      let enrolled
+      if (set.has(key)) { set.delete(key); enrolled = false } else { set.add(key); enrolled = true }
       this._saveEnrollSet(userId, set)
-      return set.has(key)
+      return { ok:true, enrolled }
     },
     enrolledForUser(userId) {
       const set = this._getEnrollSet(userId)
@@ -83,7 +95,7 @@ export const useConferenciasStore = defineStore('conf', {
     // --- Votos por usuario
     _getVotesMap(userId) {
       const raw = localStorage.getItem(LS_VOT(userId))
-      return raw ? JSON.parse(raw) : {}
+      return raw ? JSON.parse(raw) : {} // { [confId]: 'up'|'down' }
     },
     _saveVotesMap(userId, map) {
       localStorage.setItem(LS_VOT(userId), JSON.stringify(map))
@@ -96,8 +108,17 @@ export const useConferenciasStore = defineStore('conf', {
       this._loadAll()
       const conf = this.getById(confId)
       if (!conf) return { ok:false, reason:'not_found' }
+
       const st = statusFor(conf)
-      if (st !== 'finished') return { ok:false, reason:'not_finished' }
+      // Ahora permitimos votar "en curso" y "finalizada"
+      if (!['live','finished'].includes(st)) {
+        return { ok:false, reason:'not_live_or_finished' }
+      }
+
+      // Debe estar inscrito para votar
+      if (!this.isEnrolled(userId, confId)) {
+        return { ok:false, reason:'not_enrolled' }
+      }
 
       const map = this._getVotesMap(userId)
       const key = String(confId)
@@ -127,13 +148,13 @@ export const useConferenciasStore = defineStore('conf', {
         idTipoConferencia: Number(payload.idTipoConferencia),
         votosAFavor: 0,
         votosEnContra: 0,
-        fecha: payload.fecha,
-        horaEmpieza: payload.horaEmpieza,
-        horaTermina: payload.horaTermina,
+        fecha: payload.fecha,                // 'YYYY-MM-DD'
+        horaEmpieza: payload.horaEmpieza,    // 'HH:mm'
+        horaTermina: payload.horaTermina,    // 'HH:mm'
         sala: payload.sala,
-        evaluacion: payload.evaluacion || '',
-        materialUrl: payload.materialUrl || '',
-        zoomUrl: payload.zoomUrl || '',
+        evaluacion: payload.evaluacion || '',   // URL Google Forms
+        materialUrl: payload.materialUrl || '', // por ahora URL (BLOB más adelante)
+        zoomUrl: payload.zoomUrl || '',         // enlace a Zoom
       }
 
       this.list.push(conf)
@@ -142,3 +163,6 @@ export const useConferenciasStore = defineStore('conf', {
     },
   }
 })
+
+
+

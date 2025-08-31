@@ -1,74 +1,53 @@
 <script setup>
-import { ref } from 'vue'
+import { computed } from 'vue'
 import { useConferenciasStore } from '@/stores/app/conferencias.js'
 import { useAuthStore } from '@/stores/publicStores/auth.js'
 
 const props = defineProps({
-  charlaId: { type: [Number, String], required: true },
-  status:   { type: String, required: true }, // 'upcoming' | 'live' | 'finished'
+  charlaId: { type: [String, Number], required: true },
+  status:   { type: String, required: true }, // 'upcoming'|'live'|'finished'
 })
 
 const store = useConferenciasStore()
 const auth  = useAuthStore()
-const voted = ref(store.myVote(auth.user?.id, props.charlaId))
 
-function castVote(like = true) {
-  if (!auth.user?.id) {
-    alert('Debes iniciar sesión para votar.')
-    return
-  }
-  if (voted.value) {
-    alert('Ya registraste tu voto.')
-    return
-  }
-  const res = store.vote(auth.user.id, props.charlaId, like)
-  if (res.ok) {
-    voted.value = like ? 'up' : 'down'
-  } else {
-    alert(res.reason === 'not_finished'
-      ? 'Solo puedes votar una vez terminada la charla.'
-      : 'No se pudo registrar el voto.')
-  }
+const uid = computed(() => auth.user?.id_usuario ?? auth.user?.id ?? null)
+const alreadyVoted = computed(() => uid.value ? !!store.myVote(uid.value, props.charlaId) : false)
+const enrolled     = computed(() => uid.value ? store.isEnrolled(uid.value, props.charlaId) : false)
+
+const showWidget = computed(() => {
+  // Solo si está inscrito, charla live/finished y NO votó aún
+  return enrolled.value && ['live','finished'].includes(props.status) && !alreadyVoted.value
+})
+
+function onVote(like) {
+  if (!uid.value) return
+  const res = store.vote(uid.value, props.charlaId, like)
+  // Tras votar, alreadyVoted pasará a true y el widget desaparecerá solo
 }
 </script>
 
 <template>
-  <div class="vote-bar" v-if="status === 'finished'">
-    <button
-      class="btn like"
-      :class="{ active: voted==='up' }"
-      @click="castVote(true)"
-    >
-      👍 Me gustó
-    </button>
-    <button
-      class="btn dislike"
-      :class="{ active: voted==='down' }"
-      @click="castVote(false)"
-    >
-      👎 No me gustó
-    </button>
+  <div v-if="showWidget" class="vote">
+    <span class="tag">Valora esta charla</span>
+    <div class="btns">
+      <button class="btn up" @click="onVote(true)"><i class="bi bi-hand-thumbs-up-fill"></i> Me gustó</button>
+      <button class="btn down" @click="onVote(false)"><i class="bi bi-hand-thumbs-down-fill"></i> No me gustó</button>
+    </div>
   </div>
 </template>
 
 <style scoped>
-.vote-bar {
-  display: flex;
-  gap: 10px;
-  margin-top: 12px;
+.vote{
+  margin-top:10px; border:1px dashed #e5e7eb; border-radius:12px; padding:10px;
+  background:#fff;
 }
-.btn {
-  border: 1px solid #e5e7eb;
-  background: #fff;
-  padding: 8px 12px;
-  border-radius: 10px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s ease;
+.tag{ font-size:12px; color:#6b7280; font-weight:700; }
+.btns{ display:flex; gap:8px; margin-top:8px; flex-wrap:wrap; }
+.btn{
+  border:1px solid #e5e7eb; background:#fff; padding:8px 12px; border-radius:10px; cursor:pointer; font-weight:700;
 }
-.btn.like:hover { background: #ecfdf5; color: #065f46; }
-.btn.dislike:hover { background: #fef2f2; color: #991b1b; }
-
-.btn.active.like { background: #34d399; color: white; border:none; }
-.btn.active.dislike { background: #f87171; color: white; border:none; }
+.btn.up{ color:#065f46; background:#ecfdf5; border-color:#a7f3d0; }
+.btn.down{ color:#7f1d1d; background:#fef2f2; border-color:#fecaca; }
+.btn:hover{ filter:brightness(0.98); }
 </style>

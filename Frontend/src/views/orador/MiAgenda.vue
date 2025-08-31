@@ -228,5 +228,5 @@ const fmtFechaHead = (d) =>
 .time{ font-weight:700; color:#374151; min-width:120px; }
 .meta-row{ display:flex; gap:14px; flex-wrap:wrap; color:#374151; font-size:13px; }
 .btn.sm{ padding:6px 10px; border-radius:8px; font-size:13px; }
-.btn.sm.primary{ background:var(--grad); color:#fff; border:none; }
+.btn.sm.primary{ background:var(--grad); color:#6d28d9; border:none; }
 </style>
