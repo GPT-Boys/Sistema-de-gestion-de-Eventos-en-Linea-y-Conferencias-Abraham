@@ -1,31 +1,31 @@
-// Pinia store - Charlas (solo frontend, persiste en localStorage)
+// src/stores/app/conferencias.js
 import { defineStore } from 'pinia'
 
 // helpers de fecha/hora -> estado
 function buildDate(dateStr, timeStr) {
-  // dateStr: 'YYYY-MM-DD'  | timeStr: 'HH:mm' (24h)
   return new Date(`${dateStr}T${timeStr}:00`)
 }
 function statusFor(conf, now = new Date()) {
   const start = buildDate(conf.fecha, conf.horaEmpieza)
   const end   = buildDate(conf.fecha, conf.horaTermina)
-  if (now < start) return 'upcoming'   // Próxima
-  if (now > end)   return 'finished'   // Finalizada
-  return 'live'                         // En curso
+  if (now < start) return 'upcoming'
+  if (now > end)   return 'finished'
+  return 'live'
 }
 
+// localStorage keys
 const LS_ALL = 'conf:all'
-const LS_ENR = (uid) => `conf:enrolled:${uid}`     // Set de ids (stringificados)
-const LS_VOT = (uid) => `conf:votes:${uid}`        // { [id]: 'up'|'down' }
+const LS_ENR = (uid) => `conf:enrolled:${uid}`
+const LS_VOT = (uid) => `conf:votes:${uid}`
 
 export const useConferenciasStore = defineStore('conf', {
   state: () => ({
     loaded: false,
-    list: [],             // array de charlas
+    list: [],
   }),
 
   getters: {
-    // Lista ordenada por fecha/hora
+    // Lista ordenada
     ordered: (s) => [...s.list].sort((a,b) => {
       const A = buildDate(a.fecha, a.horaEmpieza).getTime()
       const B = buildDate(b.fecha, b.horaEmpieza).getTime()
@@ -33,15 +33,13 @@ export const useConferenciasStore = defineStore('conf', {
     }),
     getById: (s) => (id) => s.list.find(c => String(c.idConferencia) === String(id)),
     statusOf: () => (conf) => statusFor(conf),
-    byOrador: (s) => (oradorId) => s.ordered.filter(c => String(c.idOrador) === String(oradorId)),
-    // Filtrados por estado
     upcomingList: (s) => s.ordered.filter(c => statusFor(c) === 'upcoming'),
     liveList:     (s) => s.ordered.filter(c => statusFor(c) === 'live'),
     finishedList: (s) => s.ordered.filter(c => statusFor(c) === 'finished'),
   },
 
   actions: {
-    // --- Persistencia base
+    // Persistencia base
     _saveAll() {
       localStorage.setItem(LS_ALL, JSON.stringify(this.list))
     },
@@ -50,6 +48,12 @@ export const useConferenciasStore = defineStore('conf', {
       const raw = localStorage.getItem(LS_ALL)
       this.list = raw ? JSON.parse(raw) : []
       this.loaded = true
+    },
+
+    // 🔑 Ahora byOrador es ACTION, ya no getter
+    byOrador(oradorId) {
+      this._loadAll()
+      return this.ordered.filter(c => String(c.idOrador) === String(oradorId))
     },
 
     // --- Enrolamientos por usuario
@@ -79,7 +83,7 @@ export const useConferenciasStore = defineStore('conf', {
     // --- Votos por usuario
     _getVotesMap(userId) {
       const raw = localStorage.getItem(LS_VOT(userId))
-      return raw ? JSON.parse(raw) : {} // { [confId]: 'up'|'down' }
+      return raw ? JSON.parse(raw) : {}
     },
     _saveVotesMap(userId, map) {
       localStorage.setItem(LS_VOT(userId), JSON.stringify(map))
@@ -123,13 +127,13 @@ export const useConferenciasStore = defineStore('conf', {
         idTipoConferencia: Number(payload.idTipoConferencia),
         votosAFavor: 0,
         votosEnContra: 0,
-        fecha: payload.fecha,                // 'YYYY-MM-DD'
-        horaEmpieza: payload.horaEmpieza,    // 'HH:mm'
-        horaTermina: payload.horaTermina,    // 'HH:mm'
+        fecha: payload.fecha,
+        horaEmpieza: payload.horaEmpieza,
+        horaTermina: payload.horaTermina,
         sala: payload.sala,
-        evaluacion: payload.evaluacion || '', // URL Google Forms
-        materialUrl: payload.materialUrl || '', // por ahora URL (BLOB más adelante)
-        zoomUrl: payload.zoomUrl || '',        // enlace a Zoom
+        evaluacion: payload.evaluacion || '',
+        materialUrl: payload.materialUrl || '',
+        zoomUrl: payload.zoomUrl || '',
       }
 
       this.list.push(conf)

@@ -1,16 +1,16 @@
-<!-- src/views/asistente/MisInscripciones.vue -->
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useConferenciasStore } from '@/stores/app/conferencias.js'
 import { useAuthStore } from '@/stores/publicStores/auth.js'
 import CharlaModal from '@/components/CharlaModal.vue'
+import VoteWidget from '@/components/VoteWidget.vue'   // 👈 import
 
 const store = useConferenciasStore()
 const auth  = useAuthStore()
 
 const q = ref(localStorage.getItem('mi-q') || '')
-const viewMode = ref(localStorage.getItem('mi-view') || 'grid') // 'grid' | 'agenda'
-const tab = ref(localStorage.getItem('mi-tab') || 'actual') // 'actual' | 'historial'
+const viewMode = ref(localStorage.getItem('mi-view') || 'grid')
+const tab = ref(localStorage.getItem('mi-tab') || 'actual')
 const openModal = ref(false)
 const selected  = ref(null)
 
@@ -18,17 +18,13 @@ onMounted(() => {
   store._loadAll()
 })
 
-const uid = computed(() =>
-  auth.user?.id_usuario ?? auth.user?.id ?? null
-)
+const uid = computed(() => auth.user?.id_usuario ?? auth.user?.id ?? null)
 
 const baseList = computed(() => {
   const all = uid.value ? store.enrolledForUser(uid.value) : []
-  if (tab.value === 'historial') {
-    return all.filter(c => store.statusOf(c) === 'finished')
-  } else {
-    return all.filter(c => store.statusOf(c) !== 'finished')
-  }
+  return tab.value === 'historial'
+    ? all.filter(c => store.statusOf(c) === 'finished')
+    : all.filter(c => store.statusOf(c) !== 'finished')
 })
 
 const filtered = computed(() => {
@@ -50,7 +46,8 @@ const groupedByDate = computed(() => {
     map.get(key).push(c)
   }
   for (const [k, arr] of map.entries()) {
-    arr.sort((a,b) => (a.horaEmpieza||'').localeCompare(b.horaEmpieza||'')); map.set(k, arr)
+    arr.sort((a,b) => (a.horaEmpieza||'').localeCompare(b.horaEmpieza||''))
+    map.set(k, arr)
   }
   return [...map.entries()]
     .sort((a,b) => (a[0]||'').localeCompare(b[0]||''))
@@ -98,11 +95,11 @@ const fmtFechaHead = (d) =>
       </div>
 
       <div class="toolbar">
-        <div class="tabs" role="tablist" aria-label="Filtrar">
-          <button :class="['tab',{active:tab==='actual'}]" role="tab" aria-selected="tab==='actual'" @click="setTab('actual')">
+        <div class="tabs">
+          <button :class="['tab',{active:tab==='actual'}]" @click="setTab('actual')">
             Próximas / En curso
           </button>
-          <button :class="['tab',{active:tab==='historial'}]" role="tab" aria-selected="tab==='historial'" @click="setTab('historial')">
+          <button :class="['tab',{active:tab==='historial'}]" @click="setTab('historial')">
             Historial
           </button>
         </div>
@@ -113,10 +110,10 @@ const fmtFechaHead = (d) =>
             <input v-model="q" type="search" placeholder="Buscar…" @input="onQueryInput"/>
           </div>
           <div class="view-toggle">
-            <button :class="['toggle-btn',{active:viewMode==='grid'}]" @click="setViewMode('grid')" title="Vista tarjetas">
+            <button :class="['toggle-btn',{active:viewMode==='grid'}]" @click="setViewMode('grid')">
               <i class="bi bi-grid-3x3-gap"></i>
             </button>
-            <button :class="['toggle-btn',{active:viewMode==='agenda'}]" @click="setViewMode('agenda')" title="Vista agenda">
+            <button :class="['toggle-btn',{active:viewMode==='agenda'}]" @click="setViewMode('agenda')">
               <i class="bi bi-calendar2-week"></i>
             </button>
           </div>
@@ -134,7 +131,7 @@ const fmtFechaHead = (d) =>
       <article v-for="c in filtered" :key="c.idConferencia" class="card" :data-status="store.statusOf(c)">
         <header class="card-head">
           <span class="status">{{ statusText(c) }}</span>
-          <h3 class="title" :title="c.titulo">{{ c.titulo }}</h3>
+          <h3 class="title">{{ c.titulo }}</h3>
         </header>
 
         <p class="desc">{{ c.descripcion }}</p>
@@ -148,19 +145,16 @@ const fmtFechaHead = (d) =>
 
         <div class="actions">
           <button class="btn" @click="show(c)"><i class="bi bi-eye"></i> Detalles</button>
-
-          <a v-if="canJoinZoom(c)" class="btn primary" :href="c.zoomUrl" target="_blank" rel="noopener">
-            <i class="bi bi-camera-video"></i> Unirme
-          </a>
-          <a v-else-if="canEvaluate(c)" class="btn" :href="c.evaluacion" target="_blank" rel="noopener">
-            <i class="bi bi-ui-checks-grid"></i> Evaluación
-          </a>
-
+          <a v-if="canJoinZoom(c)" class="btn primary" :href="c.zoomUrl" target="_blank"><i class="bi bi-camera-video"></i> Unirme</a>
+          <a v-else-if="canEvaluate(c)" class="btn" :href="c.evaluacion" target="_blank"><i class="bi bi-ui-checks-grid"></i> Evaluación</a>
           <button class="btn enroll" :class="{ on:isEnrolled(c) }" @click="toggleEnroll(c)">
             <i class="bi" :class="isEnrolled(c) ? 'bi-bookmark-x' : 'bi-bookmark-plus'"></i>
             {{ isEnrolled(c) ? 'Cancelar' : 'Inscribirme' }}
           </button>
         </div>
+
+        <!-- ✅ VoteWidget directo en la card -->
+        <VoteWidget v-if="store.statusOf(c)==='finished'" :charla-id="c.idConferencia" :status="store.statusOf(c)" />
       </article>
     </section>
 
@@ -170,7 +164,7 @@ const fmtFechaHead = (d) =>
         <h4 class="day-title">{{ fmtFechaHead(group.date) }}</h4>
         <ul class="line">
           <li v-for="c in group.items" :key="c.idConferencia" class="slot" :data-status="store.statusOf(c)">
-            <span class="dot" :title="statusText(c)"></span>
+            <span class="dot"></span>
             <div class="slot-content">
               <div class="slot-head">
                 <div class="left">
@@ -178,25 +172,19 @@ const fmtFechaHead = (d) =>
                   <h3 class="title">{{ c.titulo }}</h3>
                 </div>
                 <div class="right">
-                  <button class="btn sm" @click="show(c)"><i class="bi bi-eye"></i> <span class="hide-sm">Detalles</span></button>
-                  <a v-if="canJoinZoom(c)" class="btn sm primary" :href="c.zoomUrl" target="_blank" rel="noopener">
-                    <i class="bi bi-camera-video"></i> <span class="hide-sm">Unirme</span>
-                  </a>
-                  <a v-else-if="canEvaluate(c)" class="btn sm" :href="c.evaluacion" target="_blank" rel="noopener">
-                    <i class="bi bi-ui-checks-grid"></i> <span class="hide-sm">Evaluación</span>
-                  </a>
-                  <button class="btn sm enroll" :class="{ on:isEnrolled(c) }" @click="toggleEnroll(c)">
-                    <i class="bi" :class="isEnrolled(c) ? 'bi-bookmark-x' : 'bi-bookmark-plus'"></i>
-                    <span class="hide-sm">{{ isEnrolled(c) ? 'Cancelar' : 'Inscribirme' }}</span>
-                  </button>
+                  <button class="btn sm" @click="show(c)"><i class="bi bi-eye"></i> Detalles</button>
+                  <a v-if="canJoinZoom(c)" class="btn sm primary" :href="c.zoomUrl" target="_blank"><i class="bi bi-camera-video"></i> Zoom</a>
+                  <a v-else-if="canEvaluate(c)" class="btn sm" :href="c.evaluacion" target="_blank"><i class="bi bi-ui-checks-grid"></i> Eval</a>
                 </div>
               </div>
-
               <p class="desc">{{ c.descripcion }}</p>
               <div class="meta-row">
-                <span><i class="bi bi-geo"></i> Sala: {{ c.sala }}</span>
+                <span><i class="bi bi-geo"></i> {{ c.sala }}</span>
                 <span><i class="bi bi-person"></i> Orador #{{ c.idOrador }}</span>
               </div>
+
+              <!-- ✅ VoteWidget directo en timeline -->
+              <VoteWidget v-if="store.statusOf(c)==='finished'" :charla-id="c.idConferencia" :status="store.statusOf(c)" />
             </div>
           </li>
         </ul>
@@ -207,63 +195,72 @@ const fmtFechaHead = (d) =>
   </div>
 </template>
 
+
+
 <style scoped>
 :root{
-  --b:#eef0f4; --grad: linear-gradient(135deg, #7c3aed, #8b5cf6);
-  --live:#0ea5b7; --up:#5b6bff; --fin:#64748b;
+  --grad: linear-gradient(135deg,#7c3aed,#8b5cf6);
+  --b:#e5e7eb;
+  --live:#0ea5b7;
+  --up:#6366f1;
+  --fin:#9ca3af;
 }
-.page{ display:grid; gap:14px; }
-.head h1{ margin:0; }
-.muted{ color:#64748b; margin-top:2px; }
 
-.toolbar{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:space-between; }
+.page{ display:grid; gap:16px; }
+.head h1{ margin:0; font-size:24px; font-weight:800; color:#4c1d95; }
+.muted{ color:#6b7280; }
+
+/* toolbar */
+.toolbar{ display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; }
 .tabs{ display:flex; gap:8px; }
-.tab{ border:1px solid var(--b); background:#fff; padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:800; }
+.tab{ border:1px solid var(--b); background:#fff; padding:10px 16px; border-radius:12px; cursor:pointer; font-weight:700; }
 .tab.active{ background:var(--grad); color:#fff; border:none; }
-.right-tools{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
-.search{ display:flex; align-items:center; gap:8px; background:#fff; border:1px solid var(--b); border-radius:12px; padding:8px 10px; width:min(420px,100%); }
+
+.right-tools{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+.search{ display:flex; align-items:center; gap:6px; background:#fff; border:1px solid var(--b); border-radius:14px; padding:10px 14px; box-shadow:0 3px 6px rgba(0,0,0,.05); }
 .search input{ border:none; outline:none; background:transparent; width:100%; }
-.view-toggle{ display:flex; gap:8px; }
-.toggle-btn{ border:1px solid var(--b); background:#fff; width:42px; height:42px; border-radius:12px; cursor:pointer; display:grid; place-items:center; }
+
+.view-toggle{ display:flex; gap:6px; }
+.toggle-btn{ width:42px; height:42px; border:1px solid var(--b); border-radius:12px; display:grid; place-items:center; background:#fff; cursor:pointer; }
 .toggle-btn.active{ background:var(--grad); color:#fff; border:none; }
 
-.empty{ display:grid; place-items:center; gap:6px; padding:30px; border:1px dashed var(--b); border-radius:14px; color:#6b7280; }
-.empty i{ font-size:28px; }
+/* vacío */
+.empty{ text-align:center; color:#6b7280; padding:40px; border:1px dashed var(--b); border-radius:16px; background:#fff; }
 
-.grid{ display:grid; gap:14px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
-@media (max-width:1200px){ .grid{ grid-template-columns: repeat(2, minmax(0,1fr)); } }
-@media (max-width:760px){ .grid{ grid-template-columns: 1fr; } }
-.card{
-  position:relative; background:#fff; border:1px solid var(--b); border-radius:16px; box-shadow:0 12px 36px rgba(17,24,39,.06);
-  padding:12px; display:grid; gap:10px; overflow:hidden;
-}
-.card::before{ content:''; position:absolute; inset:0 0 auto 0; height:4px; background:var(--up); opacity:.75; }
-.card[data-status="live"]::before{ background:var(--live); }
-.card[data-status="finished"]::before{ background:var(--fin); }
-.card-head{ display:grid; gap:6px; }
-.status{ font-size:12px; font-weight:800; width:max-content; padding:3px 8px; border-radius:999px; background:#eef2ff; color:#3730a3; }
-.card[data-status="live"] .status{ background:#ecfeff; color:#0e7490; }
-.card[data-status="finished"] .status{ background:#f1f5f9; color:#334155; }
-.title{ margin:0; font-size:17px; font-weight:800; }
-.desc{ margin:0; color:#475569; min-height:40px; }
-.meta{ list-style:none; padding:0; margin:0; display:grid; gap:4px; color:#334155; font-size:14px; }
+/* grid */
+.grid{ display:grid; gap:18px; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); }
+.card{ background:#fff; border:1px solid var(--b); border-radius:20px; box-shadow:0 10px 24px rgba(0,0,0,.05); padding:16px; display:grid; gap:12px; }
+.card:hover{ transform:translateY(-2px); transition:.15s; box-shadow:0 14px 28px rgba(0,0,0,.08); }
 
-.timeline{ display:grid; gap:18px; }
-.day-group{ background:#fff; border:1px solid var(--b); border-radius:16px; padding:12px; }
-.day-title{ margin:0 0 8px; font-size:15px; text-transform:capitalize; }
-.line{ list-style:none; padding:0; margin:0; }
-.slot{ display:flex; gap:12px; padding:12px 6px; border-left:3px solid #e2e8f0; margin-left:10px; position:relative; }
-.slot + .slot{ border-top:1px dashed #eef0f4; }
-.dot{ position:absolute; left:-7px; top:18px; width:12px; height:12px; border-radius:50%; background:var(--up); box-shadow:0 0 0 3px #eef2ff; }
-.slot[data-status="live"] .dot{ background:var(--live); box-shadow: 0 0 0 3px #dff9ff; }
-.slot[data-status="finished"] .dot{ background:var(--fin); box-shadow: 0 0 0 3px #e2e8f0; }
+.card-head{ display:flex; justify-content:space-between; align-items:center; }
+.status{ font-size:13px; font-weight:700; padding:4px 10px; border-radius:999px; }
+.status.live{ background:#ecfeff; color:#0e7490; }
+.status.upcoming{ background:#eef2ff; color:#3730a3; }
+.status.finished{ background:#f3f4f6; color:#334155; }
+
+.title{ margin:0; font-size:18px; font-weight:800; }
+.desc{ margin:0; color:#374151; font-size:14px; }
+
+.meta{ list-style:none; margin:0; padding:0; display:grid; gap:4px; color:#4b5563; font-size:13px; }
+
+/* acciones */
+.actions{ display:flex; gap:10px; flex-wrap:wrap; margin-top:6px; }
+.btn{ border:1px solid var(--b); background:#fff; padding:10px 14px; border-radius:12px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:6px; font-size:14px; }
+.btn:hover{ background:#f9fafb; }
+.btn.primary{ background:var(--grad); color:#fff; border:none; }
+.btn.enroll.on{ background:#faf5ff; color:#7c3aed; border:1px solid #e9d5ff; }
+
+/* timeline */
+.timeline{ display:grid; gap:20px; }
+.day-group{ background:#fff; border:1px solid var(--b); border-radius:20px; padding:16px; box-shadow:0 6px 18px rgba(0,0,0,.04); }
+.day-title{ margin:0 0 10px; font-size:16px; font-weight:700; color:#1f2937; }
+
+.line{ list-style:none; margin:0; padding:0; }
+.slot{ display:flex; gap:12px; padding:12px 0; border-left:3px solid #e5e7eb; margin-left:14px; position:relative; }
+.dot{ width:12px; height:12px; border-radius:50%; background:var(--up); position:absolute; left:-7px; top:18px; }
+.slot[data-status="live"] .dot{ background:var(--live); }
+.slot[data-status="finished"] .dot{ background:var(--fin); }
 .slot-content{ flex:1; display:grid; gap:6px; }
-.slot-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
-.time{ font-weight:800; color:#374151; min-width:120px; }
-.meta-row{ display:flex; gap:14px; flex-wrap:wrap; color:#334155; font-size:14px; }
-.btn{ border:1px solid var(--b); background:#fff; padding:10px 12px; border-radius:10px; cursor:pointer; font-weight:700; display:inline-flex; gap:8px; align-items:center; }
-.btn.sm{ padding:8px 10px; border-radius:10px; }
-.btn.sm.primary{ background:var(--grad); color:#fff; border:none; }
-.btn.enroll.on{ background:#fff; color:#7c3aed; border:1px solid #e9d5ff; }
-.hide-sm{ display:inline; } @media (max-width:640px){ .hide-sm{ display:none; } }
+.slot-head{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; }
+.time{ font-weight:700; font-size:13px; color:#111827; }
 </style>

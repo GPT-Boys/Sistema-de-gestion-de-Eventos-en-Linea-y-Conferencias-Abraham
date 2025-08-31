@@ -1,11 +1,8 @@
-
-<Sidenav @logout="onLogout" />
-
+<!-- src/layouts/AppLayout.vue -->
 <script setup>
 import { useAuthStore } from '@/stores/publicStores/auth.js'
 import { useRouter } from 'vue-router'
 import SideNav from '@/components/SideNav.vue'
-
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -38,14 +35,52 @@ const onLogout = async () => {
 </template>
 
 <style scoped>
-.app-shell{ display:grid; grid-template-columns:auto 1fr; min-height:100svh; }
-.app-main{ display:flex; flex-direction:column; min-width:0; }
-.topbar{
-  height:64px; display:flex; align-items:center; gap:12px; padding:0 16px;
-  border-bottom:1px solid #eef0f4; background:#fff;
+.app-shell {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  min-height: 100svh; /* toda la pantalla */
 }
-.title{ margin:0; font-size:16px; font-weight:800; }
-.spacer{ flex:1; }
-.user{ display:flex; align-items:center; gap:8px; color:#374151; font-weight:700; }
-.content{ padding:16px; background:#f7f8fc; min-height:calc(100svh - 64px); }
+
+.app-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 100svh; /* asegura altura completa */
+}
+
+.topbar {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  border-bottom: 1px solid #eef0f4;
+  background: #fff;
+}
+
+.title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #374151;
+  font-weight: 700;
+}
+
+.content {
+  padding: 16px;
+  background: #f7f8fc;
+  flex: 1;           /* crece con el contenido */
+  min-height: 0;     /* evita forzar altura que bloquee scroll */
+  overflow-y: auto;  /* asegura scroll interno */
+}
 </style>

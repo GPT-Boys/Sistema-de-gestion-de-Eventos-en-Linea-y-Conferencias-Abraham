@@ -1,4 +1,3 @@
-<!-- src/views/orador/NuevaCharla.vue -->
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
@@ -9,7 +8,6 @@ const router = useRouter()
 const auth = useAuthStore()
 const store = useConferenciasStore()
 
-// Form
 const titulo = ref('')
 const descripcion = ref('')
 const fecha = ref('')
@@ -19,10 +17,9 @@ const sala = ref('')
 const zoomUrl = ref('')
 const idMarcaConferencia = ref(1)
 const idTipoConferencia = ref(1)
-const evaluacion = ref('')        // enlace a Google Form
-const materialFile = ref(null)    // archivo opcional
+const evaluacion = ref('')
+const materialFile = ref(null)
 
-// Validaciones simples
 const errors = ref({})
 const isValid = computed(() => {
   errors.value = {}
@@ -41,19 +38,14 @@ const isValid = computed(() => {
 
 async function onSubmit () {
   if (!isValid.value) return
-  if (!auth.uid) {
-    alert('No se encontró el usuario orador. Inicia sesión nuevamente.')
-    return
-  }
+  if (!auth.uid) { alert('No se encontró el usuario orador.'); return }
 
-  // materialUrl como base64 (opcional)
   let materialUrl = ''
   if (materialFile.value?.files?.[0]) {
     const file = materialFile.value.files[0]
-    materialUrl = await fileToBase64(file) // string base64
+    materialUrl = await fileToBase64(file)
   }
 
-  // ⬇️ usa el action que SÍ existe en el store
   store.createFromOrador({
     titulo: titulo.value,
     descripcion: descripcion.value,
@@ -64,8 +56,8 @@ async function onSubmit () {
     horaTermina: horaTermina.value,
     sala: sala.value,
     evaluacion: evaluacion.value,
-    materialUrl,                // <- string (opcional)
-    zoomUrl: zoomUrl.value,     // <- requerido
+    materialUrl,
+    zoomUrl: zoomUrl.value,
   }, auth.uid)
 
   router.push('/app/orador/mi-agenda')
@@ -83,11 +75,11 @@ function fileToBase64 (file) {
 <template>
   <div class="page">
     <header class="head">
-      <h1>Crear charla</h1>
-      <p class="muted">Completa la información y guarda para publicarla en Explorar (asistentes).</p>
+      <h1>Crear nueva charla</h1>
+      <p class="muted">Completa la información y publícala para que los asistentes puedan inscribirse.</p>
     </header>
 
-    <form class="grid" @submit.prevent="onSubmit" novalidate>
+    <form class="grid" @submit.prevent="onSubmit">
       <div class="field">
         <label>Título</label>
         <input v-model.trim="titulo" type="text" placeholder="Ej. IA aplicada a educación" />
@@ -116,7 +108,6 @@ function fileToBase64 (file) {
           <input v-model="horaTermina" type="time" />
           <small v-if="errors.horaTermina" class="err">{{ errors.horaTermina }}</small>
         </div>
-        <small v-if="errors.horas" class="err">{{ errors.horas }}</small>
       </div>
 
       <div class="field row">
@@ -160,15 +151,30 @@ function fileToBase64 (file) {
 </template>
 
 <style scoped>
-.page{ display:grid; gap:12px; }
-.head h1{ margin:0; }
-.muted{ color:#6b7280; }
-.grid{ display:grid; gap:12px; }
+.page{ background:#f9fafb; display:grid; gap:16px; padding:20px; color:#111827; }
+.head h1{ margin:0; font-size:22px; font-weight:800; color:#4c1d95; }
+.head p{ color:#6b7280; }
+
+.grid{ display:grid; gap:14px; }
 .field{ display:grid; gap:6px; }
-.field.row{ grid-template-columns: repeat(3, minmax(0,1fr)); gap:10px; align-items:start; }
+.field.row{ grid-template-columns: repeat(3,minmax(0,1fr)); gap:12px; }
+.field input, .field textarea{
+  border:1px solid #d1d5db; border-radius:12px; padding:10px 12px;
+  font-size:14px; color:#111827; background:#fff;
+}
+.field input:focus, .field textarea:focus{
+  border-color:#7c3aed; box-shadow:0 0 0 3px rgba(124,58,237,0.25); outline:none;
+}
 .err{ color:#b91c1c; font-size:12px; }
+
 .actions{ display:flex; gap:8px; }
-.btn{ border:1px solid #e5e7eb; background:#fff; padding:10px 12px; border-radius:10px; cursor:pointer; }
-.btn.primary{ background:linear-gradient(135deg,#7c3aed,#8b5cf6); color:#fff; border:none; }
-@media (max-width: 760px){ .field.row{ grid-template-columns: 1fr; } }
+.btn{ border:1px solid #d1d5db; background:#fff; padding:10px 14px; border-radius:10px;
+  cursor:pointer; font-weight:600; color:#111827;
+}
+.btn.primary{ background:linear-gradient(135deg,#7c3aed,#6d28d9); color:#fff; border:none;
+  box-shadow:0 4px 12px rgba(124,58,237,0.35);
+}
+.btn.primary:hover{ filter:brightness(1.1); transform:translateY(-2px); }
+
+@media (max-width:760px){ .field.row{ grid-template-columns: 1fr; } }
 </style>
