@@ -1,5 +1,5 @@
 // src/services/publicService.js
-import api from './api'
+import api from '../API/axios'
 
 // LOGIN: backend espera { usuario, password }
 export const login = async (usuario, password) => {

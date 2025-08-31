@@ -473,11 +473,11 @@ const onSubmitRegister = async () => {
   const payload = {
       usuario: usuario.value,
       contrasenia: password.value,            // << en minúsculas
-      TIPO_USUARIO: { id_tipo_usuario: idTipo },
+      tipo_usuario: { id_tipo_usuario: idTipo },
       nombres: nombres.value,
       apellidos: apellidos.value,
       fecha_nacimiento: fechaNacimiento.value,
-      CIUDAD: { id_ciudad: idCiudad },
+      ciudad: { id_ciudad: idCiudad },
       telefono: Number(phoneDigits),
       correo_electronico: email.value,
   }
