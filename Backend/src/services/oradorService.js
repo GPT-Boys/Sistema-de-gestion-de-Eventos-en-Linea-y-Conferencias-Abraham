@@ -12,16 +12,16 @@ const getAllOradores = async () => {
     });
     const oradoresDTO = oradores.map((orador) => {
       const usuarioDTO = new UsuarioDTO(
-        orador.id_usuario.id_usuario,
-        orador.id_usuario.usuario,
-        orador.id_usuario.id_tipo_usuario,
-        orador.id_usuario.nombres,
-        orador.id_usuario.apellidos,
-        orador.id_usuario.fecha_nacimiento,
-        orador.id_usuario.id_ciudad,
-        orador.id_usuario.telefono,
-        orador.id_usuario.correo_electronico,
-        orador.id_usuario.fecha_creacion
+        orador.usuario.id_usuario,
+        orador.usuario.usuario,
+        orador.usuario.id_tipo_usuario,
+        orador.usuario.nombres,
+        orador.usuario.apellidos,
+        orador.usuario.fecha_nacimiento,
+        orador.usuario.id_ciudad,
+        orador.usuario.telefono,
+        orador.usuario.correo_electronico,
+        orador.usuario.fecha_creacion
       );
       return new OradorDTO(
         orador.id_orador,
@@ -61,16 +61,16 @@ const getOradorById = async (id) => {
         `Orador with ID ${id} Not Found.`
       );
     const usuarioDTO = new UsuarioDTO(
-      orador.id_usuario.id_usuario,
-      orador.id_usuario.usuario,
-      orador.id_usuario.id_tipo_usuario,
-      orador.id_usuario.nombres,
-      orador.id_usuario.apellidos,
-      orador.id_usuario.fecha_nacimiento,
-      orador.id_usuario.id_ciudad,
-      orador.id_usuario.telefono,
-      orador.id_usuario.correo_electronico,
-      orador.id_usuario.fecha_creacion
+      orador.usuario.id_usuario,
+      orador.usuario.usuario,
+      orador.usuario.id_tipo_usuario,
+      orador.usuario.nombres,
+      orador.usuario.apellidos,
+      orador.usuario.fecha_nacimiento,
+      orador.usuario.id_ciudad,
+      orador.usuario.telefono,
+      orador.usuario.correo_electronico,
+      orador.usuario.fecha_creacion
     );
     const oradorDTO = new OradorDTO(
       orador.id_orador,
@@ -99,22 +99,24 @@ const createOrador = async (oradorData) => {
   console.log("Creating Orador...");
   try {
     const newOrador = await OradorENT.create({
-      id_usuario: oradorData.id_usuario.id_usuario,
+      id_usuario: oradorData.usuario.id_usuario,
       descripcion: oradorData.descripcion,
       experiencia: oradorData.experiencia,
       contacto: oradorData.contacto,
     });
+    const oradorUserID = newOrador.usuario.id_usuario;
+    const oradorUserValues = await UsuarioENT.findByPk(oradorUserID);
     const usuarioDTO = new UsuarioDTO(
-      oradorData.id_usuario.id_usuario,
-      oradorData.id_usuario.usuario,
-      oradorData.id_usuario.id_tipo_usuario,
-      oradorData.id_usuario.nombres,
-      oradorData.id_usuario.apellidos,
-      oradorData.id_usuario.fecha_nacimiento,
-      oradorData.id_usuario.id_ciudad,
-      oradorData.id_usuario.telefono,
-      oradorData.id_usuario.correo_electronico,
-      oradorData.id_usuario.fecha_creacion
+      oradorUserID,
+      oradorUserValues.usuario,
+      oradorUserValues.id_tipo_usuario,
+      oradorUserValues.nombres,
+      oradorUserValues.apellidos,
+      oradorUserValues.fecha_nacimiento,
+      oradorUserValues.id_ciudad,
+      oradorUserValues.telefono,
+      oradorUserValues.correo_electronico,
+      oradorUserValues.fecha_creacion
     );
     const oradorDTO = new OradorDTO(
       newOrador.id_orador,
@@ -152,17 +154,19 @@ const updateOrador = async (id, oradorData) => {
       experiencia: oradorData.experiencia,
       contacto: oradorData.contacto,
     });
+    const oradorUserID = orador.usuario.id_usuario;
+    const oradorUserValues = await UsuarioENT.findByPk(oradorUserID);
     const usuarioDTO = new UsuarioDTO(
-      orador.id_usuario.id_usuario,
-      orador.id_usuario.usuario,
-      orador.id_usuario.id_tipo_usuario,
-      orador.id_usuario.nombres,
-      orador.id_usuario.apellidos,
-      orador.id_usuario.fecha_nacimiento,
-      orador.id_usuario.id_ciudad,
-      orador.id_usuario.telefono,
-      orador.id_usuario.correo_electronico,
-      orador.id_usuario.fecha_creacion
+      oradorUserID,
+      oradorUserValues.usuario,
+      oradorUserValues.id_tipo_usuario,
+      oradorUserValues.nombres,
+      oradorUserValues.apellidos,
+      oradorUserValues.fecha_nacimiento,
+      oradorUserValues.id_ciudad,
+      oradorUserValues.telefono,
+      oradorUserValues.correo_electronico,
+      oradorUserValues.fecha_creacion
     );
     const updatedDTO = new OradorDTO(
       orador.id_orador,

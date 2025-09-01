@@ -20,19 +20,19 @@ const getAllConferencias = async () => {
     });
     const conferenciasDTO = conferencias.map((conf) => {
       const marcaConferenciaDTO = new MarcaConferenciaDTO(
-        conf.id_marca_conferencia.id_marca_conferencia,
-        conf.id_marca_conferencia.marca_conferencia
+        conf.marca_conferencia.id_marca_conferencia,
+        conf.marca_conferencia.marca_conferencia
       );
       const oradorDTO = new OradorDTO(
-        conf.id_orador.id_orador,
-        conf.id_orador.id_usuario,
-        conf.id_orador.descripcion,
-        conf.id_orador.experiencia,
-        conf.id_orador.contacto
+        conf.orador.id_orador,
+        conf.orador.id_usuario,
+        conf.orador.descripcion,
+        conf.orador.experiencia,
+        conf.orador.contacto
       );
-      const tipoConferenciaDTO = TipoConferenciaDTO(
-        conf.id_tipo_conferencia.id_tipo_conferencia,
-        conf.id_tipo_conferencia.tipo_conferencia
+      const tipoConferenciaDTO = new TipoConferenciaDTO(
+        conf.tipo_conferencia.id_tipo_conferencia,
+        conf.tipo_conferencia.tipo_conferencia
       );
       return new ConferenciaDTO(
         conf.id_conferencia,
@@ -85,19 +85,19 @@ const getConferenciaById = async (id) => {
         `Conferencia with ID ${id} Not Found.`
       );
     const marcaConferenciaDTO = new MarcaConferenciaDTO(
-      conferencia.id_marca_conferencia.id_marca_conferencia,
-      conferencia.id_marca_conferencia.marca_conferencia
+      conferencia.marca_conferencia.id_marca_conferencia,
+      conferencia.marca_conferencia.marca_conferencia
     );
     const oradorDTO = new OradorDTO(
-      conferencia.id_orador.id_orador,
-      conferencia.id_orador.id_usuario,
-      conferencia.id_orador.descripcion,
-      conferencia.id_orador.experiencia,
-      conferencia.id_orador.contacto
+      conferencia.orador.id_orador,
+      conferencia.orador.id_usuario,
+      conferencia.orador.descripcion,
+      conferencia.orador.experiencia,
+      conferencia.orador.contacto
     );
-    const tipoConferenciaDTO = TipoConferenciaDTO(
-      conferencia.id_tipo_conferencia.id_tipo_conferencia,
-      conferencia.id_tipo_conferencia.tipo_conferencia
+    const tipoConferenciaDTO = new TipoConferenciaDTO(
+      conferencia.tipo_conferencia.id_tipo_conferencia,
+      conferencia.tipo_conferencia.tipo_conferencia
     );
     const conferenciaDTO = new ConferenciaDTO(
       conferencia.id_conferencia,
@@ -138,10 +138,9 @@ const createConferencia = async (conferenciaData) => {
       titulo: conferenciaData.titulo,
       descripcion: conferenciaData.descripcion,
       id_marca_conferencia:
-        conferenciaData.id_marca_conferencia.id_marca_conferencia,
-      id_orador: conferenciaData.id_orador.id_orador,
-      id_tipo_conferencia:
-        conferenciaData.id_tipo_conferencia.id_tipo_conferencia,
+        conferenciaData.marca_conferencia.id_marca_conferencia,
+      id_orador: conferenciaData.orador.id_orador,
+      id_tipo_conferencia: conferenciaData.tipo_conferencia.id_tipo_conferencia,
       votos_a_favor: 0,
       votos_en_contra: 0,
       fecha: conferenciaData.fecha,
@@ -151,21 +150,37 @@ const createConferencia = async (conferenciaData) => {
       evaluacion: conferenciaData.evaluacion,
       material: conferenciaData.material,
     });
+
+    const brandConferenceID =
+      newConferencia.marca_conferencia.id_marca_conferencia;
+    const brandConferenceValues = await MarcaConferenciaENT.findByPk(
+      brandConferenceID
+    );
     const marcaConferenciaDTO = new MarcaConferenciaDTO(
-      conferenciaData.id_marca_conferencia.id_marca_conferencia,
-      conferenciaData.id_marca_conferencia.marca_conferencia
+      brandConferenceID,
+      brandConferenceValues.marca_conferencia
     );
+
+    const oradorID = newConferencia.orador.id_orador;
+    const oradorValues = await OradorENT.findByPk(oradorID);
     const oradorDTO = new OradorDTO(
-      conferenciaData.id_orador.id_orador,
-      conferenciaData.id_orador.id_usuario,
-      conferenciaData.id_orador.descripcion,
-      conferenciaData.id_orador.experiencia,
-      conferenciaData.id_orador.contacto
+      oradorID,
+      oradorValues.id_usuario,
+      oradorValues.descripcion,
+      oradorValues.experiencia,
+      oradorValues.contacto
     );
-    const tipoConferenciaDTO = TipoConferenciaDTO(
-      conferenciaData.id_tipo_conferencia.id_tipo_conferencia,
-      conferenciaData.id_tipo_conferencia.tipo_conferencia
+
+    const typeConferenceID =
+      newConferencia.tipo_conferencia.id_tipo_conferencia;
+    const typeConferenceValues = await TipoConferenciaENT.findByPk(
+      typeConferenceID
     );
+    const tipoConferenciaDTO = new TipoConferenciaDTO(
+      typeConferenceID,
+      typeConferenceValues.tipo_conferencia
+    );
+
     const conferenciaDTO = new ConferenciaDTO(
       newConferencia.id_conferencia,
       newConferencia.titulo,
@@ -214,10 +229,9 @@ const updateConferencia = async (id, conferenciaData) => {
       titulo: conferenciaData.titulo,
       descripcion: conferenciaData.descripcion,
       id_marca_conferencia:
-        conferenciaData.id_marca_conferencia.id_marca_conferencia,
-      id_orador: conferenciaData.id_orador.id_orador,
-      id_tipo_conferencia:
-        conferenciaData.id_tipo_conferencia.id_tipo_conferencia,
+        conferenciaData.marca_conferencia.id_marca_conferencia,
+      id_orador: conferenciaData.orador.id_orador,
+      id_tipo_conferencia: conferenciaData.tipo_conferencia.id_tipo_conferencia,
       fecha: conferenciaData.fecha,
       hora_empieza: conferenciaData.hora_empieza,
       hora_termina: conferenciaData.hora_termina,
@@ -225,21 +239,36 @@ const updateConferencia = async (id, conferenciaData) => {
       evaluacion: conferenciaData.evaluacion,
       material: conferenciaData.material,
     });
+
+    const brandConferenceID =
+      conferencia.marca_conferencia.id_marca_conferencia;
+    const brandConferenceValues = await MarcaConferenciaENT.findByPk(
+      brandConferenceID
+    );
     const marcaConferenciaDTO = new MarcaConferenciaDTO(
-      conferencia.id_marca_conferencia.id_marca_conferencia,
-      conferencia.id_marca_conferencia.marca_conferencia
+      brandConferenceID,
+      brandConferenceValues.marca_conferencia
     );
+
+    const oradorID = conferencia.orador.id_orador;
+    const oradorValues = await OradorENT.findByPk(oradorID);
     const oradorDTO = new OradorDTO(
-      conferencia.id_orador.id_orador,
-      conferencia.id_orador.id_usuario,
-      conferencia.id_orador.descripcion,
-      conferencia.id_orador.experiencia,
-      conferencia.id_orador.contacto
+      oradorID,
+      oradorValues.id_usuario,
+      oradorValues.descripcion,
+      oradorValues.experiencia,
+      oradorValues.contacto
     );
-    const tipoConferenciaDTO = TipoConferenciaDTO(
-      conferencia.id_tipo_conferencia.id_tipo_conferencia,
-      conferencia.id_tipo_conferencia.tipo_conferencia
+
+    const typeConferenceID = conferencia.tipo_conferencia.id_tipo_conferencia;
+    const typeConferenceValues = await TipoConferenciaENT.findByPk(
+      typeConferenceID
     );
+    const tipoConferenciaDTO = new TipoConferenciaDTO(
+      typeConferenceID,
+      typeConferenceValues.tipo_conferencia
+    );
+
     const updatedDTO = new ConferenciaDTO(
       conferencia.id_conferencia,
       conferencia.titulo,

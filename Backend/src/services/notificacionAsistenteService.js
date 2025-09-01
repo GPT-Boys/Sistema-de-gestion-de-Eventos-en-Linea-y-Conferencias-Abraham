@@ -17,14 +17,14 @@ const getAllNotificacionAsistente = async () => {
     });
     const recordsDTO = records.map((record) => {
       const conferenciaNotificacionDTO = new ConferenciaNotificacionDTO(
-        record.id_conferencia_notificacion.id_conferencia_notificacion,
-        record.id_conferencia_notificacion.id_conferencia,
-        record.id_conferencia_notificacion.notificacion
+        record.conferencia_notificacion.id_conferencia_notificacion,
+        record.conferencia_notificacion.id_conferencia,
+        record.conferencia_notificacion.notificacion
       );
       const asistenteDTO = new AsistenteDTO(
-        record.id_asistente.id_asistente,
-        record.id_asistente.id_usuario,
-        record.id_asistente.descripcion
+        record.asistente.id_asistente,
+        record.asistente.id_usuario,
+        record.asistente.descripcion
       );
       return new NotificacionAsistenteDTO(
         record.id_notificacion_asistente,
@@ -50,14 +50,14 @@ const getNotificacionAsistenteById = async (id) => {
     if (!record)
       return new ResponseDTO("NA-102", 404, null, "Record Not Found.");
     const conferenciaNotificacionDTO = new ConferenciaNotificacionDTO(
-      record.id_conferencia_notificacion.id_conferencia_notificacion,
-      record.id_conferencia_notificacion.id_conferencia,
-      record.id_conferencia_notificacion.notificacion
+      record.conferencia_notificacion.id_conferencia_notificacion,
+      record.conferencia_notificacion.id_conferencia,
+      record.conferencia_notificacion.notificacion
     );
     const asistenteDTO = new AsistenteDTO(
-      record.id_asistente.id_asistente,
-      record.id_asistente.id_usuario,
-      record.id_asistente.descripcion
+      record.asistente.id_asistente,
+      record.asistente.id_usuario,
+      record.asistente.descripcion
     );
     const recordDTO = new NotificacionAsistenteDTO(
       record.id_notificacion_asistente,
@@ -75,19 +75,28 @@ const createNotificacionAsistente = async (data) => {
   try {
     const newRecord = await NotificacionAsistenteENT.create({
       id_conferencia_notificacion:
-        data.id_conferencia_notificacion.id_conferencia_notificacion,
-      id_asistente: data.id_asistente.id_asistente,
+        data.conferencia_notificacion.id_conferencia_notificacion,
+      id_asistente: data.asistente.id_asistente,
     });
+
+    const conferenceNotificationID =
+      newRecord.conferencia_notificacion.id_conferencia_notificacion;
+    const conferenceNotificationValues =
+      await ConferenciaNotificacionENT.findByPk(conferenceNotificationID);
     const conferenciaNotificacionDTO = new ConferenciaNotificacionDTO(
-      data.id_conferencia_notificacion.id_conferencia_notificacion,
-      data.id_conferencia_notificacion.id_conferencia,
-      data.id_conferencia_notificacion.notificacion
+      conferenceNotificationID,
+      conferenceNotificationValues.id_conferencia,
+      conferenceNotificationValues.notificacion
     );
+
+    const assistantID = newRecord.asistente.id_asistente;
+    const assistantValues = await AsistenteENT.findByPk(assistantID);
     const asistenteDTO = new AsistenteDTO(
-      data.id_asistente.id_asistente,
-      data.id_asistente.id_usuario,
-      data.id_asistente.descripcion
+      assistantID,
+      assistantValues.id_usuario,
+      assistantValues.descripcion
     );
+
     const recordDTO = new NotificacionAsistenteDTO(
       newRecord.id_notificacion_asistente,
       conferenciaNotificacionDTO,
@@ -113,19 +122,28 @@ const updateNotificacionAsistente = async (id, data) => {
       return new ResponseDTO("NA-104", 404, null, "Record Not Found.");
     await record.update({
       id_conferencia_notificacion:
-        data.id_conferencia_notificacion.id_conferencia_notificacion,
-      id_asistente: data.id_asistente.id_asistente,
+        data.conferencia_notificacion.id_conferencia_notificacion,
+      id_asistente: data.asistente.id_asistente,
     });
+
+    const conferenceNotificationID =
+      record.conferencia_notificacion.id_conferencia_notificacion;
+    const conferenceNotificationValues =
+      await ConferenciaNotificacionENT.findByPk(conferenceNotificationID);
     const conferenciaNotificacionDTO = new ConferenciaNotificacionDTO(
-      record.id_conferencia_notificacion.id_conferencia_notificacion,
-      record.id_conferencia_notificacion.id_conferencia,
-      record.id_conferencia_notificacion.notificacion
+      conferenceNotificationID,
+      conferenceNotificationValues.id_conferencia,
+      conferenceNotificationValues.notificacion
     );
+
+    const assistantID = record.asistente.id_asistente;
+    const assistantValues = await AsistenteENT.findByPk(assistantID);
     const asistenteDTO = new AsistenteDTO(
-      record.id_asistente.id_asistente,
-      record.id_asistente.id_usuario,
-      record.id_asistente.descripcion
+      assistantID,
+      assistantValues.id_usuario,
+      assistantValues.descripcion
     );
+
     const updatedDTO = new NotificacionAsistenteDTO(
       record.id_notificacion_asistente,
       conferenciaNotificacionDTO,

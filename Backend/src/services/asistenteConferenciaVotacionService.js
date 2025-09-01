@@ -17,13 +17,13 @@ const getAllAsistenteConferenciaVotacion = async () => {
     });
     const recordsDTO = records.map((record) => {
       const asistenteConferenciaDTO = new AsistenteConferenciaDTO(
-        record.id_asistente_conferencia.id_asistente_conferencia,
-        record.id_asistente_conferencia.id_conferencia,
-        record.id_asistente_conferencia.id_asistente
+        record.asistente_conferencia.id_asistente_conferencia,
+        record.asistente_conferencia.id_conferencia,
+        record.asistente_conferencia.id_asistente
       );
       const votacionDTO = new VotacionDTO(
-        record.id_votacion.id_votacion,
-        record.id_votacion.votacion
+        record.votacion.id_votacion,
+        record.votacion.votacion
       );
       return new AsistenteConferenciaVotacionDTO(
         record.id_asistente_conferencia_votacion,
@@ -49,13 +49,13 @@ const getAsistenteConferenciaVotacionById = async (id) => {
     if (!record)
       return new ResponseDTO("ACV-102", 404, null, "Record Not Found.");
     const asistenteConferenciaDTO = new AsistenteConferenciaDTO(
-      record.id_asistente_conferencia.id_asistente_conferencia,
-      record.id_asistente_conferencia.id_conferencia,
-      record.id_asistente_conferencia.id_asistente
+      record.asistente_conferencia.id_asistente_conferencia,
+      record.asistente_conferencia.id_conferencia,
+      record.asistente_conferencia.id_asistente
     );
     const votacionDTO = new VotacionDTO(
-      record.id_votacion.id_votacion,
-      record.id_votacion.votacion
+      record.votacion.id_votacion,
+      record.votacion.votacion
     );
     const recordDTO = new AsistenteConferenciaVotacionDTO(
       record.id_asistente_conferencia_votacion,
@@ -73,18 +73,25 @@ const createAsistenteConferenciaVotacion = async (data) => {
   try {
     const newRecord = await AsistenteConferenciaVotacionENT.create({
       id_asistente_conferencia:
-        data.id_asistente_conferencia.id_asistente_conferencia,
-      id_votacion: data.id_votacion.id_votacion,
+        data.asistente_conferencia.id_asistente_conferencia,
+      id_votacion: data.votacion.id_votacion,
     });
+
+    const assistantConferenceID =
+      newRecord.asistente_conferencia.id_asistente_conferencia;
+    const assistantConferenceValues = await AsistenteConferenciaENT.findByPk(
+      assistantConferenceID
+    );
     const asistenteConferenciaDTO = new AsistenteConferenciaDTO(
-      data.id_asistente_conferencia.id_asistente_conferencia,
-      data.id_asistente_conferencia.id_conferencia,
-      data.id_asistente_conferencia.id_asistente
+      assistantConferenceID,
+      assistantConferenceValues.id_conferencia,
+      assistantConferenceValues.id_asistente
     );
-    const votacionDTO = new VotacionDTO(
-      data.id_votacion.id_votacion,
-      data.id_votacion.votacion
-    );
+
+    const voteID = newRecord.votacion.id_votacion;
+    const voteValues = await VotacionENT.findByPk(voteID);
+    const votacionDTO = new VotacionDTO(voteID, voteValues.votacion);
+
     const recordDTO = new AsistenteConferenciaVotacionDTO(
       newRecord.id_asistente_conferencia_votacion,
       asistenteConferenciaDTO,
@@ -110,18 +117,25 @@ const updateAsistenteConferenciaVotacion = async (id, data) => {
       return new ResponseDTO("ACV-104", 404, null, "Record Not Found.");
     await record.update({
       id_asistente_conferencia:
-        data.id_asistente_conferencia.id_asistente_conferencia,
-      id_votacion: data.id_votacion.id_votacion,
+        data.asistente_conferencia.id_asistente_conferencia,
+      id_votacion: data.votacion.id_votacion,
     });
+
+    const assistantConferenceID =
+      record.asistente_conferencia.id_asistente_conferencia;
+    const assistantConferenceValues = await AsistenteConferenciaENT.findByPk(
+      assistantConferenceID
+    );
     const asistenteConferenciaDTO = new AsistenteConferenciaDTO(
-      record.id_asistente_conferencia.id_asistente_conferencia,
-      record.id_asistente_conferencia.id_conferencia,
-      record.id_asistente_conferencia.id_asistente
+      assistantConferenceID,
+      assistantConferenceValues.id_conferencia,
+      assistantConferenceValues.id_asistente
     );
-    const votacionDTO = new VotacionDTO(
-      record.id_votacion.id_votacion,
-      record.id_votacion.votacion
-    );
+
+    const voteID = record.votacion.id_votacion;
+    const voteValues = await VotacionENT.findByPk(voteID);
+    const votacionDTO = new VotacionDTO(voteID, voteValues.votacion);
+
     const updatedDTO = new AsistenteConferenciaVotacionDTO(
       record.id_asistente_conferencia_votacion,
       asistenteConferenciaDTO,

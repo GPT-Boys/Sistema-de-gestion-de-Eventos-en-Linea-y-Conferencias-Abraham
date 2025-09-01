@@ -12,16 +12,16 @@ const getAllAsistentes = async () => {
     });
     const asistentesDTO = asistentes.map((asistente) => {
       const usuarioDTO = new UsuarioDTO(
-        asistente.id_usuario.id_usuario,
-        asistente.id_usuario.usuario,
-        asistente.id_usuario.id_tipo_usuario,
-        asistente.id_usuario.nombres,
-        asistente.id_usuario.apellidos,
-        asistente.id_usuario.fecha_nacimiento,
-        asistente.id_usuario.id_ciudad,
-        asistente.id_usuario.telefono,
-        asistente.id_usuario.correo_electronico,
-        asistente.id_usuario.fecha_creacion
+        asistente.usuario.id_usuario,
+        asistente.usuario.usuario,
+        asistente.usuario.id_tipo_usuario,
+        asistente.usuario.nombres,
+        asistente.usuario.apellidos,
+        asistente.usuario.fecha_nacimiento,
+        asistente.usuario.id_ciudad,
+        asistente.usuario.telefono,
+        asistente.usuario.correo_electronico,
+        asistente.usuario.fecha_creacion
       );
       return new AsistenteDTO(
         asistente.id_asistente,
@@ -59,16 +59,16 @@ const getAsistenteById = async (id) => {
         `Asistente with ID ${id} Not Found.`
       );
     const usuarioDTO = new UsuarioDTO(
-      asistente.id_usuario.id_usuario,
-      asistente.id_usuario.usuario,
-      asistente.id_usuario.id_tipo_usuario,
-      asistente.id_usuario.nombres,
-      asistente.id_usuario.apellidos,
-      asistente.id_usuario.fecha_nacimiento,
-      asistente.id_usuario.id_ciudad,
-      asistente.id_usuario.telefono,
-      asistente.id_usuario.correo_electronico,
-      asistente.id_usuario.fecha_creacion
+      asistente.usuario.id_usuario,
+      asistente.usuario.usuario,
+      asistente.usuario.id_tipo_usuario,
+      asistente.usuario.nombres,
+      asistente.usuario.apellidos,
+      asistente.usuario.fecha_nacimiento,
+      asistente.usuario.id_ciudad,
+      asistente.usuario.telefono,
+      asistente.usuario.correo_electronico,
+      asistente.usuario.fecha_creacion
     );
     const asistenteDTO = new AsistenteDTO(
       asistente.id_asistente,
@@ -95,21 +95,25 @@ const createAsistente = async (asistenteData) => {
   console.log("Creating Asistente...");
   try {
     const newAsistente = await AsistenteENT.create({
-      id_usuario: asistenteData.id_usuario.id_usuario,
+      id_usuario: asistenteData.usuario.id_usuario,
       descripcion: asistenteData.descripcion,
     });
+
+    const assistantUserID = newAsistente.usuario.id_usuario;
+    const assistantUserValues = await UsuarioENT.findByPk(assistantUserID);
     const usuarioDTO = new UsuarioDTO(
-      asistenteData.id_usuario.id_usuario,
-      asistenteData.id_usuario.usuario,
-      asistenteData.id_usuario.id_tipo_usuario,
-      asistenteData.id_usuario.nombres,
-      asistenteData.id_usuario.apellidos,
-      asistenteData.id_usuario.fecha_nacimiento,
-      asistenteData.id_usuario.id_ciudad,
-      asistenteData.id_usuario.telefono,
-      asistenteData.id_usuario.correo_electronico,
-      asistenteData.id_usuario.fecha_creacion
+      assistantUserID,
+      assistantUserValues.usuario,
+      assistantUserValues.id_tipo_usuario,
+      assistantUserValues.nombres,
+      assistantUserValues.apellidos,
+      assistantUserValues.fecha_nacimiento,
+      assistantUserValues.id_ciudad,
+      assistantUserValues.telefono,
+      assistantUserValues.correo_electronico,
+      assistantUserValues.fecha_creacion
     );
+
     const asistenteDTO = new AsistenteDTO(
       newAsistente.id_asistente,
       usuarioDTO,
@@ -140,18 +144,22 @@ const updateAsistente = async (id, asistenteData) => {
     if (!asistente)
       return new ResponseDTO("A-104", 404, null, "Asistente Not Found.");
     await asistente.update({ descripcion: asistenteData.descripcion });
+
+    const assistantUserID = asistente.usuario.id_usuario;
+    const assistantUserValues = await UsuarioENT.findByPk(assistantUserID);
     const usuarioDTO = new UsuarioDTO(
-      asistente.id_usuario.id_usuario,
-      asistente.id_usuario.usuario,
-      asistente.id_usuario.id_tipo_usuario,
-      asistente.id_usuario.nombres,
-      asistente.id_usuario.apellidos,
-      asistente.id_usuario.fecha_nacimiento,
-      asistente.id_usuario.id_ciudad,
-      asistente.id_usuario.telefono,
-      asistente.id_usuario.correo_electronico,
-      asistente.id_usuario.fecha_creacion
+      assistantUserID,
+      assistantUserValues.usuario,
+      assistantUserValues.id_tipo_usuario,
+      assistantUserValues.nombres,
+      assistantUserValues.apellidos,
+      assistantUserValues.fecha_nacimiento,
+      assistantUserValues.id_ciudad,
+      assistantUserValues.telefono,
+      assistantUserValues.correo_electronico,
+      assistantUserValues.fecha_creacion
     );
+
     const updatedDTO = new AsistenteDTO(
       asistente.id_asistente,
       usuarioDTO,

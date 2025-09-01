@@ -141,14 +141,14 @@ const createUser = async (userData) => {
     });
 
     const tipoUsuarioDTO = new TipoUsuarioDTO(
-      newUser.id_tipo_usuario.id_tipo_usuario,
+      newUser.tipo_usuario.id_tipo_usuario,
       (
-        await TipoUsuarioENT.findByPk(newUser.id_tipo_usuario.id_tipo_usuario)
+        await TipoUsuarioENT.findByPk(newUser.tipo_usuario.id_tipo_usuario)
       ).tipo_usuario
     );
     const ciudadDTO = new CiudadDTO(
-      newUser.id_ciudad.id_ciudad,
-      (await CiudadENT.findByPk(newUser.id_ciudad.id_ciudad)).ciudad
+      newUser.ciudad.id_ciudad,
+      (await CiudadENT.findByPk(newUser.ciudad.id_ciudad)).ciudad
     );
     const newUserDTO = new UsuarioDTO(
       newUser.id_usuario,
@@ -211,14 +211,14 @@ const updateUser = async (id, userData) => {
     });
 
     const tipoUsuarioDTO = new TipoUsuarioDTO(
-      user.id_tipo_usuario.id_tipo_usuario,
+      user.tipo_usuario.id_tipo_usuario,
       (
-        await TipoUsuarioENT.findByPk(user.id_tipo_usuario.id_tipo_usuario)
+        await TipoUsuarioENT.findByPk(user.tipo_usuario.id_tipo_usuario)
       ).tipo_usuario
     );
     const ciudadDTO = new CiudadDTO(
-      user.id_ciudad.id_ciudad,
-      (await CiudadENT.findByPk(user.id_ciudad.id_ciudad)).ciudad
+      user.ciudad.id_ciudad,
+      (await CiudadENT.findByPk(user.ciudad.id_ciudad)).ciudad
     );
     const updatedDTO = new UsuarioDTO(
       user.id_usuario,
@@ -254,7 +254,7 @@ const updatePassword = async (req) => {
   console.log("Updating User Password...");
   try {
     const token = req.headers.authorization.split(" ")[1];
-    const decoded = jwt.verify(token, SECRET_KEY_CODES.SECRET_KEY); // Asume SECRET_KEY_CODES en config
+    const decoded = jwt.verify(token, SECRET_KEY_CODES.SECRET_KEY); // SECRET_KEY_CODES en config
     const user = await UsuarioENT.findByPk(decoded.id);
     if (!user) return new ResponseDTO("U-106", 404, null, "User Not Found.");
     const hashedPassword = await bcrypt.hash(req.body.contrasenia, 10);
@@ -501,16 +501,16 @@ const getOradorByIDUsuario = async (id_usuario) => {
     }
 
     const usuarioDTO = new UsuarioDTO(
-      orador.id_usuario.id_usuario,
-      orador.id_usuario.usuario,
-      orador.id_usuario.id_tipo_usuario,
-      orador.id_usuario.nombres,
-      orador.id_usuario.apellidos,
-      orador.id_usuario.fecha_nacimiento,
-      orador.id_usuario.id_ciudad,
-      orador.id_usuario.telefono,
-      orador.id_usuario.correo_electronico,
-      orador.id_usuario.fecha_creacion
+      orador.usuario.id_usuario,
+      orador.usuario.usuario,
+      orador.usuario.id_tipo_usuario,
+      orador.usuario.nombres,
+      orador.usuario.apellidos,
+      orador.usuario.fecha_nacimiento,
+      orador.usuario.id_ciudad,
+      orador.usuario.telefono,
+      orador.usuario.correo_electronico,
+      orador.usuario.fecha_creacion
     );
     const oradorDTO = new OradorDTO(
       orador.id_orador,
@@ -560,16 +560,16 @@ const getAsistenteByIDUsuario = async (id_usuario) => {
     }
 
     const usuarioDTO = new UsuarioDTO(
-      asistente.id_usuario.id_usuario,
-      asistente.id_usuario.usuario,
-      asistente.id_usuario.id_tipo_usuario,
-      asistente.id_usuario.nombres,
-      asistente.id_usuario.apellidos,
-      asistente.id_usuario.fecha_nacimiento,
-      asistente.id_usuario.id_ciudad,
-      asistente.id_usuario.telefono,
-      asistente.id_usuario.correo_electronico,
-      asistente.id_usuario.fecha_creacion
+      asistente.usuario.id_usuario,
+      asistente.usuario.usuario,
+      asistente.usuario.id_tipo_usuario,
+      asistente.usuario.nombres,
+      asistente.usuario.apellidos,
+      asistente.usuario.fecha_nacimiento,
+      asistente.usuario.id_ciudad,
+      asistente.usuario.telefono,
+      asistente.usuario.correo_electronico,
+      asistente.usuario.fecha_creacion
     );
     const asistenteDTO = new AsistenteDTO(
       asistente.id_asistente,

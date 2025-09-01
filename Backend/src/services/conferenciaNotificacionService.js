@@ -11,21 +11,21 @@ const getAllConferenciaNotificacion = async () => {
       include: [{ model: ConferenciaENT, as: "conferencia" }],
     });
     const recordsDTO = records.map((record) => {
-      const conferenciaDTO = ConferenciaDTO(
-        record.id_conferencia.id_conferencia,
-        record.id_conferencia.titulo,
-        record.id_conferencia.descripcion,
-        record.id_conferencia.id_marca_conferencia,
-        record.id_conferencia.id_orador,
-        record.id_conferencia.id_tipo_conferencia,
-        record.id_conferencia.votos_a_favor,
-        record.id_conferencia.votos_en_contra,
-        record.id_conferencia.fecha,
-        record.id_conferencia.hora_empieza,
-        record.id_conferencia.hora_termina,
-        record.id_conferencia.sala,
-        record.id_conferencia.evaluacion,
-        record.id_conferencia.material
+      const conferenciaDTO = new ConferenciaDTO(
+        record.conferencia.id_conferencia,
+        record.conferencia.titulo,
+        record.conferencia.descripcion,
+        record.conferencia.id_marca_conferencia,
+        record.conferencia.id_orador,
+        record.conferencia.id_tipo_conferencia,
+        record.conferencia.votos_a_favor,
+        record.conferencia.votos_en_contra,
+        record.conferencia.fecha,
+        record.conferencia.hora_empieza,
+        record.conferencia.hora_termina,
+        record.conferencia.sala,
+        record.conferencia.evaluacion,
+        record.conferencia.material
       );
       return new ConferenciaNotificacionDTO(
         record.id_conferencia_notificacion,
@@ -47,21 +47,21 @@ const getConferenciaNotificacionById = async (id) => {
     });
     if (!record)
       return new ResponseDTO("CN-102", 404, null, "Record Not Found.");
-    const conferenciaDTO = ConferenciaDTO(
-      record.id_conferencia.id_conferencia,
-      record.id_conferencia.titulo,
-      record.id_conferencia.descripcion,
-      record.id_conferencia.id_marca_conferencia,
-      record.id_conferencia.id_orador,
-      record.id_conferencia.id_tipo_conferencia,
-      record.id_conferencia.votos_a_favor,
-      record.id_conferencia.votos_en_contra,
-      record.id_conferencia.fecha,
-      record.id_conferencia.hora_empieza,
-      record.id_conferencia.hora_termina,
-      record.id_conferencia.sala,
-      record.id_conferencia.evaluacion,
-      record.id_conferencia.material
+    const conferenciaDTO = new ConferenciaDTO(
+      record.conferencia.id_conferencia,
+      record.conferencia.titulo,
+      record.conferencia.descripcion,
+      record.conferencia.id_marca_conferencia,
+      record.conferencia.id_orador,
+      record.conferencia.id_tipo_conferencia,
+      record.conferencia.votos_a_favor,
+      record.conferencia.votos_en_contra,
+      record.conferencia.fecha,
+      record.conferencia.hora_empieza,
+      record.conferencia.hora_termina,
+      record.conferencia.sala,
+      record.conferencia.evaluacion,
+      record.conferencia.material
     );
     const recordDTO = new ConferenciaNotificacionDTO(
       record.id_conferencia_notificacion,
@@ -78,25 +78,29 @@ const createConferenciaNotificacion = async (data) => {
   console.log("Creating ConferenciaNotificacion...");
   try {
     const newRecord = await ConferenciaNotificacionENT.create({
-      id_conferencia: data.id_conferencia.id_conferencia,
+      id_conferencia: data.conferencia.id_conferencia,
       notificacion: data.notificacion,
     });
-    const conferenciaDTO = ConferenciaDTO(
-      data.id_conferencia.id_conferencia,
-      data.id_conferencia.titulo,
-      data.id_conferencia.descripcion,
-      data.id_conferencia.id_marca_conferencia,
-      data.id_conferencia.id_orador,
-      data.id_conferencia.id_tipo_conferencia,
-      data.id_conferencia.votos_a_favor,
-      data.id_conferencia.votos_en_contra,
-      data.id_conferencia.fecha,
-      data.id_conferencia.hora_empieza,
-      data.id_conferencia.hora_termina,
-      data.id_conferencia.sala,
-      data.id_conferencia.evaluacion,
-      data.id_conferencia.material
+
+    const conferenceID = newRecord.conferencia.id_conferencia;
+    const conferenceValues = await ConferenciaENT.findByPk(conferenceID);
+    const conferenciaDTO = new ConferenciaDTO(
+      conferenceID,
+      conferenceValues.titulo,
+      conferenceValues.descripcion,
+      conferenceValues.id_marca_conferencia,
+      conferenceValues.id_orador,
+      conferenceValues.id_tipo_conferencia,
+      conferenceValues.votos_a_favor,
+      conferenceValues.votos_en_contra,
+      conferenceValues.fecha,
+      conferenceValues.hora_empieza,
+      conferenceValues.hora_termina,
+      conferenceValues.sala,
+      conferenceValues.evaluacion,
+      conferenceValues.material
     );
+
     const recordDTO = new ConferenciaNotificacionDTO(
       newRecord.id_conferencia_notificacion,
       conferenciaDTO,
@@ -118,25 +122,29 @@ const updateConferenciaNotificacion = async (id, data) => {
     if (!record)
       return new ResponseDTO("CN-104", 404, null, "Record Not Found.");
     await record.update({
-      id_conferencia: data.id_conferencia.id_conferencia,
+      id_conferencia: data.conferencia.id_conferencia,
       notificacion: data.notificacion,
     });
-    const conferenciaDTO = ConferenciaDTO(
-      record.id_conferencia.id_conferencia,
-      record.id_conferencia.titulo,
-      record.id_conferencia.descripcion,
-      record.id_conferencia.id_marca_conferencia,
-      record.id_conferencia.id_orador,
-      record.id_conferencia.id_tipo_conferencia,
-      record.id_conferencia.votos_a_favor,
-      record.id_conferencia.votos_en_contra,
-      record.id_conferencia.fecha,
-      record.id_conferencia.hora_empieza,
-      record.id_conferencia.hora_termina,
-      record.id_conferencia.sala,
-      record.id_conferencia.evaluacion,
-      record.id_conferencia.material
+
+    const conferenceID = record.conferencia.id_conferencia;
+    const conferenceValues = await ConferenciaENT.findByPk(conferenceID);
+    const conferenciaDTO = new ConferenciaDTO(
+      conferenceID,
+      conferenceValues.titulo,
+      conferenceValues.descripcion,
+      conferenceValues.id_marca_conferencia,
+      conferenceValues.id_orador,
+      conferenceValues.id_tipo_conferencia,
+      conferenceValues.votos_a_favor,
+      conferenceValues.votos_en_contra,
+      conferenceValues.fecha,
+      conferenceValues.hora_empieza,
+      conferenceValues.hora_termina,
+      conferenceValues.sala,
+      conferenceValues.evaluacion,
+      conferenceValues.material
     );
+
     const updatedDTO = new ConferenciaNotificacionDTO(
       record.id_conferencia_notificacion,
       conferenciaDTO,

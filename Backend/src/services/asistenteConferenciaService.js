@@ -16,26 +16,26 @@ const getAllAsistenteConferencia = async () => {
       ],
     });
     const recordsDTO = records.map((record) => {
-      const conferenciaDTO = ConferenciaDTO(
-        record.id_conferencia.id_conferencia,
-        record.id_conferencia.titulo,
-        record.id_conferencia.descripcion,
-        record.id_conferencia.id_marca_conferencia,
-        record.id_conferencia.id_orador,
-        record.id_conferencia.id_tipo_conferencia,
-        record.id_conferencia.votos_a_favor,
-        record.id_conferencia.votos_en_contra,
-        record.id_conferencia.fecha,
-        record.id_conferencia.hora_empieza,
-        record.id_conferencia.hora_termina,
-        record.id_conferencia.sala,
-        record.id_conferencia.evaluacion,
-        record.id_conferencia.material
+      const conferenciaDTO = new ConferenciaDTO(
+        record.conferencia.id_conferencia,
+        record.conferencia.titulo,
+        record.conferencia.descripcion,
+        record.conferencia.id_marca_conferencia,
+        record.conferencia.id_orador,
+        record.conferencia.id_tipo_conferencia,
+        record.conferencia.votos_a_favor,
+        record.conferencia.votos_en_contra,
+        record.conferencia.fecha,
+        record.conferencia.hora_empieza,
+        record.conferencia.hora_termina,
+        record.conferencia.sala,
+        record.conferencia.evaluacion,
+        record.conferencia.material
       );
       const asistenteDTO = new AsistenteDTO(
-        record.id_asistente.id_asistente,
-        record.id_asistente.id_usuario,
-        record.id_asistente.descripcion
+        record.asistente.id_asistente,
+        record.asistente.id_usuario,
+        record.asistente.descripcion
       );
       return new AsistenteConferenciaDTO(
         record.id_asistente_conferencia,
@@ -65,26 +65,26 @@ const getAsistenteConferenciaById = async (id) => {
     });
     if (!record)
       return new ResponseDTO("AC-102", 404, null, "Record Not Found.");
-    const conferenciaDTO = ConferenciaDTO(
-      record.id_conferencia.id_conferencia,
-      record.id_conferencia.titulo,
-      record.id_conferencia.descripcion,
-      record.id_conferencia.id_marca_conferencia,
-      record.id_conferencia.id_orador,
-      record.id_conferencia.id_tipo_conferencia,
-      record.id_conferencia.votos_a_favor,
-      record.id_conferencia.votos_en_contra,
-      record.id_conferencia.fecha,
-      record.id_conferencia.hora_empieza,
-      record.id_conferencia.hora_termina,
-      record.id_conferencia.sala,
-      record.id_conferencia.evaluacion,
-      record.id_conferencia.material
+    const conferenciaDTO = new ConferenciaDTO(
+      record.conferencia.id_conferencia,
+      record.conferencia.titulo,
+      record.conferencia.descripcion,
+      record.conferencia.id_marca_conferencia,
+      record.conferencia.id_orador,
+      record.conferencia.id_tipo_conferencia,
+      record.conferencia.votos_a_favor,
+      record.conferencia.votos_en_contra,
+      record.conferencia.fecha,
+      record.conferencia.hora_empieza,
+      record.conferencia.hora_termina,
+      record.conferencia.sala,
+      record.conferencia.evaluacion,
+      record.conferencia.material
     );
     const asistenteDTO = new AsistenteDTO(
-      record.id_asistente.id_asistente,
-      record.id_asistente.id_usuario,
-      record.id_asistente.descripcion
+      record.asistente.id_asistente,
+      record.asistente.id_usuario,
+      record.asistente.descripcion
     );
     const recordDTO = new AsistenteConferenciaDTO(
       record.id_asistente_conferencia,
@@ -101,30 +101,37 @@ const createAsistenteConferencia = async (data) => {
   console.log("Creating AsistenteConferencia...");
   try {
     const newRecord = await AsistenteConferenciaENT.create({
-      id_conferencia: data.id_conferencia.id_conferencia,
-      id_asistente: data.id_asistente.id_asistente,
+      id_conferencia: data.conferencia.id_conferencia,
+      id_asistente: data.asistente.id_asistente,
     });
-    const conferenciaDTO = ConferenciaDTO(
-      data.id_conferencia.id_conferencia,
-      data.id_conferencia.titulo,
-      data.id_conferencia.descripcion,
-      data.id_conferencia.id_marca_conferencia,
-      data.id_conferencia.id_orador,
-      data.id_conferencia.id_tipo_conferencia,
-      data.id_conferencia.votos_a_favor,
-      data.id_conferencia.votos_en_contra,
-      data.id_conferencia.fecha,
-      data.id_conferencia.hora_empieza,
-      data.id_conferencia.hora_termina,
-      data.id_conferencia.sala,
-      data.id_conferencia.evaluacion,
-      data.id_conferencia.material
+
+    const conferenceID = newRecord.conferencia.id_conferencia;
+    const conferenceValues = await ConferenciaENT.findByPk(conferenceID);
+    const conferenciaDTO = new ConferenciaDTO(
+      conferenceID,
+      conferenceValues.titulo,
+      conferenceValues.descripcion,
+      conferenceValues.id_marca_conferencia,
+      conferenceValues.id_orador,
+      conferenceValues.id_tipo_conferencia,
+      conferenceValues.votos_a_favor,
+      conferenceValues.votos_en_contra,
+      conferenceValues.fecha,
+      conferenceValues.hora_empieza,
+      conferenceValues.hora_termina,
+      conferenceValues.sala,
+      conferenceValues.evaluacion,
+      conferenceValues.material
     );
+
+    const assistantID = newRecord.asistente.id_asistente;
+    const assistantValues = await AsistenteENT.findByPk(assistantID);
     const asistenteDTO = new AsistenteDTO(
-      data.id_asistente.id_asistente,
-      data.id_asistente.id_usuario,
-      data.id_asistente.descripcion
+      assistantID,
+      assistantValues.id_usuario,
+      assistantValues.descripcion
     );
+
     const recordDTO = new AsistenteConferenciaDTO(
       newRecord.id_asistente_conferencia,
       conferenciaDTO,
@@ -148,30 +155,37 @@ const updateAsistenteConferencia = async (id, data) => {
     if (!record)
       return new ResponseDTO("AC-104", 404, null, "Record Not Found.");
     await record.update({
-      id_conferencia: data.id_conferencia.id_conferencia,
-      id_asistente: data.id_asistente.id_asistente,
+      id_conferencia: data.conferencia.id_conferencia,
+      id_asistente: data.asistente.id_asistente,
     });
-    const conferenciaDTO = ConferenciaDTO(
-      record.id_conferencia.id_conferencia,
-      record.id_conferencia.titulo,
-      record.id_conferencia.descripcion,
-      record.id_conferencia.id_marca_conferencia,
-      record.id_conferencia.id_orador,
-      record.id_conferencia.id_tipo_conferencia,
-      record.id_conferencia.votos_a_favor,
-      record.id_conferencia.votos_en_contra,
-      record.id_conferencia.fecha,
-      record.id_conferencia.hora_empieza,
-      record.id_conferencia.hora_termina,
-      record.id_conferencia.sala,
-      record.id_conferencia.evaluacion,
-      record.id_conferencia.material
+
+    const conferenceID = record.conferencia.id_conferencia;
+    const conferenceValues = await ConferenciaENT.findByPk(conferenceID);
+    const conferenciaDTO = new ConferenciaDTO(
+      conferenceID,
+      conferenceValues.titulo,
+      conferenceValues.descripcion,
+      conferenceValues.id_marca_conferencia,
+      conferenceValues.id_orador,
+      conferenceValues.id_tipo_conferencia,
+      conferenceValues.votos_a_favor,
+      conferenceValues.votos_en_contra,
+      conferenceValues.fecha,
+      conferenceValues.hora_empieza,
+      conferenceValues.hora_termina,
+      conferenceValues.sala,
+      conferenceValues.evaluacion,
+      conferenceValues.material
     );
+
+    const assistantID = record.asistente.id_asistente;
+    const assistantValues = await AsistenteENT.findByPk(assistantID);
     const asistenteDTO = new AsistenteDTO(
-      record.id_asistente.id_asistente,
-      record.id_asistente.id_usuario,
-      record.id_asistente.descripcion
+      assistantID,
+      assistantValues.id_usuario,
+      assistantValues.descripcion
     );
+
     const updatedDTO = new AsistenteConferenciaDTO(
       record.id_asistente_conferencia,
       conferenciaDTO,
