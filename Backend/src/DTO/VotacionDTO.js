@@ -1,6 +1,6 @@
 class VotacionDTO {
-  constructor(idVotacion, votacion) {
-    this.idVotacion = idVotacion;
+  constructor(id_votacion, votacion) {
+    this.id_votacion = id_votacion;
     this.votacion = votacion;
   }
 }

@@ -6,17 +6,17 @@ const AsistenteENT = require("./AsistenteENT");
 const NotificacionAsistenteENT = sequelize.define(
   "NotificacionAsistente",
   {
-    idNotificacionAsistente: {
+    id_notificacion_asistente: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
       allowNull: false,
     },
-    idConferenciaNotificacion: {
+    id_conferencia_notificacion: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    idAsistente: {
+    id_asistente: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
@@ -28,15 +28,15 @@ const NotificacionAsistenteENT = sequelize.define(
 );
 
 NotificacionAsistenteENT.belongsTo(ConferenciaNotificacionENT, {
-  foreignKey: "ID_CONFERENCIA_NOTIFICACION",
-  as: "CONFERENCIA_NOTIFICACION",
-  targetKey: "ID_CONFERENCIA_NOTIFICACION",
+  foreignKey: "id_conferencia_notificacion",
+  as: "conferencia_notificacion",
+  targetKey: "id_conferencia_notificacion",
 });
 
 NotificacionAsistenteENT.belongsTo(AsistenteENT, {
-  foreignKey: "ID_ASISTENTE",
-  as: "ASISTENTE",
-  targetKey: "ID_ASISTENTE",
+  foreignKey: "id_asistente",
+  as: "asistente",
+  targetKey: "id_asistente",
 });
 
 module.exports = NotificacionAsistenteENT;

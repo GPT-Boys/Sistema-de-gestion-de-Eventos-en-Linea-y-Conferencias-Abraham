@@ -6,17 +6,17 @@ const AsistenteENT = require("./AsistenteENT");
 const AsistenteConferenciaENT = sequelize.define(
   "AsistenteConferencia",
   {
-    idAsistenteConferencia: {
+    id_asistente_conferencia: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
       allowNull: false,
     },
-    idConferencia: {
+    id_conferencia: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    idAsistente: {
+    id_asistente: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
@@ -28,15 +28,15 @@ const AsistenteConferenciaENT = sequelize.define(
 );
 
 AsistenteConferenciaENT.belongsTo(ConferenciaENT, {
-  foreignKey: "ID_CONFERENCIA",
-  as: "CONFERENCIA",
-  targetKey: "ID_CONFERENCIA",
+  foreignKey: "id_conferencia",
+  as: "conferencia",
+  targetKey: "id_conferencia",
 });
 
 AsistenteConferenciaENT.belongsTo(AsistenteENT, {
-  foreignKey: "ID_ASISTENTE",
-  as: "ASISTENTE",
-  targetKey: "ID_ASISTENTE",
+  foreignKey: "id_asistente",
+  as: "asistente",
+  targetKey: "id_asistente",
 });
 
 module.exports = AsistenteConferenciaENT;

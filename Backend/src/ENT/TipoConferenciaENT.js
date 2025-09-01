@@ -4,13 +4,13 @@ const sequelize = require("../../database/db");
 const TipoConferenciaENT = sequelize.define(
   "TipoConferencia",
   {
-    idTipoConferencia: {
+    id_tipo_conferencia: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
       allowNull: false,
     },
-    tipoConferencia: {
+    tipo_conferencia: {
       type: DataTypes.STRING(100),
       allowNull: false,
     },

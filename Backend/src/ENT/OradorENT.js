@@ -5,13 +5,13 @@ const UsuarioENT = require("./UsuarioENT");
 const OradorENT = sequelize.define(
   "Orador",
   {
-    idOrador: {
+    id_orador: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
       allowNull: false,
     },
-    idUsuario: {
+    id_usuario: {
       type: DataTypes.INTEGER,
       allowNull: false,
       unique: true,
@@ -36,9 +36,9 @@ const OradorENT = sequelize.define(
 );
 
 OradorENT.belongsTo(UsuarioENT, {
-  foreignKey: "ID_USUARIO",
-  as: "USUARIO",
-  targetKey: "ID_USUARIO",
+  foreignKey: "id_usuario",
+  as: "usuario",
+  targetKey: "id_usuario",
 });
 
 module.exports = OradorENT;

@@ -1,6 +1,6 @@
 class CiudadDTO {
-  constructor(idCiudad, ciudad) {
-    this.idCiudad = idCiudad;
+  constructor(id_ciudad, ciudad) {
+    this.id_ciudad = id_ciudad;
     this.ciudad = ciudad;
   }
 }

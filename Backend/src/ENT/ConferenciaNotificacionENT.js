@@ -5,13 +5,13 @@ const ConferenciaENT = require("./ConferenciaENT");
 const ConferenciaNotificacionENT = sequelize.define(
   "ConferenciaNotificacion",
   {
-    idConferenciaNotificacion: {
+    id_conferencia_notificacion: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
       allowNull: false,
     },
-    idConferencia: {
+    id_conferencia: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
@@ -27,9 +27,9 @@ const ConferenciaNotificacionENT = sequelize.define(
 );
 
 ConferenciaNotificacionENT.belongsTo(ConferenciaENT, {
-  foreignKey: "ID_CONFERENCIA",
-  as: "CONFERENCIA",
-  targetKey: "ID_CONFERENCIA",
+  foreignKey: "id_conferencia",
+  as: "conferencia",
+  targetKey: "id_conferencia",
 });
 
 module.exports = ConferenciaNotificacionENT;

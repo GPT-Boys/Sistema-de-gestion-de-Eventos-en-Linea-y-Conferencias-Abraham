@@ -4,7 +4,7 @@ const sequelize = require("../../database/db");
 const VotacionENT = sequelize.define(
   "Votacion",
   {
-    idVotacion: {
+    id_votacion: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
