@@ -210,10 +210,75 @@ const deleteAsistenteConferencia = async (id) => {
   }
 };
 
+const getConferenciasByAsistente = async (asistenteId) => {
+  console.log(`Getting Conferencias for Asistente ID: ${asistenteId}...`);
+  try {
+    const inscripciones = await AsistenteConferenciaENT.findAll({
+      where: { id_asistente: asistenteId },
+      include: [{ model: ConferenciaENT, as: "conferencia" }],
+    });
+    const conferenciasDTO = inscripciones.map(
+      (inscripcion) =>
+        new ConferenciaDTO(
+          inscripcion.conferencia.id_conferencia,
+          inscripcion.conferencia.titulo,
+          inscripcion.conferencia.descripcion,
+          inscripcion.conferencia.id_marca_conferencia,
+          inscripcion.conferencia.id_orador,
+          inscripcion.conferencia.id_tipo_conferencia,
+          inscripcion.conferencia.votos_a_favor,
+          inscripcion.conferencia.votos_en_contra,
+          inscripcion.conferencia.fecha,
+          inscripcion.conferencia.hora_empieza,
+          inscripcion.conferencia.hora_termina,
+          inscripcion.conferencia.sala,
+          inscripcion.conferencia.evaluacion,
+          inscripcion.conferencia.material
+        )
+    );
+    return new ResponseDTO(
+      "AC-000",
+      200,
+      conferenciasDTO,
+      "Conferencias Obtained."
+    );
+  } catch (error) {
+    return new ResponseDTO("AC-106", 500, null, `Error: ${error}`);
+  }
+};
+
+const getAsistentesByConferencia = async (conferenciaId) => {
+  console.log(`Getting Asistentes for Conferencia ID: ${conferenciaId}...`);
+  try {
+    const inscripciones = await AsistenteConferenciaENT.findAll({
+      where: { id_conferencia: conferenciaId },
+      include: [{ model: AsistenteENT, as: "asistente" }],
+    });
+    const asistentesDTO = inscripciones.map(
+      (inscripcion) =>
+        new AsistenteDTO(
+          inscripcion.asistente.id_asistente,
+          inscripcion.asistente.id_usuario,
+          inscripcion.asistente.descripcion
+        )
+    );
+    return new ResponseDTO(
+      "AC-000",
+      200,
+      asistentesDTO,
+      "Asistentes Obtained."
+    );
+  } catch (error) {
+    return new ResponseDTO("AC-107", 500, null, `Error: ${error}`);
+  }
+};
+
 module.exports = {
   getAllAsistenteConferencia,
   getAsistenteConferenciaById,
   createAsistenteConferencia,
   updateAsistenteConferencia,
   deleteAsistenteConferencia,
+  getConferenciasByAsistente,
+  getAsistentesByConferencia,
 };

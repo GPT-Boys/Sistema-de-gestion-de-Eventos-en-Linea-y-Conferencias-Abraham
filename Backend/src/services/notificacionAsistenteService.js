@@ -206,6 +206,27 @@ const getNotificacionesByAsistente = async (asistenteId) => {
   }
 };
 
+const enviarNotificacionGlobal = async (message) => {
+  console.log("Enviando Notificacion Global...");
+  try {
+    const asistentes = await AsistenteENT.findAll();
+    const promises = asistentes.map(async (asistente) => {
+      const newNotif = await ConferenciaNotificacionENT.create({
+        id_conferencia: 0, // Asume 0 para global o ajusta
+        notificacion: message,
+      });
+      await NotificacionAsistenteENT.create({
+        id_conferencia_notificacion: newNotif.id_conferencia_notificacion,
+        id_asistente: asistente.id_asistente,
+      });
+    });
+    await Promise.all(promises);
+    return new ResponseDTO("NA-000", 200, null, "Notificacion Global Enviada.");
+  } catch (error) {
+    return new ResponseDTO("NA-107", 500, null, `Error: ${error}`);
+  }
+};
+
 module.exports = {
   getAllNotificacionAsistente,
   getNotificacionAsistenteById,
@@ -213,4 +234,5 @@ module.exports = {
   updateNotificacionAsistente,
   deleteNotificacionAsistente,
   getNotificacionesByAsistente,
+  enviarNotificacionGlobal,
 };

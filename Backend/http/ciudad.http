@@ -1,0 +1,29 @@
+@baseURL = http://localhost:3000/api/ciudad
+
+### Obtener todas las ciudades
+GET {{baseURL}}/
+Accept: application/json
+
+### Obtener una ciudad por ID
+GET {{baseURL}}/1
+Accept: application/json
+
+### Crear una nueva ciudad
+POST {{baseURL}}/
+Content-Type: application/json
+
+{
+  "ciudad": "Lima"
+}
+
+### Actualizar una ciudad
+PUT {{baseURL}}/1
+Content-Type: application/json
+
+{
+  "ciudad": "Lima Actualizada"
+}
+
+### Eliminar una ciudad
+DELETE {{baseURL}}/1
+Accept: application/json

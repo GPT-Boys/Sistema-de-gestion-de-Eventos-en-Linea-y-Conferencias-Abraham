@@ -1,0 +1,29 @@
+@baseURL = http://localhost:3000/api/marcaConferencia
+
+### Obtener todas las marcas de conferencias
+GET {{baseURL}}/
+Accept: application/json
+
+### Obtener una marca por ID
+GET {{baseURL}}/1
+Accept: application/json
+
+### Crear una nueva marca
+POST {{baseURL}}/
+Content-Type: application/json
+
+{
+  "marca_conferencia": "Marca Prueba"
+}
+
+### Actualizar una marca
+PUT {{baseURL}}/1
+Content-Type: application/json
+
+{
+  "marca_conferencia": "Marca Actualizada"
+}
+
+### Eliminar una marca
+DELETE {{baseURL}}/1
+Accept: application/json

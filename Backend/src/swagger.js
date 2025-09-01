@@ -64,7 +64,7 @@ const options = {
     "src/DTO/TipoUsuarioDTO.js",
     "src/DTO/UsuarioDTO.js",
     "src/DTO/VotacionDTO.js",
-    // Add more API and service pairs as needed
+    // Add more API, DTO, and service files as needed
   ],
 };
 

@@ -1,6 +1,7 @@
 const ResponseDTO = require("../DTO/ResponseDTO");
 const VotacionDTO = require("../DTO/VotacionDTO");
 const VotacionENT = require("../ENT/VotacionENT");
+const AsistenteConferenciaVotacionENT = require("../ENT/AsistenteConferenciaVotacionENT");
 
 const getAllVotaciones = async () => {
   console.log("Getting All Votaciones...");
@@ -129,10 +130,28 @@ const deleteVotacion = async (id) => {
   }
 };
 
+const getReporteVotos = async (conferenciaId) => {
+  console.log(`Getting Reporte Votos for Conferencia ID: ${conferenciaId}...`);
+  try {
+    const votos = await AsistenteConferenciaVotacionENT.findAll({
+      where: { id_asistente_conferencia: conferenciaId },
+      include: [{ model: VotacionENT, as: "votacion" }],
+    });
+    const reporte = votos.reduce((acc, voto) => {
+      acc[voto.votacion.votacion] = (acc[voto.votacion.votacion] || 0) + 1;
+      return acc;
+    }, {});
+    return new ResponseDTO("V-000", 200, reporte, "Reporte Votos Obtained.");
+  } catch (error) {
+    return new ResponseDTO("V-106", 500, null, `Error: ${error}`);
+  }
+};
+
 module.exports = {
   getAllVotaciones,
   getVotacionById,
   createVotacion,
   updateVotacion,
   deleteVotacion,
+  getReporteVotos,
 };

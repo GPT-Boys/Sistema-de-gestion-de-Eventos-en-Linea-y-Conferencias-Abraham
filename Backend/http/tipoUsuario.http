@@ -1,0 +1,29 @@
+@baseURL = http://localhost:3000/api/tipoUsuario
+
+### Obtener todos los tipos de usuarios
+GET {{baseURL}}/
+Accept: application/json
+
+### Obtener un tipo de usuario por ID
+GET {{baseURL}}/1
+Accept: application/json
+
+### Crear un nuevo tipo de usuario
+POST {{baseURL}}/
+Content-Type: application/json
+
+{
+  "tipo_usuario": "Administrador"
+}
+
+### Actualizar un tipo de usuario
+PUT {{baseURL}}/1
+Content-Type: application/json
+
+{
+  "tipo_usuario": "Orador"
+}
+
+### Eliminar un tipo de usuario
+DELETE {{baseURL}}/1
+Accept: application/json

@@ -1,0 +1,48 @@
+@baseURL = http://localhost:3000
+
+### Obtener perfil del asistente
+GET {{baseURL}}/api/asistente
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer tu-token-aqui
+
+### Inscribirse a una conferencia
+POST {{baseURL}}/api/asistenteConferencia
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer tu-token-aqui
+{
+  "conferencia": {
+    "id_conferencia": 1
+  },
+  "asistente": {
+    "id_asistente": 1
+  }
+}
+
+### Registrar voto en una conferencia
+POST {{baseURL}}/api/votar/1
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer tu-token-aqui
+{
+  "positivo": true
+}
+
+### Obtener materiales de una conferencia
+GET {{baseURL}}/api/materiales/1
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer tu-token-aqui
+
+### Obtener conferencias inscritas
+GET {{baseURL}}/api/conferenciasInscritas/1
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer tu-token-aqui
+
+### Obtener notificaciones del asistente
+GET {{baseURL}}/api/notificacionAsistente/notificaciones/1
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer tu-token-aqui

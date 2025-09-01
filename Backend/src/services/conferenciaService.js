@@ -10,7 +10,10 @@ const TipoConferenciaENT = require("../ENT/TipoConferenciaENT");
 
 const nodemailer = require("nodemailer");
 const twilio = require("twilio");
+const dotenv = require("dotenv");
 const { io } = require("../app");
+
+dotenv.config();
 
 // Configuración de Nodemailer
 const transporter = nodemailer.createTransport({
@@ -429,7 +432,6 @@ const updateVotos = async (id, votoPositivo) => {
     if (votoPositivo) conferencia.votos_a_favor += 1;
     else conferencia.votos_en_contra += 1;
     await conferencia.save();
-    // Placeholder para notificación real-time
     return new ResponseDTO("C-000", 200, null, "Votos Updated Successfully.");
   } catch (error) {
     return new ResponseDTO(
@@ -441,6 +443,184 @@ const updateVotos = async (id, votoPositivo) => {
   }
 };
 
+const updateCharla = async (id, charlaData) => {
+  console.log(`Updating Charla for Conferencia ID: ${id}...`);
+  try {
+    const conferencia = await ConferenciaENT.findByPk(id);
+    if (!conferencia)
+      return new ResponseDTO("C-107", 404, null, "Conferencia Not Found.");
+    await conferencia.update({
+      titulo: charlaData.titulo || conferencia.titulo,
+      descripcion: charlaData.descripcion || conferencia.descripcion,
+      hora_empieza: charlaData.hora_empieza || conferencia.hora_empieza,
+      hora_termina: charlaData.hora_termina || conferencia.hora_termina,
+      sala: charlaData.sala || conferencia.sala,
+    });
+
+    const conferenceID = conferencia.id_conferencia;
+    const conferenceValues = await ConferenciaENT.findByPk(conferenceID);
+    const updatedDTO = new ConferenciaDTO(
+      conferenceID,
+      conferenceValues.titulo,
+      conferenceValues.descripcion,
+      conferenceValues.id_marca_conferencia,
+      conferenceValues.id_orador,
+      conferenceValues.id_tipo_conferencia,
+      conferenceValues.votos_a_favor,
+      conferenceValues.votos_en_contra,
+      conferenceValues.fecha,
+      conferenceValues.hora_empieza,
+      conferenceValues.hora_termina,
+      conferenceValues.sala,
+      conferenceValues.evaluacion,
+      conferenceValues.material
+    );
+
+    return new ResponseDTO(
+      "C-000",
+      200,
+      updatedDTO,
+      "Charla Updated Successfully."
+    );
+  } catch (error) {
+    return new ResponseDTO(
+      "C-107",
+      500,
+      null,
+      `Error Updating Charla: ${error}`
+    );
+  }
+};
+
+const getVotos = async (id) => {
+  console.log(`Getting Votos for Conferencia ID: ${id}...`);
+  try {
+    const conferencia = await ConferenciaENT.findByPk(id);
+    if (!conferencia)
+      return new ResponseDTO("C-108", 404, null, "Conferencia Not Found.");
+    return new ResponseDTO(
+      "C-000",
+      200,
+      {
+        votos_a_favor: conferencia.votos_a_favor,
+        votos_en_contra: conferencia.votos_en_contra,
+      },
+      "Votos Obtained."
+    );
+  } catch (error) {
+    return new ResponseDTO("C-108", 500, null, `Error Getting Votos: ${error}`);
+  }
+};
+
+const addMaterial = async (id, material) => {
+  console.log(`Adding Material for Conferencia ID: ${id}...`);
+  try {
+    const conferencia = await ConferenciaENT.findByPk(id);
+    if (!conferencia)
+      return new ResponseDTO("C-109", 404, null, "Conferencia Not Found.");
+    conferencia.material = material;
+    await conferencia.save();
+    return new ResponseDTO("C-000", 200, null, "Material Added Successfully.");
+  } catch (error) {
+    return new ResponseDTO(
+      "C-109",
+      500,
+      null,
+      `Error Adding Material: ${error}`
+    );
+  }
+};
+
+const addEvaluacion = async (id, evaluacion) => {
+  console.log(`Adding Evaluacion for Conferencia ID: ${id}...`);
+  try {
+    const conferencia = await ConferenciaENT.findByPk(id);
+    if (!conferencia)
+      return new ResponseDTO("C-110", 404, null, "Conferencia Not Found.");
+    conferencia.evaluacion = evaluacion;
+    await conferencia.save();
+    return new ResponseDTO(
+      "C-000",
+      200,
+      null,
+      "Evaluacion Added Successfully."
+    );
+  } catch (error) {
+    return new ResponseDTO(
+      "C-110",
+      500,
+      null,
+      `Error Adding Evaluacion: ${error}`
+    );
+  }
+};
+
+const getMateriales = async (id, asistenteId) => {
+  console.log(
+    `Getting Materiales for Conferencia ID: ${id} and Asistente ID: ${asistenteId}...`
+  );
+  try {
+    const conferencia = await ConferenciaENT.findByPk(id);
+    if (!conferencia)
+      return new ResponseDTO("C-111", 404, null, "Conferencia Not Found.");
+    // Verificar si el asistente está inscrito
+    const inscripcion = await AsistenteConferenciaENT.findOne({
+      where: { id_conferencia: id, id_asistente: asistenteId },
+    });
+    if (!inscripcion)
+      return new ResponseDTO("C-112", 403, null, "Access Denied.");
+    return new ResponseDTO(
+      "C-000",
+      200,
+      conferencia.material,
+      "Materiales Obtained."
+    );
+  } catch (error) {
+    return new ResponseDTO(
+      "C-111",
+      500,
+      null,
+      `Error Getting Materiales: ${error}`
+    );
+  }
+};
+
+const getConferenciasByOrador = async (oradorId) => {
+  console.log(`Getting Conferencias for Orador ID: ${oradorId}...`);
+  try {
+    const conferencias = await ConferenciaENT.findAll({
+      where: { id_orador: oradorId },
+    });
+    const conferenciasDTO = conferencias.map(
+      (conf) =>
+        new ConferenciaDTO(
+          conf.id_conferencia,
+          conf.titulo,
+          conf.descripcion,
+          conf.id_marca_conferencia,
+          conf.id_orador,
+          conf.id_tipo_conferencia,
+          conf.votos_a_favor,
+          conf.votos_en_contra,
+          conf.fecha,
+          conf.hora_empieza,
+          conf.hora_termina,
+          conf.sala,
+          conf.evaluacion,
+          conf.material
+        )
+    );
+    return new ResponseDTO(
+      "C-000",
+      200,
+      conferenciasDTO,
+      "Conferencias Obtained."
+    );
+  } catch (error) {
+    return new ResponseDTO("C-113", 500, null, `Error: ${error}`);
+  }
+};
+
 module.exports = {
   getAllConferencias,
   getConferenciaById,
@@ -448,4 +628,10 @@ module.exports = {
   updateConferencia,
   deleteConferencia,
   updateVotos,
+  updateCharla,
+  getVotos,
+  addMaterial,
+  addEvaluacion,
+  getMateriales,
+  getConferenciasByOrador,
 };
