@@ -1,0 +1,40 @@
+@baseURL = http://localhost:3000/api/notificacionAsistente
+
+### Obtener todas las notificaciones a asistentes
+GET {{baseURL}}/
+Accept: application/json
+
+### Obtener una notificación por ID
+GET {{baseURL}}/1
+Accept: application/json
+
+### Obtener notificaciones de un asistente
+GET {{baseURL}}/notificaciones/1
+Accept: application/json
+
+### Crear una nueva notificación para asistente
+POST {{baseURL}}/
+Content-Type: application/json
+
+{
+  "conferencia_notificacion": {
+    "id_conferencia_notificacion": 1
+  },
+  "asistente": {
+    "id_asistente": 1
+  }
+}
+
+### Actualizar una notificación
+PUT {{baseURL}}/1
+Content-Type: application/json
+
+{
+  "conferencia_notificacion": {
+    "id_conferencia_notificacion": 2
+  }
+}
+
+### Eliminar una notificación
+DELETE {{baseURL}}/1
+Accept: application/json

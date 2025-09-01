@@ -1,0 +1,50 @@
+@baseURL = http://localhost:3000
+
+### Obtener perfil del orador
+GET {{baseURL}}/api/orador
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer tu-token-aqui
+
+### Obtener conferencias asignadas
+GET {{baseURL}}/api/conferenciasAsignadas/1
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer tu-token-aqui
+
+### Subir materiales para una conferencia
+POST {{baseURL}}/api/materiales/1
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer tu-token-aqui
+{
+  "material": "URL_o_contenido_del_material"
+}
+
+### Subir evaluación para una conferencia
+POST {{baseURL}}/api/evaluacion/1
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer tu-token-aqui
+{
+  "evaluacion": "https://docs.google.com/"
+}
+
+### Editar detalles de una charla
+PUT {{baseURL}}/api/charla/1
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer tu-token-aqui
+{
+  "titulo": "Nueva Charla",
+  "descripcion": "Descripción actualizada",
+  "hora_empieza": "10:00",
+  "hora_termina": "11:00",
+  "sala": "AUDITORIO 3 Bloque D"
+}
+
+### Ver votos recibidos
+GET {{baseURL}}/api/votos/1
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer tu-token-aqui

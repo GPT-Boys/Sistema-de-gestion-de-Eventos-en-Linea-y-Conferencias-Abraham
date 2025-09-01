@@ -1,0 +1,29 @@
+@baseURL = http://localhost:3000/api/votacion
+
+### Obtener todas las votaciones
+GET {{baseURL}}/
+Accept: application/json
+
+### Obtener una votación por ID
+GET {{baseURL}}/1
+Accept: application/json
+
+### Crear una nueva votación
+POST {{baseURL}}/
+Content-Type: application/json
+
+{
+  "votacion": "A Favor"
+}
+
+### Actualizar una votación
+PUT {{baseURL}}/1
+Content-Type: application/json
+
+{
+  "votacion": "En Contra"
+}
+
+### Eliminar una votación
+DELETE {{baseURL}}/1
+Accept: application/json

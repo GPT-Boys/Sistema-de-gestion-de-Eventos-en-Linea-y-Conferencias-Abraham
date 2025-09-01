@@ -1,0 +1,32 @@
+@baseURL = http://localhost:3000/api/conferenciaNotificacion
+
+### Obtener todas las notificaciones de conferencias
+GET {{baseURL}}/
+Accept: application/json
+
+### Obtener una notificación por ID
+GET {{baseURL}}/1
+Accept: application/json
+
+### Crear una nueva notificación
+POST {{baseURL}}/
+Content-Type: application/json
+
+{
+  "conferencia": {
+    "id_conferencia": 1
+  },
+  "notificacion": "Conferencia actualizada"
+}
+
+### Actualizar una notificación
+PUT {{baseURL}}/1
+Content-Type: application/json
+
+{
+  "notificacion": "Actualización importante"
+}
+
+### Eliminar una notificación
+DELETE {{baseURL}}/1
+Accept: application/json

@@ -146,6 +146,72 @@ CREATE TABLE VOTACION (
     CONSTRAINT VOTACION_pk PRIMARY KEY (ID_VOTACION)
 );
 
+<<<<<<< HEAD
+=======
+-- Stored Procedure para propagar notificaciones a asistentes registrados
+DELIMITER //
+CREATE PROCEDURE PropagarNotificacion(IN conf_id INT, IN notif_id INT)
+BEGIN
+  DECLARE asist_id INT;
+  DECLARE done INT DEFAULT FALSE;
+  DECLARE cur CURSOR FOR 
+    SELECT ID_ASISTENTE FROM ASISTENTE_CONFERENCIA WHERE ID_CONFERENCIA = conf_id;
+  DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+  OPEN cur;
+  read_loop: LOOP
+    FETCH cur INTO asist_id;
+    IF done THEN
+      LEAVE read_loop;
+    END IF;
+    INSERT INTO NOTIFICACION_ASISTENTE (ID_CONFERENCIA_NOTIFICACION, ID_ASISTENTE) 
+    VALUES (notif_id, asist_id);
+  END LOOP;
+  CLOSE cur;
+END //
+DELIMITER ;
+
+-- Trigger en CONFERENCIA para registrar notificación al actualizar
+DELIMITER //
+CREATE TRIGGER conference_update_trigger
+AFTER UPDATE ON CONFERENCIA
+FOR EACH ROW
+BEGIN
+  DECLARE new_notif_id INT;
+  DECLARE changes TEXT DEFAULT '';
+
+  -- Detectar cambios (personaliza según necesidades, e.g., si cambió fecha/hora/sala)
+  IF OLD.FECHA <> NEW.FECHA THEN
+    SET changes = CONCAT(changes, 'Fecha cambiada de ', OLD.FECHA, ' a ', NEW.FECHA, '. ');
+  END IF;
+  IF OLD.HORA_EMPIEZA <> NEW.HORA_EMPIEZA THEN
+    SET changes = CONCAT(changes, 'Hora de inicio cambiada de ', OLD.HORA_EMPIEZA, ' a ', NEW.HORA_EMPIEZA, '. ');
+  END IF;
+  IF OLD.HORA_TERMINA <> NEW.HORA_TERMINA THEN
+    SET changes = CONCAT(changes, 'Hora de fin cambiada de ', OLD.HORA_TERMINA, ' a ', NEW.HORA_TERMINA, '. ');
+  END IF;
+  IF OLD.SALA <> NEW.SALA THEN
+    SET changes = CONCAT(changes, 'Sala cambiada de ', OLD.SALA, ' a ', NEW.SALA, '. ');
+  END IF;
+
+  IF changes <> '' THEN
+    -- Insertar en CONFERENCIA_NOTIFICACION
+    INSERT INTO CONFERENCIA_NOTIFICACION (ID_CONFERENCIA, NOTIFICACION) 
+    VALUES (NEW.ID_CONFERENCIA, CONCAT('Conferencia "', NEW.TITULO, '" actualizada: ', changes));
+    
+    SET new_notif_id = LAST_INSERT_ID();
+    
+    -- Propagar a asistentes
+    CALL PropagarNotificacion(NEW.ID_CONFERENCIA, new_notif_id);
+  END IF;
+END //
+DELIMITER ;
+
+UPDATE CONFERENCIA SET FECHA = '2025-09-10' WHERE ID_CONFERENCIA = 1;
+SELECT * FROM CONFERENCIA_NOTIFICACION;
+SELECT * FROM NOTIFICACION_ASISTENTE;
+
+>>>>>>> origin/osqui
 -- foreign keys
 -- Reference: ASISTENTE_CONFERENCIA_ASISTENTE (table: ASISTENTE_CONFERENCIA)
 ALTER TABLE ASISTENTE_CONFERENCIA ADD CONSTRAINT ASISTENTE_CONFERENCIA_ASISTENTE FOREIGN KEY ASISTENTE_CONFERENCIA_ASISTENTE (ID_ASISTENTE)

@@ -1,0 +1,32 @@
+@baseURL = http://localhost:3000/api/asistente
+
+### Obtener todos los asistentes
+GET {{baseURL}}/
+Accept: application/json
+
+### Obtener un asistente por ID
+GET {{baseURL}}/1
+Accept: application/json
+
+### Crear un nuevo asistente
+POST {{baseURL}}/
+Content-Type: application/json
+
+{
+  "usuario": {
+    "id_usuario": 1,
+  },
+  "descripcion": "Asistente de prueba"
+}
+
+### Actualizar un asistente
+PUT {{baseURL}}/1
+Content-Type: application/json
+
+{
+  "descripcion": "Asistente actualizado"
+}
+
+### Eliminar un asistente
+DELETE {{baseURL}}/1
+Accept: application/json

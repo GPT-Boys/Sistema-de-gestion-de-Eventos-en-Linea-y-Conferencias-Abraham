@@ -1,0 +1,39 @@
+@baseURL = http://localhost:3000/api/asistenteConferencia
+
+### Obtener todas las relaciones asistente-conferencia
+GET {{baseURL}}/
+Accept: application/json
+
+### Obtener una relación por ID
+GET {{baseURL}}/1
+Accept: application/json
+
+### Crear una nueva relación asistente-conferencia
+POST {{baseURL}}/
+Content-Type: application/json
+
+{
+  "conferencia": {
+    "id_conferencia": 1
+  },
+  "asistente": {
+    "id_asistente": 1
+  }
+}
+
+### Actualizar una relación asistente-conferencia
+PUT {{baseURL}}/1
+Content-Type: application/json
+
+{
+  "conferencia": {
+    "id_conferencia": 2
+  },
+  "asistente": {
+    "id_asistente": 1
+  }
+}
+
+### Eliminar una relación asistente-conferencia
+DELETE {{baseURL}}/1
+Accept: application/json

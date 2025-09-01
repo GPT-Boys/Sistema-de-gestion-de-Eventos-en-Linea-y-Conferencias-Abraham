@@ -1,0 +1,28 @@
+@baseURL = http://localhost:3000
+
+### Obtener lista de asistentes
+GET {{baseURL}}/api/asistente
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer tu-token-aqui
+
+### Obtener reporte de asistencias por conferencia
+GET {{baseURL}}/api/reporteAsistencias/1
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer tu-token-aqui
+
+### Obtener reporte de votos por conferencia
+GET {{baseURL}}/api/reporteVotos/1
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer tu-token-aqui
+
+### Enviar notificación global
+POST {{baseURL}}/api/notificacionGlobal
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer tu-token-aqui
+{
+  "message": "Evento importante mañana a las 10:00"
+}
