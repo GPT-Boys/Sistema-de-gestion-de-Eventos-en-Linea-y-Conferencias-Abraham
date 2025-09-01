@@ -153,19 +153,22 @@
     </section>
 
     <!-- SHOWCASE -->
+    <!-- SHOWCASE -->
     <section class="section showcase">
       <div class="container">
+        <h2 class="h2 center">Lo que puedes hacer</h2>
         <div class="show-grid">
           <figure class="shot">
+            <img :src="charlasImg" alt="Administrar charlas" class="block-img" />
             <figcaption>Programa y administra tus sesiones</figcaption>
           </figure>
           <figure class="shot">
+            <img :src="feedbackImg" alt="Feedback de charlas" class="block-img" />
             <figcaption>Obtén feedback en minutos</figcaption>
           </figure>
         </div>
       </div>
     </section>
-
     <!-- TESTIMONIOS -->
     <section class="section testimonials">
       <div class="container">
@@ -327,6 +330,9 @@ import joseJpg from '@/assets/images/team/jose.jpg'
 import miguelJpg from '@/assets/images/team/miguel.jpg'
 import oscarJpg from '@/assets/images/team/oscar.jpg'
 import rodrigoJpg from '@/assets/images/team/rodrigo.jpg'
+import charlasImg from '@/assets/img/Charlas.png'
+import feedbackImg from '@/assets/img/Feedback.png'
+
 
 const members = [
   { nombre: 'Fabrisio Condarco', foto: fabrisioJpg },

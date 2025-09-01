@@ -34,6 +34,30 @@ const fmtFecha = (d) =>
 onMounted(() => {
   if (!store.loaded) store._loadAll()
 })
+
+// 🔹 Función para descargar material (base64 → Blob)
+function downloadFile(m) {
+  try {
+    const base64 = m.url
+    const byteString = atob(base64.split(',')[1])
+    const mimeString = base64.split(',')[0].split(':')[1].split(';')[0]
+    const ab = new ArrayBuffer(byteString.length)
+    const ia = new Uint8Array(ab)
+    for (let i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i)
+    }
+    const blob = new Blob([ab], { type: mimeString })
+
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
+    link.download = m.nombre || 'archivo'
+    link.click()
+    URL.revokeObjectURL(link.href)
+  } catch (e) {
+    console.error('Error al descargar archivo:', e)
+    alert('No se pudo descargar el archivo')
+  }
+}
 </script>
 
 <template>
@@ -77,7 +101,9 @@ onMounted(() => {
           <ul>
             <li v-for="m in c.materiales" :key="m.id">
               <i class="bi bi-file-earmark-text"></i>
-              <a :href="m.url" target="_blank" rel="noopener">{{ m.nombre }}</a>
+              <button class="btn-link" @click="downloadFile(m)">
+                Descargar {{ m.nombre }}
+              </button>
             </li>
           </ul>
         </div>
@@ -113,8 +139,8 @@ onMounted(() => {
 .files h4{ margin:0 0 6px; font-size:14px; font-weight:700; color:#4c1d95; }
 .files ul{ list-style:none; padding:0; margin:0; display:grid; gap:6px; }
 .files li{ display:flex; align-items:center; gap:8px; font-size:14px; }
-.files a{ color:#4c1d95; font-weight:500; text-decoration:none; }
-.files a:hover{ text-decoration:underline; }
+.btn-link{ background:none; border:none; padding:0; margin:0; cursor:pointer; font-size:14px; color:#4c1d95; font-weight:500; text-decoration:none; }
+.btn-link:hover{ text-decoration:underline; }
 
 .no-files{ font-size:13px; color:#64748b; display:flex; gap:6px; align-items:center; }
 </style>

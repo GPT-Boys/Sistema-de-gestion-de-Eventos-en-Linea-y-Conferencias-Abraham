@@ -81,7 +81,7 @@ const isActive = (path) => route.path.startsWith(path)
 <style scoped>
 .sidenav{
   --w: 280px; --w-collapsed: 90px;
-  --bg:#343434; --ink:#cdd2df; --ink-muted:#8a90a3; --accent:#7c3aed;
+  --bg:#131313ed; --ink:#cdd2df; --ink-muted:#8a90a3; --accent:#7c3aed;
 
   position: sticky; top:0; height:100svh;
   width: var(--w); background: var(--bg); color: var(--ink);

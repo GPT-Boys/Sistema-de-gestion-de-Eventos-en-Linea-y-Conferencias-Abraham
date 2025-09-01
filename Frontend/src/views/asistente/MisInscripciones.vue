@@ -1,4 +1,4 @@
-<script setup>
+<script setup> 
 import { ref, computed, onMounted } from 'vue'
 import { useConferenciasStore } from '@/stores/app/conferencias.js'
 import { useAuthStore } from '@/stores/publicStores/auth.js'
@@ -20,6 +20,7 @@ onMounted(() => {
 
 const uid = computed(() => auth.user?.id_usuario ?? auth.user?.id ?? null)
 
+// Charlas inscritas
 const baseList = computed(() => {
   const all = uid.value ? store.enrolledForUser(uid.value) : []
   return tab.value === 'historial'
@@ -85,6 +86,30 @@ const fmtFechaHead = (d) =>
   d && !isNaN(Date.parse(d))
     ? new Date(d).toLocaleDateString(undefined,{weekday:'long', day:'2-digit', month:'long', year:'numeric'})
     : d || 'Sin fecha'
+
+// 🔹 Descargar material en base64
+function downloadFile(m) {
+  try {
+    const base64 = m.url
+    const byteString = atob(base64.split(',')[1])
+    const mimeString = base64.split(',')[0].split(':')[1].split(';')[0]
+    const ab = new ArrayBuffer(byteString.length)
+    const ia = new Uint8Array(ab)
+    for (let i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i)
+    }
+    const blob = new Blob([ab], { type: mimeString })
+
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
+    link.download = m.nombre || 'archivo'
+    link.click()
+    URL.revokeObjectURL(link.href)
+  } catch (e) {
+    console.error('Error al descargar archivo:', e)
+    alert('No se pudo descargar el archivo')
+  }
+}
 </script>
 
 <template>
@@ -142,6 +167,22 @@ const fmtFechaHead = (d) =>
           <li><i class="bi bi-geo"></i> Sala: {{ c.sala }}</li>
         </ul>
 
+        <!-- 🔹 MATERIALES -->
+        <div v-if="c.materiales && c.materiales.length" class="files">
+          <h4>Materiales</h4>
+          <ul>
+            <li v-for="m in c.materiales" :key="m.id">
+              <i class="bi bi-file-earmark-text"></i>
+              <button class="btn-link" @click="downloadFile(m)">
+                Descargar {{ m.nombre }}
+              </button>
+            </li>
+          </ul>
+        </div>
+        <div v-else class="no-files">
+          <i class="bi bi-exclamation-circle"></i> Sin materiales
+        </div>
+
         <div class="actions">
           <button class="btn" @click="show(c)"><i class="bi bi-eye"></i> Detalles</button>
 
@@ -190,6 +231,22 @@ const fmtFechaHead = (d) =>
                 </div>
               </div>
               <p class="desc">{{ c.descripcion }}</p>
+
+              <!-- 🔹 MATERIALES EN TIMELINE -->
+              <div v-if="c.materiales && c.materiales.length" class="files">
+                <strong>Materiales:</strong>
+                <ul>
+                  <li v-for="m in c.materiales" :key="m.id">
+                    <i class="bi bi-file-earmark-text"></i>
+                    <button class="btn-link" @click="downloadFile(m)">
+                      Descargar {{ m.nombre }}
+                    </button>
+                  </li>
+                </ul>
+              </div>
+              <div v-else class="no-files">
+                <i class="bi bi-exclamation-circle"></i> Sin materiales
+              </div>
             </div>
           </li>
         </ul>
@@ -201,6 +258,16 @@ const fmtFechaHead = (d) =>
 </template>
 
 <style scoped>
+.files { margin-top:8px; }
+.files h4 { margin:0 0 4px; font-size:14px; font-weight:700; color:var(--morado-base); }
+.files ul { list-style:none; margin:0; padding:0; display:grid; gap:4px; }
+.files li { display:flex; align-items:center; gap:6px; font-size:14px; }
+.btn-link{ background:none; border:none; padding:0; margin:0; cursor:pointer; font-size:14px; color:var(--morado-base); font-weight:500; text-decoration:none; }
+.btn-link:hover{ text-decoration:underline; }
+
+.no-files { font-size:13px; color:#64748b; display:flex; align-items:center; gap:6px; margin-top:4px; }
+
+/* …resto de estilos igual que antes… */
 .page { display:grid; gap:20px; padding:20px; background:white; min-height:100vh; }
 .page-header h1 { font-size:24px; font-weight:800; color:var(--morado-oscuro); display:flex; align-items:center; gap:8px; }
 
