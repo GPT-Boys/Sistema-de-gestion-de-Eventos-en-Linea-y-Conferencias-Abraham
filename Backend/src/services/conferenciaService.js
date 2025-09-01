@@ -8,6 +8,27 @@ const OradorENT = require("../ENT/OradorENT");
 const TipoConferenciaDTO = require("../DTO/TipoConferenciaDTO");
 const TipoConferenciaENT = require("../ENT/TipoConferenciaENT");
 
+const nodemailer = require("nodemailer");
+const twilio = require("twilio");
+const { io } = require("../app");
+
+// Configuración de Nodemailer
+const transporter = nodemailer.createTransport({
+  host: process.env.EMAIL_HOST,
+  port: process.env.EMAIL_PORT,
+  secure: false, // true para 465, false para otros puertos
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
+// Configuración de Twilio
+const twilioClient = twilio(
+  process.env.TWILIO_ACCOUNT_SID,
+  process.env.TWILIO_AUTH_TOKEN
+);
+
 const getAllConferencias = async () => {
   console.log("Getting All Conferencias...");
   try {
@@ -213,6 +234,19 @@ const createConferencia = async (conferenciaData) => {
   }
 };
 
+// Obtener asistentes inscritos
+const getAsistentesInscritos = async (conferenciaId) => {
+  const AsistenteConferenciaENT = require("../ENT/AsistenteConferenciaENT");
+  const UsuarioENT = require("../ENT/UsuarioENT");
+  const asistentes = await AsistenteConferenciaENT.findAll({
+    where: { id_conferencia: conferenciaId },
+    include: [
+      { model: UsuarioENT, attributes: ["correo_electronico", "telefono"] },
+    ],
+  });
+  return asistentes.map((ac) => ac.usuario);
+};
+
 const updateConferencia = async (id, conferenciaData) => {
   console.log(`Updating Conferencia ID: ${id}...`);
   try {
@@ -226,18 +260,22 @@ const updateConferencia = async (id, conferenciaData) => {
     if (!conferencia)
       return new ResponseDTO("C-104", 404, null, "Conferencia Not Found.");
     await conferencia.update({
-      titulo: conferenciaData.titulo,
-      descripcion: conferenciaData.descripcion,
+      titulo: conferenciaData.titulo || conferencia.titulo,
+      descripcion: conferenciaData.descripcion || conferencia.descripcion,
       id_marca_conferencia:
-        conferenciaData.marca_conferencia.id_marca_conferencia,
-      id_orador: conferenciaData.orador.id_orador,
-      id_tipo_conferencia: conferenciaData.tipo_conferencia.id_tipo_conferencia,
-      fecha: conferenciaData.fecha,
-      hora_empieza: conferenciaData.hora_empieza,
-      hora_termina: conferenciaData.hora_termina,
-      sala: conferenciaData.sala,
-      evaluacion: conferenciaData.evaluacion,
-      material: conferenciaData.material,
+        conferenciaData.marca_conferencia.id_marca_conferencia ||
+        conferencia.marca_conferencia.id_marca_conferencia,
+      id_orador:
+        conferenciaData.orador.id_orador || conferencia.orador.id_orador,
+      id_tipo_conferencia:
+        conferenciaData.tipo_conferencia.id_tipo_conferencia ||
+        conferencia.tipo_conferencia.id_tipo_conferencia,
+      fecha: conferenciaData.fecha || conferencia.fecha,
+      hora_empieza: conferenciaData.hora_empieza || conferencia.hora_empieza,
+      hora_termina: conferenciaData.hora_termina || conferencia.hora_termina,
+      sala: conferenciaData.sala || conferencia.sala,
+      evaluacion: conferenciaData.evaluacion || conferencia.evaluacion,
+      material: conferenciaData.material || conferencia.material,
     });
 
     const brandConferenceID =
@@ -285,7 +323,64 @@ const updateConferencia = async (id, conferenciaData) => {
       conferencia.evaluacion,
       conferencia.material
     );
-    // Placeholder para notificación real-time
+
+    // Detectar cambios para la notificación
+    const changes = [];
+    if (conferenciaData.fecha && conferenciaData.fecha !== conferencia.fecha)
+      changes.push(`Fecha cambiada a ${conferenciaData.fecha}`);
+    if (
+      conferenciaData.hora_empieza &&
+      conferenciaData.hora_empieza !== conferencia.hora_empieza
+    )
+      changes.push(`Hora inicio cambiada a ${conferenciaData.hora_empieza}`);
+    if (
+      conferenciaData.hora_termina &&
+      conferenciaData.hora_termina !== conferencia.hora_termina
+    )
+      changes.push(`Hora fin cambiada a ${conferenciaData.hora_termina}`);
+    if (conferenciaData.sala && conferenciaData.sala !== conferencia.sala)
+      changes.push(`Sala cambiada a ${conferenciaData.sala}`);
+
+    if (changes.length > 0) {
+      const message = `Conferencia "${
+        conferencia.titulo
+      }" actualizada: ${changes.join(". ")}.`;
+
+      const asistentes = await getAsistentesInscritos(id);
+
+      io.to(`conferencia_${id}`).emit("conferenceUpdated", {
+        conferenceID: id,
+        message: message,
+        timestamp: new Date().toISOString(),
+      });
+
+      // Enviar correos electrónicos
+      const emailPromises = asistentes.map((asistente) =>
+        transporter.sendMail({
+          from: process.env.EMAIL_USER,
+          to: asistente.correo_electronico,
+          subject: "Actualización de Conferencia",
+          text: message,
+          html: `<p>${message}</p><p>Fecha: ${
+            conferenciaData.fecha || conferencia.fecha
+          }</p>`,
+        })
+      );
+      await Promise.all(emailPromises);
+      console.log(`Emails sent to ${asistentes.length} asistentes.`);
+
+      // Enviar SMS
+      const smsPromises = asistentes.map((asistente) =>
+        twilioClient.messages.create({
+          body: message,
+          from: process.env.TWILIO_PHONE_NUMBER,
+          to: asistente.telefono, // +1234567890
+        })
+      );
+      await Promise.all(smsPromises);
+      console.log(`SMS sent to ${asistentes.length} asistentes.`);
+    }
+
     return new ResponseDTO(
       "C-000",
       200,

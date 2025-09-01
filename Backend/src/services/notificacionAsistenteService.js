@@ -168,10 +168,49 @@ const deleteNotificacionAsistente = async (id) => {
   }
 };
 
+const getNotificacionesByAsistente = async (asistenteId) => {
+  console.log(`Getting Notificaciones for Asistente ID: ${asistenteId}...`);
+  try {
+    const notificaciones = await NotificacionAsistenteENT.findAll({
+      where: { id_asistente: asistenteId },
+      include: [
+        { model: ConferenciaNotificacionENT, as: "conferencia_notificacion" },
+        { model: AsistenteENT, as: "asistente" },
+      ],
+    });
+    const notificacionesDTO = notificaciones.map((notif) => {
+      const conferenciaNotificacionDTO = new ConferenciaNotificacionDTO(
+        notif.conferencia_notificacion.id_conferencia_notificacion,
+        notif.conferencia_notificacion.id_conferencia,
+        notif.conferencia_notificacion.notificacion
+      );
+      const asistenteDTO = new AsistenteDTO(
+        notif.asistente.id_asistente,
+        notif.asistente.id_usuario,
+        notif.asistente.descripcion
+      );
+      return new NotificacionAsistenteDTO(
+        notif.id_notificacion_asistente,
+        conferenciaNotificacionDTO,
+        asistenteDTO
+      );
+    });
+    return new ResponseDTO(
+      "NA-000",
+      200,
+      notificacionesDTO,
+      "Notificaciones Obtained."
+    );
+  } catch (error) {
+    return new ResponseDTO("NA-106", 500, null, `Error: ${error}`);
+  }
+};
+
 module.exports = {
   getAllNotificacionAsistente,
   getNotificacionAsistenteById,
   createNotificacionAsistente,
   updateNotificacionAsistente,
   deleteNotificacionAsistente,
+  getNotificacionesByAsistente,
 };
