@@ -42,7 +42,7 @@ const groupedByDate = computed(() => {
     map.set(k, arr)
   }
   return [...map.entries()]
-    .sort((a,b) => (a[0]||'').localeCompare(b[0]||''))
+    .sort((a,b) => (a[0]||'').localeCompare(b[0]||'')) 
     .map(([date, items]) => ({ date, items }))
 })
 
@@ -85,6 +85,7 @@ const fmtFechaHead = (d) =>
             type="search"
             placeholder="Buscar por título, descripción o sala…"
             @input="onQueryInput"
+            aria-label="Buscar charlas"
           />
         </div>
 
@@ -119,17 +120,17 @@ const fmtFechaHead = (d) =>
         </header>
         <p class="desc">{{ c.descripcion }}</p>
         <ul class="meta">
-          <li><i class="bi bi-calendar-event"></i> {{ c.fecha }}</li>
+          <li><i class="bi bi-calendar-event"></i> {{ fmtFechaHead(c.fecha) }}</li>
           <li><i class="bi bi-clock"></i> {{ c.horaEmpieza }} – {{ c.horaTermina }}</li>
           <li><i class="bi bi-geo"></i> Sala: {{ c.sala }}</li>
           <li><i class="bi bi-hand-thumbs-up"></i> {{ c.votosAFavor }} &nbsp; <i class="bi bi-hand-thumbs-down"></i> {{ c.votosEnContra }}</li>
         </ul>
         <div class="actions">
-          <button class="btn" @click="show(c)"><i class="bi bi-eye"></i> Detalles</button>
+          <button class="btn secondary" @click="show(c)"><i class="bi bi-eye"></i> Detalles</button>
           <a v-if="canJoinZoom(c)" class="btn primary" :href="c.zoomUrl" target="_blank" rel="noopener">
             <i class="bi bi-camera-video"></i> Abrir Zoom
           </a>
-          <a v-else-if="canEvaluate(c)" class="btn" :href="c.evaluacion" target="_blank" rel="noopener">
+          <a v-else-if="canEvaluate(c)" class="btn secondary" :href="c.evaluacion" target="_blank" rel="noopener">
             <i class="bi bi-ui-checks-grid"></i> Evaluación
           </a>
         </div>
@@ -150,11 +151,11 @@ const fmtFechaHead = (d) =>
                   <h3 class="title">{{ c.titulo }}</h3>
                 </div>
                 <div class="right">
-                  <button class="btn sm" @click="show(c)"><i class="bi bi-eye"></i> Detalles</button>
+                  <button class="btn sm secondary" @click="show(c)"><i class="bi bi-eye"></i> Detalles</button>
                   <a v-if="canJoinZoom(c)" class="btn sm primary" :href="c.zoomUrl" target="_blank" rel="noopener">
                     <i class="bi bi-camera-video"></i> Zoom
                   </a>
-                  <a v-else-if="canEvaluate(c)" class="btn sm" :href="c.evaluacion" target="_blank" rel="noopener">
+                  <a v-else-if="canEvaluate(c)" class="btn sm secondary" :href="c.evaluacion" target="_blank" rel="noopener">
                     <i class="bi bi-ui-checks-grid"></i> Evaluación
                   </a>
                 </div>
@@ -174,15 +175,20 @@ const fmtFechaHead = (d) =>
   </div>
 </template>
 
-<style scoped>
+<style>
 :root {
   --b: #e5e7eb;
   --grad: linear-gradient(135deg, #7c3aed, #6d28d9);
-  --live: #0ea5b7; --up: #5b6bff; --fin: #64748b;
+  --live: #0ea5b7; 
+  --up: #5b6bff; 
+  --fin: #64748b;
 }
+</style>
+<style scoped>
+
 
 .page { background:#f8f9fc; display:grid; gap:16px; padding:10px; color:#111827; }
-.head h1 { margin:0; font-size:22px; font-weight:800; color:#4c1d95; }
+.head h1 { margin:0; font-size:24px; font-weight:800; color:#4c1d95; }
 .muted { color:#6b7280; margin-top:2px; }
 
 .toolbar{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:space-between; }
@@ -190,9 +196,30 @@ const fmtFechaHead = (d) =>
 .search input{ border:none; outline:none; background:transparent; width:100%; color:#111827; }
 
 .actions{ display:flex; gap:8px; align-items:center; }
-.btn{ border:1px solid var(--b); background:#6d28d9; padding:10px 12px; border-radius:10px; cursor:pointer; font-weight:600; display:inline-flex; gap:6px; align-items:center; color:#ffffff; }
-.btn.primary{ background:var(--grad); border:none; color:#6d28d9; box-shadow:0 4px 12px rgba(124,58,237,0.35); }
-.btn.primary:hover{ filter:brightness(1.1); transform:translateY(-2px); }
+
+/* Botones */
+.btn{ 
+  border:1px solid var(--b); 
+  padding:10px 12px; 
+  border-radius:10px; 
+  cursor:pointer; 
+  font-weight:600; 
+  display:inline-flex; 
+  gap:6px; 
+  align-items:center; 
+  transition:all 0.2s ease;
+}
+.btn.primary{ 
+  background:var(--grad); 
+  color:#fff; 
+  border:none; 
+  box-shadow:0 4px 12px rgba(124,58,237,0.35); 
+}
+.btn.primary:hover{ filter:brightness(1.05); transform:translateY(-2px); }
+.btn.secondary{ background:#f3f4f6; color:#374151; }
+.btn.sm{ padding:6px 10px; border-radius:8px; font-size:13px; }
+.btn.sm.primary{ background:var(--grad); color:#fff; border:none; }
+.btn.sm.secondary{ background:#f3f4f6; color:#374151; }
 
 .view-toggle{ display:flex; gap:8px; }
 .toggle-btn{ border:1px solid var(--b); background:#fff; width:42px; height:42px; border-radius:12px; cursor:pointer; display:grid; place-items:center; color:#111827; }
@@ -204,19 +231,56 @@ const fmtFechaHead = (d) =>
 @media (max-width:1200px){ .grid{ grid-template-columns: repeat(2, minmax(0,1fr)); } }
 @media (max-width:760px){ .grid{ grid-template-columns: 1fr; } }
 
-.card{ background:#fff; border:1px solid var(--b); border-radius:16px; box-shadow:0 12px 36px rgba(17,24,39,.06); padding:16px; display:grid; gap:10px; }
+.card{ 
+  background:#fff; 
+  border:1px solid var(--b); 
+  border-radius:16px; 
+  box-shadow:0 12px 36px rgba(17,24,39,.06); 
+  padding:16px; 
+  display:grid; 
+  gap:10px; 
+  transition: all 0.2s ease;
+}
+.card:hover{ box-shadow:0 16px 40px rgba(17,24,39,.1); transform:translateY(-2px); }
+
 .card-head{ display:grid; gap:6px; }
-.status{ font-size:12px; font-weight:700; width:max-content; padding:4px 10px; border-radius:999px; background:#eef2ff; color:#3730a3; }
+
+/* Estado (pill) */
+.status{ 
+  font-size:11px; 
+  font-weight:600; 
+  text-transform:uppercase; 
+  width:max-content; 
+  padding:3px 8px; 
+  border-radius:999px; 
+  background:#f3f4f6; 
+  color:#374151; 
+}
 .card[data-status="live"] .status{ background:#ecfeff; color:#0e7490; }
 .card[data-status="finished"] .status{ background:#f1f5f9; color:#334155; }
-.title{ font-size:17px; font-weight:700; margin:0; color:#111827; }
+
+/* Títulos */
+.title{ font-size:18px; font-weight:700; margin:0; color:#111827; }
 .desc{ color:#475569; font-size:14px; }
 
+/* Metadatos */
 .meta{ list-style:none; padding:0; margin:0; display:grid; gap:4px; color:#374151; font-size:13px; }
+
+/* Votos en pill */
+.meta-votos{
+  display:inline-flex; 
+  gap:8px; 
+  padding:3px 8px; 
+  background:#f9fafb; 
+  border-radius:8px; 
+  font-size:13px; 
+  align-items:center; 
+  margin-top:4px;
+}
 
 .timeline{ display:grid; gap:18px; }
 .day-group{ background:#fff; border:1px solid var(--b); border-radius:16px; padding:14px; }
-.day-title{ margin:0 0 8px; font-size:15px; font-weight:700; color:#4c1d95; text-transform:capitalize; }
+.day-title{ margin:6px 0 12px; font-size:17px; font-weight:700; color:#4c1d95; text-transform:capitalize; }
 .line{ list-style:none; padding:0; margin:0; }
 .slot{ display:flex; gap:12px; padding:12px 6px; border-left:3px solid #e2e8f0; margin-left:10px; position:relative; }
 .slot + .slot{ border-top:1px dashed #eef0f4; }
@@ -227,6 +291,5 @@ const fmtFechaHead = (d) =>
 .slot-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
 .time{ font-weight:700; color:#374151; min-width:120px; }
 .meta-row{ display:flex; gap:14px; flex-wrap:wrap; color:#374151; font-size:13px; }
-.btn.sm{ padding:6px 10px; border-radius:8px; font-size:13px; }
-.btn.sm.primary{ background:var(--grad); color:#6d28d9; border:none; }
+
 </style>
