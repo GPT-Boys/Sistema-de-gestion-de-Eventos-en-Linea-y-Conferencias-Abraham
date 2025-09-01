@@ -2,13 +2,7 @@
 const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
-const session = require("express-session");
-const passport = require("passport");
 
-<<<<<<< HEAD
-const usuarioAPI = require("./API/usuarioAPI");
-const authAPI = require("./API/authAPI");
-=======
 const session = require("express-session");
 const passport = require("passport");
 
@@ -33,13 +27,10 @@ const votacionAPI = require("./API/votacionAPI");
 const asistenteRoutes = require("./routes/asistenteRoutes");
 const oradorRoutes = require("./routes/oradorRoutes");
 const adminRoutes = require("./routes/adminRoutes");
->>>>>>> origin/osqui
 const routes = require("./routes");
 
 const app = express();
 
-<<<<<<< HEAD
-=======
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
@@ -48,7 +39,6 @@ const io = new Server(server, {
   },
 });
 
->>>>>>> origin/osqui
 // CORS
 const FRONT_ORIGIN = process.env.FRONT_ORIGIN || "http://localhost:5173";
 app.use(
@@ -79,19 +69,6 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
-<<<<<<< HEAD
-
-// APIs bajo /api
-app.use("/api/usuario", usuarioAPI);
-app.use("/api/auth", authAPI);
-
-// Health
-app.get("/api/health", (req, res) => res.json({ ok: true }));
-
-// ⬇️ rutas “comunes” y fallback 404
-app.use(routes);
-=======
->>>>>>> origin/osqui
 
 // APIs bajo /api
 app.use("/api/usuario", usuarioAPI);

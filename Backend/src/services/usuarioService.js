@@ -1,16 +1,5 @@
 const ResponseDTO = require("../DTO/ResponseDTO");
 const TipoUsuarioDTO = require("../DTO/TipoUsuarioDTO");
-<<<<<<< HEAD
-const UsuarioDTO = require("../DTO/UsuarioDTO");
-const CiudadDTO = require("../DTO/CiudadDTO");
-const UsuarioENT = require("../ENT/UsuarioENT");
-const bcrypt = require("bcrypt");
-
-const createUser = async (userData) => {
-  console.log("Creating a new User...");
-  try {
-    const plain = (userData?.contrasenia ?? '').toString();
-=======
 const TipoUsuarioENT = require("../ENT/TipoUsuarioENT");
 const UsuarioDTO = require("../DTO/UsuarioDTO");
 const UsuarioENT = require("../ENT/UsuarioENT");
@@ -133,7 +122,6 @@ const createUser = async (userData) => {
   console.log("Creating a New User...");
   try {
     const plain = (userData?.contrasenia ?? "").toString();
->>>>>>> origin/osqui
     if (!plain) {
       throw new Error('Missing "contrasenia"');
     }
@@ -153,14 +141,6 @@ const createUser = async (userData) => {
     });
 
     const tipoUsuarioDTO = new TipoUsuarioDTO(
-<<<<<<< HEAD
-      userData.tipo_usuario.id_tipo_usuario,
-      userData.tipo_usuario.tipo_usuario
-    );
-    const ciudadDTO = new CiudadDTO(
-      userData.ciudad.id_ciudad,
-      userData.ciudad.ciudad
-=======
       newUser.tipo_usuario.id_tipo_usuario,
       (
         await TipoUsuarioENT.findByPk(newUser.tipo_usuario.id_tipo_usuario)
@@ -169,15 +149,10 @@ const createUser = async (userData) => {
     const ciudadDTO = new CiudadDTO(
       newUser.ciudad.id_ciudad,
       (await CiudadENT.findByPk(newUser.ciudad.id_ciudad)).ciudad
->>>>>>> origin/osqui
     );
     const newUserDTO = new UsuarioDTO(
       newUser.id_usuario,
       newUser.usuario,
-<<<<<<< HEAD
-      newUser.contrasenia,
-=======
->>>>>>> origin/osqui
       tipoUsuarioDTO,
       newUser.nombres,
       newUser.apellidos,
@@ -188,17 +163,6 @@ const createUser = async (userData) => {
       newUser.fecha_creacion
     );
 
-<<<<<<< HEAD
-    console.log("User created Successfully.");
-    return new ResponseDTO("U-000", 201, newUserDTO, "User created Successfully.");
-  } catch (error) {
-    console.error(`Error Creating New User: ${error}.`);
-    return new ResponseDTO("U-103", 500, null, `Error Creating New User: ${error}.`);
-  }
-};
-
-module.exports = { createUser };
-=======
     console.log("User Created Successfully.");
     return new ResponseDTO(
       "U-000",
@@ -641,4 +605,3 @@ module.exports = {
   updatePassword,
   getUserByUsuario,
 };
->>>>>>> origin/osqui

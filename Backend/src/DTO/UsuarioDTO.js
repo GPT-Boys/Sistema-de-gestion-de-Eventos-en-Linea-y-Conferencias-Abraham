@@ -2,10 +2,6 @@ class UsuarioDTO {
   constructor(
     id_usuario,
     usuario,
-<<<<<<< HEAD
-    contrasenia,
-=======
->>>>>>> origin/osqui
     id_tipo_usuario,
     nombres,
     apellidos,
@@ -17,10 +13,6 @@ class UsuarioDTO {
   ) {
     this.id_usuario = id_usuario;
     this.usuario = usuario;
-<<<<<<< HEAD
-    this.contrasenia = contrasenia;
-=======
->>>>>>> origin/osqui
     this.id_tipo_usuario = id_tipo_usuario;
     this.nombres = nombres;
     this.apellidos = apellidos;

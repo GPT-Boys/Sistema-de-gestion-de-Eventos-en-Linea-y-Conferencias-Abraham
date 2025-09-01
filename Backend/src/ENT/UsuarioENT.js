@@ -41,19 +41,11 @@ const UsuarioENT = sequelize.define(
         isDate: true,
       },
     },
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/osqui
     id_ciudad: {
       type: DataTypes.INTEGER,
       allowNull: false,
       field: "ID_CIUDAD",
     },
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/osqui
     telefono: {
       type: DataTypes.INTEGER,
       allowNull: false,

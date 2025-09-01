@@ -1,13 +1,3 @@
-<<<<<<< HEAD
-
-// usuarioAPI.js
-const express = require('express');
-const usuarioService = require('../services/usuarioService');
-const ResponseDTO = require('../DTO/ResponseDTO');
-
-
-const router = express.Router();
-=======
 // usuarioAPI.js
 const express = require("express");
 const router = express.Router();
@@ -74,7 +64,6 @@ router.get("/:id", async (req, res) => {
     message: response.message,
   });
 });
->>>>>>> origin/osqui
 
 /** Normaliza el body a la forma que espera usuarioService.createUser */
 function normalizeUserPayload(b = {}) {
@@ -100,11 +89,6 @@ function normalizeUserPayload(b = {}) {
   };
 }
 
-<<<<<<< HEAD
-router.post("/", async (req, res) => {
-  try {
-    // Log útil (no como [object Object])
-=======
 /**
  * @swagger
  * /usuario/:
@@ -144,7 +128,6 @@ router.post("/", async (req, res) => {
  */
 router.post("/", async (req, res) => {
   try {
->>>>>>> origin/osqui
     console.log("createUser body:", JSON.stringify(req.body, null, 2));
 
     const data = normalizeUserPayload(req.body);
@@ -174,12 +157,6 @@ router.post("/", async (req, res) => {
         .json(new ResponseDTO("U-102B", 400, null, 'Falta "id_ciudad".'));
     }
 
-<<<<<<< HEAD
-    const result = await usuarioService.createUser(data);
-
-    // Usa el status del DTO (tu log mostraba 200 aunque fallaba)
-    return res.status(Number(result?.status || 200)).json(result);
-=======
     const response = await usuarioService.createUser(data);
 
     return res.status(response.code === "U-000" ? 201 : 500).json({
@@ -189,7 +166,6 @@ router.post("/", async (req, res) => {
       data: response.data,
       message: response.message,
     });
->>>>>>> origin/osqui
   } catch (err) {
     console.error("createUser error:", err);
     return res
@@ -200,8 +176,6 @@ router.post("/", async (req, res) => {
   }
 });
 
-<<<<<<< HEAD
-=======
 /**
  * @swagger
  * /usuario/{id}:
@@ -323,5 +297,4 @@ router.put("/password", async (req, res) => {
   });
 });
 
->>>>>>> origin/osqui
 module.exports = router;
