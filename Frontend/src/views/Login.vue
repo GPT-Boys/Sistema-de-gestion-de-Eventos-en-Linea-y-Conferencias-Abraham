@@ -105,12 +105,13 @@
 </template>
 
 <script setup>
+import { useAuthStore } from '@/stores/publicStores/auth.js'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import HeaderAuth from '@/components/HeaderAuth.vue'
-import { login as apiLogin } from '@/services/publicService.js'
 
 const router = useRouter()
+const auth = useAuthStore()
 
 const usuario = ref('')
 const password = ref('')
@@ -131,12 +132,19 @@ const onSubmit = async () => {
     showNotification('Completa usuario y contraseña.', 'error')
     return
   }
+
   loading.value = true
   try {
-    await apiLogin(usuario.value, password.value) // <- envía { usuario, password }
-    router.push('/app/dashboard')
+    // auth.login debe devolver true/false y NUNCA lanzar sin capturar
+    const ok = await auth.login({ usuario: usuario.value, password: password.value, remember: remember.value })
+    if (ok) {
+      const redirect = router.currentRoute.value.query.redirect ?? '/app/dashboard'
+      router.push(typeof redirect === 'string' ? redirect : '/app/dashboard')
+    } else {
+      showNotification(auth.error || 'Usuario o contraseña inválidos.', 'error')
+    }
   } catch (e) {
-    showNotification(e?.response?.data?.message || 'Usuario o contraseña inválidos.', 'error')
+    showNotification('No se pudo iniciar sesión.', 'error')
   } finally {
     loading.value = false
   }
