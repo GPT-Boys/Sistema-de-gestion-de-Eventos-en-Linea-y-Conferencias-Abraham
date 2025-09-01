@@ -1,10 +1,37 @@
 <!doctype html>
-<html lang="">
+<html lang="es">
   <head>
+    <link rel="preload" as="image" href="/src/assets/brand/Logo.avif" type="image/avif" fetchpriority="high">
+    <link rel="preload" as="image" href="/src/assets/brand/Logo.webp" type="image/webp" fetchpriority="high">
+
     <meta charset="UTF-8" />
-    <link rel="icon" href="/AbrahamEventSphere.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AbrahamEventSphere - GPT-Boys</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>AbrahamEventSphere — Conferencias y eventos</title>
+    <meta name="description" content="Plataforma para organizar conferencias, charlas y eventos con feedback y materiales centralizados." />
+    <link rel="canonical" href="https://tudominio.com/" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="AbrahamEventSphere" />
+    <meta property="og:description" content="Gestiona tus conferencias y eventos." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://tudominio.com/" />
+    <meta property="og:image" content="/og-cover.jpg" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="AbrahamEventSphere" />
+    <meta name="twitter:description" content="Gestiona tus conferencias y eventos." />
+    <meta name="twitter:image" content="/og-cover.jpg" />
+
+    <!-- Favicons / PWA (dejamos el manifest para más adelante) -->
+    <link rel="icon" href="/favicon.ico" />
+
+    <!-- Preloads de recursos críticos (ajústalos a tus rutas reales) -->
+    <link rel="preload" href="/Logo.png" as="image" imagesrcset="/Logo.png" imagesizes="(max-width: 800px) 50vw, 25vw" />
+    <link rel="preload" href="/laptop.png" as="image" />
+
+    <!-- Vite injecta aquí los bundles -->
   </head>
   <body>
     <div id="app"></div>

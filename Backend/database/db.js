@@ -1,19 +1,29 @@
-const mysql = require("mysql2");
-require("dotenv").config();
+const { Sequelize } = require("sequelize");
 
-const connection = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+const sequelize = new Sequelize({
+  dialect: "mysql",
+  host: "localhost",
+  username: "root",
+  password: "",
+  database: "AbrahamEventSphere_Database",
+  port: 3306,
+  timezone: "-04:00",
+  dialectOptions: {
+    dateStrings: true,
+  },
 });
 
-connection.connect((err) => {
-  if (err) {
-    console.error("❌ Error al conectar a la base de datos:", err);
-    return;
-  }
-  console.log("✅ Conexión a la base de datos MySQL establecida");
-});
+sequelize
+  .authenticate()
+  .then(() => {
+    console.log(
+      `¡Database '${sequelize.getDatabaseName()}' Connected Successfully! ✅`
+    );
+  })
+  .catch((error) => {
+    console.error(
+      `Unable to Connect to the Database '${sequelize.getDatabaseName()}': ${error}.`
+    );
+  });
 
-module.exports = connection;
+module.exports = sequelize;

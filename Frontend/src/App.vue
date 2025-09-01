@@ -1,13 +1,12 @@
-<script setup>
-import NavBar from './components/NavBar.vue'
-import { RouterView } from 'vue-router'
-import Footer from './components/FooterComponent.vue'
-</script>
+<template><router-view /></template>
 
-<template>
-  <NavBar />
-  <RouterView />
-  <Footer />
-</template>
+<script setup></script>
 
-<style scoped></style>
+<style>
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+}
+</style>
