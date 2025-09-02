@@ -110,7 +110,7 @@ const onVote = (c, like) => conf.vote(uid, c.idConferencia, like)
 <style scoped>
 .historial {
   padding: 24px;
-  background: var(--gris-fondo);
+  background: #FFFFFF;
   min-height: 100vh;
   display: grid;
   gap: 24px;

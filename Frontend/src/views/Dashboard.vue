@@ -134,7 +134,7 @@ function avgNps() {
 <style scoped>
 .dashboard {
   padding: 24px;
-  background: white;
+  background: rgb(255, 255, 255);
   min-height: 100vh;
   display: grid;
   gap: 24px;
@@ -144,7 +144,7 @@ function avgNps() {
 .dashboard-header h1 {
   font-size: 26px;
   font-weight: 800;
-  color: var(--morado-oscuro);
+  color: var(--morado-base);
   display: flex;
   align-items: center;
   gap: 8px;

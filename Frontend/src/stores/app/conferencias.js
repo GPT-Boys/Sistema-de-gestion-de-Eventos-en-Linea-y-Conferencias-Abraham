@@ -3,10 +3,13 @@ import { defineStore } from 'pinia'
 
 // helpers de fecha/hora -> estado
 function buildDate(dateStr, timeStr) {
-  return new Date(`${dateStr}T${timeStr}:00`)
+  // Desarmar manualmente la fecha para evitar desfase UTC
+  const [y, m, d] = dateStr.split('-').map(Number)
+  const [hh, mm]  = timeStr?.split(':').map(Number) || [0, 0]
+  return new Date(y, m - 1, d, hh, mm, 0) // fecha/hora en local
 }
+
 function statusFor(conf, now = new Date()) {
-  // fallback si faltan campos
   if (!conf?.fecha || !conf?.horaEmpieza || !conf?.horaTermina) {
     return 'upcoming'
   }
@@ -37,12 +40,10 @@ export const useConferenciasStore = defineStore('conf', {
     statusOf: () => (conf) => statusFor(conf),
     byOrador: (s) => (oradorId) => s.ordered.filter(c => String(c.idOrador) === String(oradorId)),
 
-    // listas por estado
     upcomingList: (s) => s.ordered.filter(c => statusFor(c) === 'upcoming'),
     liveList:     (s) => s.ordered.filter(c => statusFor(c) === 'live'),
     finishedList: (s) => s.ordered.filter(c => statusFor(c) === 'finished'),
 
-    // 👇 getter para explorar
     activeList: (s) => s.ordered.filter(c => {
       const st = statusFor(c)
       return st === 'upcoming' || st === 'live'
@@ -60,7 +61,7 @@ export const useConferenciasStore = defineStore('conf', {
       this.loaded = true
     },
 
-    // --- Enrolamientos por usuario
+    // Enrolamientos
     _getEnrollSet(userId) {
       const raw = localStorage.getItem(LS_ENR(userId))
       return new Set(raw ? JSON.parse(raw) : [])
@@ -95,7 +96,7 @@ export const useConferenciasStore = defineStore('conf', {
       return this.ordered.filter(c => set.has(String(c.idConferencia)))
     },
 
-    // --- Votos por usuario
+    // Votos
     _getVotesMap(userId) {
       const raw = localStorage.getItem(LS_VOT(userId))
       return raw ? JSON.parse(raw) : {}
@@ -134,11 +135,9 @@ export const useConferenciasStore = defineStore('conf', {
       return { ok:true }
     },
 
-    // --- Crear charla (orador)
-    // --- Crear charla (orador)
+    // Crear charla
     createFromOrador(payload, oradorId) {
       this._loadAll()
-
       const nextId =
         this.list.length ? Math.max(...this.list.map(i => i.idConferencia)) + 1 : 1
 
@@ -151,13 +150,12 @@ export const useConferenciasStore = defineStore('conf', {
         idTipoConferencia: Number(payload.idTipoConferencia),
         votosAFavor: 0,
         votosEnContra: 0,
-        fecha: payload.fecha,
+        fecha: payload.fecha, // mantener como string "YYYY-MM-DD"
         horaEmpieza: payload.horaEmpieza,
         horaTermina: payload.horaTermina,
         sala: payload.sala,
         evaluacion: payload.evaluacion || '',
         zoomUrl: payload.zoomUrl || '',
-        // 👇 Ahora materiales es un array
         materiales: payload.materialUrl 
           ? [{ id: Date.now(), nombre: payload.nombreArchivo || 'material', url: payload.materialUrl }]
           : [],
@@ -168,7 +166,6 @@ export const useConferenciasStore = defineStore('conf', {
       return conf
     },
 
-    // --- Agregar material extra a una charla existente
     addMaterial(confId, archivo) {
       this._loadAll()
       const conf = this.getById(confId)
@@ -184,6 +181,5 @@ export const useConferenciasStore = defineStore('conf', {
       this._saveAll()
       return { ok:true }
     }
-
   }
 })

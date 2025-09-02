@@ -93,7 +93,7 @@ function updatePassword() {
 <style scoped>
 .settings {
   padding: 24px;
-  background: var(--gris-fondo);
+  background: #FFFFFF;
   min-height: 100vh;
   display: grid;
   gap: 24px;
