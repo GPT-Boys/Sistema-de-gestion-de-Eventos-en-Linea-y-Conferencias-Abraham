@@ -141,14 +141,12 @@ const createUser = async (userData) => {
     });
 
     const tipoUsuarioDTO = new TipoUsuarioDTO(
-      newUser.tipo_usuario.id_tipo_usuario,
-      (
-        await TipoUsuarioENT.findByPk(newUser.tipo_usuario.id_tipo_usuario)
-      ).tipo_usuario
+      newUser.id_tipo_usuario,
+      (await TipoUsuarioENT.findByPk(newUser.id_tipo_usuario)).tipo_usuario
     );
     const ciudadDTO = new CiudadDTO(
-      newUser.ciudad.id_ciudad,
-      (await CiudadENT.findByPk(newUser.ciudad.id_ciudad)).ciudad
+      newUser.id_ciudad,
+      (await CiudadENT.findByPk(newUser.id_ciudad)).ciudad
     );
     const newUserDTO = new UsuarioDTO(
       newUser.id_usuario,
