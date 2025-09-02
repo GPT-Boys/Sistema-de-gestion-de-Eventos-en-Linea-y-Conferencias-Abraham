@@ -33,23 +33,55 @@
 <script setup>
 defineProps({
   columns: { type: Array, required: true }, // [{ key, label }]
-  rows:    { type: Array, required: true },
+  rows: { type: Array, required: true },
   loading: { type: Boolean, default: false },
-  rowKey:  { type: String,  default: 'id' },
+  rowKey: { type: String, default: 'id' },
 })
 </script>
 
 <style scoped>
-.card{
-  background:#fff; border:1px solid #eef0f4; border-radius:16px; padding:12px;
-  box-shadow: 0 10px 30px rgba(17,24,39,.06);
+.card {
+  background: #fff;
+  border: 1px solid #eef0f4;
+  border-radius: 16px;
+  padding: 12px;
+  box-shadow: 0 10px 30px rgba(17, 24, 39, 0.06);
 }
-.skeleton{ padding: 18px; color:#6b7280; }
-.table-wrap{ overflow:auto; }
-.table{ width:100%; border-collapse: collapse; }
-th, td{ padding:10px 12px; border-bottom:1px solid #f1f5f9; text-align:left; }
-thead th{ font-size:12px; text-transform:uppercase; letter-spacing:.05em; color:#64748b; }
-tbody tr:hover{ background:#fafbff; }
-.empty{ text-align:center; color:#64748b; padding:16px; }
-.th-actions, .td-actions{ width:1%; white-space:nowrap; text-align:right; }
+.skeleton {
+  padding: 18px;
+  color: #6b7280;
+}
+.table-wrap {
+  overflow: auto;
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th,
+td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #f1f5f9;
+  text-align: left;
+}
+thead th {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+}
+tbody tr:hover {
+  background: #fafbff;
+}
+.empty {
+  text-align: center;
+  color: #64748b;
+  padding: 16px;
+}
+.th-actions,
+.td-actions {
+  width: 1%;
+  white-space: nowrap;
+  text-align: right;
+}
 </style>

@@ -16,10 +16,15 @@ export const useUsersStore = defineStore('users', {
   }),
   actions: {
     async load() {
-      this.loading = true; this.error = null
+      this.loading = true
+      this.error = null
       try {
         const { items, total } = await fetchUsers({
-          q: this.q, page: this.page, pageSize: this.pageSize, sortBy: this.sortBy, sortDir: this.sortDir
+          q: this.q,
+          page: this.page,
+          pageSize: this.pageSize,
+          sortBy: this.sortBy,
+          sortDir: this.sortDir,
         })
         this.items = items
         this.total = total
@@ -30,18 +35,21 @@ export const useUsersStore = defineStore('users', {
       }
     },
     async create(user) {
-      await createUserAPI(user); await this.load()
+      await createUserAPI(user)
+      await this.load()
     },
     async update(id, patch) {
-      await updateUserAPI(id, patch); await this.load()
+      await updateUserAPI(id, patch)
+      await this.load()
     },
     async remove(id) {
-      await deleteUserAPI(id); await this.load()
-    }
+      await deleteUserAPI(id)
+      await this.load()
+    },
   },
   getters: {
     pages(state) {
       return Math.max(1, Math.ceil(state.total / state.pageSize))
-    }
-  }
+    },
+  },
 })

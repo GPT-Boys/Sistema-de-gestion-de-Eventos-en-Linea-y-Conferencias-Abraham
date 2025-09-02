@@ -1,5 +1,3 @@
-
-
 <script setup>
 import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useAuthStore } from '@/stores/publicStores/auth.js'
@@ -23,10 +21,15 @@ const onLogout = async () => {
   router.push('/login')
 }
 
-const clearBodyOverflow = () => { document.body.style.overflow = '' }
+const clearBodyOverflow = () => {
+  document.body.style.overflow = ''
+}
 onMounted(clearBodyOverflow)
 onBeforeUnmount(clearBodyOverflow)
-watch(() => route.fullPath, () => clearBodyOverflow())
+watch(
+  () => route.fullPath,
+  () => clearBodyOverflow(),
+)
 </script>
 
 <template>
@@ -42,7 +45,6 @@ watch(() => route.fullPath, () => clearBodyOverflow())
     </section>
   </div>
 </template>
-
 
 <style scoped>
 .app-shell {

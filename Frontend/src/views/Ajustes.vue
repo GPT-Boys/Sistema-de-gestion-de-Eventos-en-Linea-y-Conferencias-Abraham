@@ -72,7 +72,7 @@ const form = reactive({
   theme: 'light',
   notifications: true,
   password: '',
-  passwordConfirm: ''
+  passwordConfirm: '',
 })
 
 function saveProfile() {
@@ -93,7 +93,7 @@ function updatePassword() {
 <style scoped>
 .settings {
   padding: 24px;
-  background: #FFFFFF;
+  background: #ffffff;
   min-height: 100vh;
   display: grid;
   gap: 24px;
@@ -122,7 +122,7 @@ function updatePassword() {
   background: var(--blanco);
   padding: 20px;
   border-radius: 16px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
   display: grid;
   gap: 16px;
 }
@@ -144,16 +144,18 @@ label {
   font-weight: 600;
   color: #333;
 }
-input, select {
+input,
+select {
   padding: 10px;
   border: 1px solid var(--morado-suave);
   border-radius: 10px;
   font-size: 14px;
   outline: none;
 }
-input:focus, select:focus {
+input:focus,
+select:focus {
   border-color: var(--morado-base);
-  box-shadow: 0 0 0 3px rgba(109,40,217,0.25);
+  box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.25);
 }
 
 .btn-primary {

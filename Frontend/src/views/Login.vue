@@ -136,7 +136,11 @@ const onSubmit = async () => {
   loading.value = true
   try {
     // auth.login debe devolver true/false y NUNCA lanzar sin capturar
-    const ok = await auth.login({ usuario: usuario.value, password: password.value, remember: remember.value })
+    const ok = await auth.login({
+      usuario: usuario.value,
+      password: password.value,
+      remember: remember.value,
+    })
     if (ok) {
       const redirect = router.currentRoute.value.query.redirect ?? '/app/dashboard'
       router.push(typeof redirect === 'string' ? redirect : '/app/dashboard')

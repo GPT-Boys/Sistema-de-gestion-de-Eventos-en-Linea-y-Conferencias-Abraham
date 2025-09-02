@@ -8,12 +8,7 @@
 
     <!-- Accesos rápidos dinámicos -->
     <section class="quick-actions">
-      <router-link
-        v-for="(it, idx) in quickItems"
-        :key="idx"
-        :to="it.to"
-        class="q-card"
-      >
+      <router-link v-for="(it, idx) in quickItems" :key="idx" :to="it.to" class="q-card">
         <i :class="`bi ${it.icon}`"></i>
         <span>{{ it.label }}</span>
       </router-link>
@@ -21,11 +16,7 @@
 
     <!-- Métricas dinámicas -->
     <section class="metrics" v-if="metrics.length">
-      <div
-        v-for="(m, idx) in metrics"
-        :key="idx"
-        class="metric-card"
-      >
+      <div v-for="(m, idx) in metrics" :key="idx" class="metric-card">
         <i :class="`bi ${m.icon}`"></i>
         <div>
           <h2>{{ m.value }}</h2>
@@ -35,7 +26,7 @@
     </section>
 
     <!-- Próximas conferencias (solo asistente y orador) -->
-    <section class="upcoming" v-if="['asistente','orador'].includes(auth.role)">
+    <section class="upcoming" v-if="['asistente', 'orador'].includes(auth.role)">
       <h3><i class="bi bi-clock-history"></i> Próximas conferencias</h3>
       <ul>
         <li v-for="c in upcomingList" :key="c.idConferencia">
@@ -58,7 +49,7 @@ const conf = useConferenciasStore()
 
 // Accesos rápidos según rol
 const quickItems = computed(() =>
-  DASHBOARD_ITEMS.filter(it => !it.roles || (auth.role && it.roles.includes(auth.role)))
+  DASHBOARD_ITEMS.filter((it) => !it.roles || (auth.role && it.roles.includes(auth.role))),
 )
 
 // Métricas según rol
@@ -71,22 +62,38 @@ const metrics = computed(() => {
         { icon: 'bi-calendar-event', value: conf.activeList.length, label: 'Eventos activos' },
         { icon: 'bi-chat-dots', value: conf.list.length, label: 'Total de charlas' },
         { icon: 'bi-people', value: totalAsistentes(), label: 'Inscripciones registradas' },
-        { icon: 'bi-emoji-smile', value: avgNps() + '%', label: 'Satisfacción (NPS)' }
+        { icon: 'bi-emoji-smile', value: avgNps() + '%', label: 'Satisfacción (NPS)' },
       ]
     case 'orador': {
       const mias = conf.byOrador(uid)
       return [
         { icon: 'bi-mic', value: mias.length, label: 'Charlas creadas' },
-        { icon: 'bi-calendar-check', value: mias.filter(c => conf.statusOf(c) === 'upcoming').length, label: 'Charlas próximas' },
-        { icon: 'bi-hand-thumbs-up', value: mias.reduce((acc, c) => acc + (c.votosAFavor || 0), 0), label: 'Votos positivos' }
+        {
+          icon: 'bi-calendar-check',
+          value: mias.filter((c) => conf.statusOf(c) === 'upcoming').length,
+          label: 'Charlas próximas',
+        },
+        {
+          icon: 'bi-hand-thumbs-up',
+          value: mias.reduce((acc, c) => acc + (c.votosAFavor || 0), 0),
+          label: 'Votos positivos',
+        },
       ]
     }
     case 'asistente': {
       const mias = conf.enrolledForUser(uid)
       return [
-        { icon: 'bi-bookmark-check', value: mias.filter(c => conf.statusOf(c) !== 'finished').length, label: 'Inscripciones activas' },
-        { icon: 'bi-clock-history', value: mias.filter(c => conf.statusOf(c) === 'finished').length, label: 'Charlas asistidas' },
-        { icon: 'bi-hand-thumbs-up', value: votosEmitidos(uid), label: 'Votos emitidos' }
+        {
+          icon: 'bi-bookmark-check',
+          value: mias.filter((c) => conf.statusOf(c) !== 'finished').length,
+          label: 'Inscripciones activas',
+        },
+        {
+          icon: 'bi-clock-history',
+          value: mias.filter((c) => conf.statusOf(c) === 'finished').length,
+          label: 'Charlas asistidas',
+        },
+        { icon: 'bi-hand-thumbs-up', value: votosEmitidos(uid), label: 'Votos emitidos' },
       ]
     }
     default:
@@ -98,10 +105,10 @@ const metrics = computed(() => {
 const upcomingList = computed(() => {
   const uid = auth.user?.id_usuario ?? auth.user?.id
   if (auth.role === 'asistente') {
-    return conf.enrolledForUser(uid).filter(c => conf.statusOf(c) === 'upcoming')
+    return conf.enrolledForUser(uid).filter((c) => conf.statusOf(c) === 'upcoming')
   }
   if (auth.role === 'orador') {
-    return conf.byOrador(uid).filter(c => conf.statusOf(c) === 'upcoming')
+    return conf.byOrador(uid).filter((c) => conf.statusOf(c) === 'upcoming')
   }
   return []
 })
@@ -109,7 +116,7 @@ const upcomingList = computed(() => {
 // Helpers
 function totalAsistentes() {
   let total = 0
-  conf.list.forEach(c => {
+  conf.list.forEach((c) => {
     for (let k in localStorage) {
       if (k.startsWith('conf:enrolled:')) {
         const arr = JSON.parse(localStorage.getItem(k) || '[]')
@@ -153,7 +160,7 @@ function avgNps() {
 /* Quick actions */
 .quick-actions {
   display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(180px,1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 16px;
 }
 .q-card {
@@ -163,8 +170,11 @@ function avgNps() {
   text-align: center;
   font-weight: 600;
   color: var(--morado-intermedio);
-  box-shadow: 0 3px 8px rgba(0,0,0,0.08);
-  transition: transform 0.2s ease, background 0.3s ease, color 0.3s ease;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+  transition:
+    transform 0.2s ease,
+    background 0.3s ease,
+    color 0.3s ease;
 }
 .q-card i {
   font-size: 26px;
@@ -180,7 +190,7 @@ function avgNps() {
 /* Metrics */
 .metrics {
   display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 16px;
 }
 .metric-card {
@@ -190,7 +200,7 @@ function avgNps() {
   background: var(--blanco);
   padding: 18px;
   border-radius: 16px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
   transition: transform 0.2s ease;
 }
 .metric-card i {
@@ -210,7 +220,7 @@ function avgNps() {
 }
 .metric-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
 }
 
 /* Upcoming */
@@ -218,7 +228,7 @@ function avgNps() {
   background: var(--blanco);
   padding: 20px;
   border-radius: 16px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
 .upcoming h3 {
   margin: 0 0 10px;
@@ -246,10 +256,10 @@ function avgNps() {
 
 <style>
 :root {
-  --morado-base: #6D28D9;
+  --morado-base: #6d28d9;
   --morado-oscuro: #310176;
   --morado-intermedio: #624399;
-  --morado-suave: #9B85BC;
+  --morado-suave: #9b85bc;
   --gris-fondo: #ffffff;
   --blanco: #ffffff;
   --negro: #000000;

@@ -471,15 +471,15 @@ const onSubmitRegister = async () => {
   if (!idCiudad) return showNotification('Ciudad inválida.', 'error')
 
   const payload = {
-      usuario: usuario.value,
-      contrasenia: password.value,            // << en minúsculas
-      tipo_usuario: { id_tipo_usuario: idTipo },
-      nombres: nombres.value,
-      apellidos: apellidos.value,
-      fecha_nacimiento: fechaNacimiento.value,
-      ciudad: { id_ciudad: idCiudad },
-      telefono: Number(phoneDigits),
-      correo_electronico: email.value,
+    usuario: usuario.value,
+    contrasenia: password.value, // << en minúsculas
+    tipo_usuario: { id_tipo_usuario: idTipo },
+    nombres: nombres.value,
+    apellidos: apellidos.value,
+    fecha_nacimiento: fechaNacimiento.value,
+    ciudad: { id_ciudad: idCiudad },
+    telefono: Number(phoneDigits),
+    correo_electronico: email.value,
   }
 
   try {

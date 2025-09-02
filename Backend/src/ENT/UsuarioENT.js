@@ -24,7 +24,6 @@ const UsuarioENT = sequelize.define(
     id_tipo_usuario: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      field: "ID_TIPO_USUARIO",
     },
     nombres: {
       type: DataTypes.STRING(100),
@@ -44,15 +43,14 @@ const UsuarioENT = sequelize.define(
     id_ciudad: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      field: "ID_CIUDAD",
     },
     telefono: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
         isInt: true,
-        min: 1000000,
-        max: 999999999,
+        min: 100000,
+        max: 999999999999999,
       },
     },
     correo_electronico: {

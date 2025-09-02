@@ -333,7 +333,6 @@ import rodrigoJpg from '@/assets/images/team/rodrigo.jpg'
 import charlasImg from '@/assets/img/Charlas.png'
 import feedbackImg from '@/assets/img/Feedback.png'
 
-
 const members = [
   { nombre: 'Fabrisio Condarco', foto: fabrisioJpg },
   { nombre: 'Jose Manzaneda', foto: joseJpg },

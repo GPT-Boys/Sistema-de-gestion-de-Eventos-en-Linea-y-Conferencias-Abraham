@@ -2,14 +2,19 @@
 
 const LS_KEYS = {
   USERS: 'aes_users',
-  AUTH:  'aes_auth_session',
+  AUTH: 'aes_auth_session',
 }
 
 function read(key, fallback) {
-  try { return JSON.parse(localStorage.getItem(key)) ?? fallback }
-  catch { return fallback }
+  try {
+    return JSON.parse(localStorage.getItem(key)) ?? fallback
+  } catch {
+    return fallback
+  }
 }
-function write(key, val) { localStorage.setItem(key, JSON.stringify(val)) }
+function write(key, val) {
+  localStorage.setItem(key, JSON.stringify(val))
+}
 
 export function seedIfNeeded() {
   const users = read(LS_KEYS.USERS, null)
@@ -18,8 +23,8 @@ export function seedIfNeeded() {
       {
         id: 1,
         usuario: 'admin',
-        contrasenia: 'admin1234',     // plain para mock
-        rol: 'admin',                 // 'admin' | 'personal' | 'orador' | 'asistente'
+        contrasenia: 'admin1234', // plain para mock
+        rol: 'admin', // 'admin' | 'personal' | 'orador' | 'asistente'
         nombres: 'Admin',
         apellidos: 'Principal',
         fecha_nacimiento: '1990-01-01',
@@ -59,7 +64,7 @@ export function clearSession() {
 
 export function findUserByUsername(usuario) {
   const users = read(LS_KEYS.USERS, [])
-  return users.find(u => u.usuario === usuario) || null
+  return users.find((u) => u.usuario === usuario) || null
 }
 export function verifyPassword(user, plain) {
   // mock simple (no hash)
@@ -67,26 +72,35 @@ export function verifyPassword(user, plain) {
 }
 
 // ==== USERS CRUD ====
-export function listUsers({ page=1, pageSize=10, q='', sortBy='usuario', sortDir='asc' } = {}) {
+export function listUsers({
+  page = 1,
+  pageSize = 10,
+  q = '',
+  sortBy = 'usuario',
+  sortDir = 'asc',
+} = {}) {
   const all = read(LS_KEYS.USERS, [])
   const term = q.trim().toLowerCase()
 
-  let filtered = !term ? all : all.filter(u =>
-    [u.usuario, u.nombres, u.apellidos, u.correo_electronico]
-      .filter(Boolean).some(x => String(x).toLowerCase().includes(term))
-  )
+  let filtered = !term
+    ? all
+    : all.filter((u) =>
+        [u.usuario, u.nombres, u.apellidos, u.correo_electronico]
+          .filter(Boolean)
+          .some((x) => String(x).toLowerCase().includes(term)),
+      )
 
-  filtered = filtered.sort((a,b) => {
+  filtered = filtered.sort((a, b) => {
     const av = (a[sortBy] ?? '').toString().toLowerCase()
     const bv = (b[sortBy] ?? '').toString().toLowerCase()
     if (av < bv) return sortDir === 'asc' ? -1 : 1
-    if (av > bv) return sortDir === 'asc' ?  1 : -1
+    if (av > bv) return sortDir === 'asc' ? 1 : -1
     return 0
   })
 
   const total = filtered.length
-  const start = (page-1)*pageSize
-  const end   = start + pageSize
+  const start = (page - 1) * pageSize
+  const end = start + pageSize
   const items = filtered.slice(start, end)
 
   return { items, total }
@@ -94,9 +108,11 @@ export function listUsers({ page=1, pageSize=10, q='', sortBy='usuario', sortDir
 
 export function createUser(user) {
   const users = read(LS_KEYS.USERS, [])
-  const exists = users.some(u => u.usuario === user.usuario || u.correo_electronico === user.correo_electronico)
+  const exists = users.some(
+    (u) => u.usuario === user.usuario || u.correo_electronico === user.correo_electronico,
+  )
   if (exists) throw new Error('Usuario o correo ya existen')
-  const id = users.length ? Math.max(...users.map(u=>u.id)) + 1 : 1
+  const id = users.length ? Math.max(...users.map((u) => u.id)) + 1 : 1
   const nuevo = {
     id,
     fecha_creacion: new Date().toISOString(),
@@ -109,7 +125,7 @@ export function createUser(user) {
 
 export function updateUser(id, patch) {
   const users = read(LS_KEYS.USERS, [])
-  const idx = users.findIndex(u => u.id === id)
+  const idx = users.findIndex((u) => u.id === id)
   if (idx === -1) throw new Error('Usuario no encontrado')
   users[idx] = { ...users[idx], ...patch }
   write(LS_KEYS.USERS, users)
@@ -118,6 +134,6 @@ export function updateUser(id, patch) {
 
 export function deleteUser(id) {
   const users = read(LS_KEYS.USERS, [])
-  const next = users.filter(u => u.id !== id)
+  const next = users.filter((u) => u.id !== id)
   write(LS_KEYS.USERS, next)
 }

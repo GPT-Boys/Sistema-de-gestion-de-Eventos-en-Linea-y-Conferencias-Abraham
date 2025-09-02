@@ -5,7 +5,7 @@ import { defineStore } from 'pinia'
 function buildDate(dateStr, timeStr) {
   // Desarmar manualmente la fecha para evitar desfase UTC
   const [y, m, d] = dateStr.split('-').map(Number)
-  const [hh, mm]  = timeStr?.split(':').map(Number) || [0, 0]
+  const [hh, mm] = timeStr?.split(':').map(Number) || [0, 0]
   return new Date(y, m - 1, d, hh, mm, 0) // fecha/hora en local
 }
 
@@ -14,9 +14,9 @@ function statusFor(conf, now = new Date()) {
     return 'upcoming'
   }
   const start = buildDate(conf.fecha, conf.horaEmpieza)
-  const end   = buildDate(conf.fecha, conf.horaTermina)
+  const end = buildDate(conf.fecha, conf.horaTermina)
   if (now < start) return 'upcoming'
-  if (now > end)   return 'finished'
+  if (now > end) return 'finished'
   return 'live'
 }
 
@@ -31,23 +31,25 @@ export const useConferenciasStore = defineStore('conf', {
   }),
 
   getters: {
-    ordered: (s) => [...s.list].sort((a,b) => {
-      const A = buildDate(a.fecha, a.horaEmpieza).getTime()
-      const B = buildDate(b.fecha, b.horaEmpieza).getTime()
-      return A - B
-    }),
-    getById: (s) => (id) => s.list.find(c => String(c.idConferencia) === String(id)),
+    ordered: (s) =>
+      [...s.list].sort((a, b) => {
+        const A = buildDate(a.fecha, a.horaEmpieza).getTime()
+        const B = buildDate(b.fecha, b.horaEmpieza).getTime()
+        return A - B
+      }),
+    getById: (s) => (id) => s.list.find((c) => String(c.idConferencia) === String(id)),
     statusOf: () => (conf) => statusFor(conf),
-    byOrador: (s) => (oradorId) => s.ordered.filter(c => String(c.idOrador) === String(oradorId)),
+    byOrador: (s) => (oradorId) => s.ordered.filter((c) => String(c.idOrador) === String(oradorId)),
 
-    upcomingList: (s) => s.ordered.filter(c => statusFor(c) === 'upcoming'),
-    liveList:     (s) => s.ordered.filter(c => statusFor(c) === 'live'),
-    finishedList: (s) => s.ordered.filter(c => statusFor(c) === 'finished'),
+    upcomingList: (s) => s.ordered.filter((c) => statusFor(c) === 'upcoming'),
+    liveList: (s) => s.ordered.filter((c) => statusFor(c) === 'live'),
+    finishedList: (s) => s.ordered.filter((c) => statusFor(c) === 'finished'),
 
-    activeList: (s) => s.ordered.filter(c => {
-      const st = statusFor(c)
-      return st === 'upcoming' || st === 'live'
-    }),
+    activeList: (s) =>
+      s.ordered.filter((c) => {
+        const st = statusFor(c)
+        return st === 'upcoming' || st === 'live'
+      }),
   },
 
   actions: {
@@ -76,24 +78,29 @@ export const useConferenciasStore = defineStore('conf', {
     toggleEnroll(userId, confId) {
       this._loadAll()
       const conf = this.getById(confId)
-      if (!conf) return { ok:false, reason:'not_found' }
+      if (!conf) return { ok: false, reason: 'not_found' }
 
       const st = statusFor(conf)
       if (st !== 'upcoming') {
-        return { ok:false, reason:'time_locked', status:st }
+        return { ok: false, reason: 'time_locked', status: st }
       }
 
       const set = this._getEnrollSet(userId)
       const key = String(confId)
       let enrolled
-      if (set.has(key)) { set.delete(key); enrolled = false } 
-      else { set.add(key); enrolled = true }
+      if (set.has(key)) {
+        set.delete(key)
+        enrolled = false
+      } else {
+        set.add(key)
+        enrolled = true
+      }
       this._saveEnrollSet(userId, set)
-      return { ok:true, enrolled }
+      return { ok: true, enrolled }
     },
     enrolledForUser(userId) {
       const set = this._getEnrollSet(userId)
-      return this.ordered.filter(c => set.has(String(c.idConferencia)))
+      return this.ordered.filter((c) => set.has(String(c.idConferencia)))
     },
 
     // Votos
@@ -111,20 +118,20 @@ export const useConferenciasStore = defineStore('conf', {
     vote(userId, confId, like = true) {
       this._loadAll()
       const conf = this.getById(confId)
-      if (!conf) return { ok:false, reason:'not_found' }
+      if (!conf) return { ok: false, reason: 'not_found' }
 
       const st = statusFor(conf)
-      if (!['live','finished'].includes(st)) {
-        return { ok:false, reason:'not_live_or_finished' }
+      if (!['live', 'finished'].includes(st)) {
+        return { ok: false, reason: 'not_live_or_finished' }
       }
 
       if (!this.isEnrolled(userId, confId)) {
-        return { ok:false, reason:'not_enrolled' }
+        return { ok: false, reason: 'not_enrolled' }
       }
 
       const map = this._getVotesMap(userId)
       const key = String(confId)
-      if (map[key]) return { ok:false, reason:'already_voted' }
+      if (map[key]) return { ok: false, reason: 'already_voted' }
 
       if (like) conf.votosAFavor += 1
       else conf.votosEnContra += 1
@@ -132,14 +139,13 @@ export const useConferenciasStore = defineStore('conf', {
 
       this._saveAll()
       this._saveVotesMap(userId, map)
-      return { ok:true }
+      return { ok: true }
     },
 
     // Crear charla
     createFromOrador(payload, oradorId) {
       this._loadAll()
-      const nextId =
-        this.list.length ? Math.max(...this.list.map(i => i.idConferencia)) + 1 : 1
+      const nextId = this.list.length ? Math.max(...this.list.map((i) => i.idConferencia)) + 1 : 1
 
       const conf = {
         idConferencia: nextId,
@@ -156,8 +162,14 @@ export const useConferenciasStore = defineStore('conf', {
         sala: payload.sala,
         evaluacion: payload.evaluacion || '',
         zoomUrl: payload.zoomUrl || '',
-        materiales: payload.materialUrl 
-          ? [{ id: Date.now(), nombre: payload.nombreArchivo || 'material', url: payload.materialUrl }]
+        materiales: payload.materialUrl
+          ? [
+              {
+                id: Date.now(),
+                nombre: payload.nombreArchivo || 'material',
+                url: payload.materialUrl,
+              },
+            ]
           : [],
       }
 
@@ -169,7 +181,7 @@ export const useConferenciasStore = defineStore('conf', {
     addMaterial(confId, archivo) {
       this._loadAll()
       const conf = this.getById(confId)
-      if (!conf) return { ok:false, reason:'not_found' }
+      if (!conf) return { ok: false, reason: 'not_found' }
       if (!conf.materiales) conf.materiales = []
 
       conf.materiales.push({
@@ -179,7 +191,7 @@ export const useConferenciasStore = defineStore('conf', {
       })
 
       this._saveAll()
-      return { ok:true }
-    }
-  }
+      return { ok: true }
+    },
+  },
 })

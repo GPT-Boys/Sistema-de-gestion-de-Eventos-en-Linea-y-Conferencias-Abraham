@@ -9,11 +9,7 @@
 
     <!-- Lista -->
     <section v-if="items.length > 0" class="history-list">
-      <article
-        v-for="c in items"
-        :key="c.idConferencia"
-        class="history-card"
-      >
+      <article v-for="c in items" :key="c.idConferencia" class="history-card">
         <div class="h-main">
           <h2>{{ c.titulo }}</h2>
           <p class="desc">{{ c.descripcion }}</p>
@@ -34,7 +30,7 @@
           <!-- Estado de voto -->
           <span v-if="myVote(c)" class="badge voted">
             Tu voto:
-            <i v-if="myVote(c)==='up'" class="bi bi-hand-thumbs-up-fill text-success"></i>
+            <i v-if="myVote(c) === 'up'" class="bi bi-hand-thumbs-up-fill text-success"></i>
             <i v-else class="bi bi-hand-thumbs-down-fill text-danger"></i>
           </span>
           <span v-else class="badge pending">
@@ -43,35 +39,17 @@
 
           <!-- Acciones -->
           <div class="buttons">
-            <button
-              v-if="!myVote(c)"
-              class="btn sm up"
-              @click="onVote(c,true)"
-            >
+            <button v-if="!myVote(c)" class="btn sm up" @click="onVote(c, true)">
               <i class="bi bi-hand-thumbs-up"></i> Me gustó
             </button>
-            <button
-              v-if="!myVote(c)"
-              class="btn sm down"
-              @click="onVote(c,false)"
-            >
+            <button v-if="!myVote(c)" class="btn sm down" @click="onVote(c, false)">
               <i class="bi bi-hand-thumbs-down"></i> No me gustó
             </button>
 
-            <a
-              v-if="c.materialUrl"
-              :href="c.materialUrl"
-              target="_blank"
-              class="btn sm"
-            >
+            <a v-if="c.materialUrl" :href="c.materialUrl" target="_blank" class="btn sm">
               <i class="bi bi-box-arrow-down"></i> Materiales
             </a>
-            <a
-              v-if="c.evaluacion"
-              :href="c.evaluacion"
-              target="_blank"
-              class="btn sm"
-            >
+            <a v-if="c.evaluacion" :href="c.evaluacion" target="_blank" class="btn sm">
               <i class="bi bi-ui-checks-grid"></i> Evaluación
             </a>
           </div>
@@ -99,7 +77,7 @@ const uid = auth.user?.id_usuario ?? auth.user?.id
 
 // Charlas finalizadas inscritas
 const items = computed(() =>
-  conf.enrolledForUser(uid).filter(c => conf.statusOf(c) === 'finished')
+  conf.enrolledForUser(uid).filter((c) => conf.statusOf(c) === 'finished'),
 )
 
 // Voto del usuario
@@ -110,7 +88,7 @@ const onVote = (c, like) => conf.vote(uid, c.idConferencia, like)
 <style scoped>
 .historial {
   padding: 24px;
-  background: #FFFFFF;
+  background: #ffffff;
   min-height: 100vh;
   display: grid;
   gap: 24px;
@@ -139,7 +117,7 @@ const onVote = (c, like) => conf.vote(uid, c.idConferencia, like)
   background: var(--blanco);
   border-radius: 16px;
   padding: 18px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -148,7 +126,7 @@ const onVote = (c, like) => conf.vote(uid, c.idConferencia, like)
 }
 .history-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
 }
 
 .h-main h2 {
@@ -196,11 +174,11 @@ const onVote = (c, like) => conf.vote(uid, c.idConferencia, like)
   gap: 4px;
 }
 .badge.voted {
-  background: rgba(34,197,94,0.15);
+  background: rgba(34, 197, 94, 0.15);
   color: #15803d;
 }
 .badge.pending {
-  background: rgba(234,179,8,0.15);
+  background: rgba(234, 179, 8, 0.15);
   color: #92400e;
 }
 
@@ -225,8 +203,14 @@ const onVote = (c, like) => conf.vote(uid, c.idConferencia, like)
   background: var(--morado-base);
   color: var(--blanco);
 }
-.btn.sm.up { color: #065f46; border-color: #a7f3d0; }
-.btn.sm.down { color: #7f1d1d; border-color: #fecaca; }
+.btn.sm.up {
+  color: #065f46;
+  border-color: #a7f3d0;
+}
+.btn.sm.down {
+  color: #7f1d1d;
+  border-color: #fecaca;
+}
 
 /* Empty */
 .empty {
@@ -242,11 +226,11 @@ const onVote = (c, like) => conf.vote(uid, c.idConferencia, like)
 
 <style>
 :root {
-  --morado-base: #6D28D9;
+  --morado-base: #6d28d9;
   --morado-oscuro: #310176;
   --morado-intermedio: #624399;
-  --morado-suave: #9B85BC;
-  --gris-fondo: #EBECEB;
+  --morado-suave: #9b85bc;
+  --gris-fondo: #ebeceb;
   --blanco: #ffffff;
 }
 </style>
