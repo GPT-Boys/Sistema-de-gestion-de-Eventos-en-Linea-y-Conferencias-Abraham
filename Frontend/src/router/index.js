@@ -54,7 +54,6 @@ const routes = [
       { path: 'charlas',    name: 'Charlas',    component: () => import('@/views/Charlas.vue'),    meta: { title: 'Charlas',    roles: R.adminStaff } },
       { path: 'oradores',   name: 'Oradores',   component: () => import('@/views/Oradores.vue'),   meta: { title: 'Oradores',   roles: R.adminStaff } },
       { path: 'materiales', name: 'Materiales', component: () => import('@/views/Materiales.vue'), meta: { title: 'Materiales', roles: R.adminStaff } },
-      { path: 'votaciones', name: 'Votaciones', component: () => import('@/views/Votaciones.vue'), meta: { title: 'Votaciones', roles: R.adminStaff } },
       { path: 'asistentes', name: 'Asistentes', component: () => import('@/views/Asistentes.vue'), meta: { title: 'Asistentes', roles: R.adminStaff } },
 
       // Orador
@@ -66,7 +65,6 @@ const routes = [
       // Asistente
       { path: 'asistente/explorar',          name: 'Explorar',         component: () => import('@/views/asistente/Explorar.vue'),         meta: { title: 'Explorar agenda', roles: R.asistente } },
       { path: 'asistente/mis-inscripciones', name: 'MisInscripciones', component: () => import('@/views/asistente/MisInscripciones.vue'), meta: { title: 'Mis inscripciones', roles: R.asistente } },
-      { path: 'asistente/votaciones',        name: 'VotacionesAsis',   component: () => import('@/views/asistente/Votaciones.vue'),       meta: { title: 'Votaciones', roles: R.asistente } },
       // Historial de charlas finalizadas (asistente)
       { path: 'asistente/historial',         name: 'HistorialAsis',    component: () => import('@/views/asistente/Historial.vue'),        meta: { title: 'Historial', roles: R.asistente } },
 

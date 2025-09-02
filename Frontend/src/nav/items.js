@@ -23,7 +23,6 @@ export const NAV_ITEMS = [
   { header: 'Participación', roles: ['asistente'] },
   { to: '/app/asistente/explorar',          icon: 'bi-calendar2-week', label: 'Explorar ',     roles: ['asistente'] },
   { to: '/app/asistente/mis-inscripciones', icon: 'bi-bookmark-check', label: 'Mis inscripciones',   roles: ['asistente'] },
-  { to: '/app/asistente/votaciones',        icon: 'bi-hand-thumbs-up', label: 'Votaciones',          roles: ['asistente'] },
   { to: '/app/asistente/historial',         icon: 'bi-clock-history',  label: 'Historial',           roles: ['asistente'] },
 
   // Sistema (todos)
