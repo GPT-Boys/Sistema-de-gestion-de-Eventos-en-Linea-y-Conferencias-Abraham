@@ -1,47 +1,58 @@
-// Pinia store - Charlas (solo frontend, persiste en localStorage)
+// Pinia store - Charlas
 import { defineStore } from 'pinia'
 
 // helpers de fecha/hora -> estado
 function buildDate(dateStr, timeStr) {
-  // dateStr: 'YYYY-MM-DD'  | timeStr: 'HH:mm' (24h)
-  return new Date(`${dateStr}T${timeStr}:00`)
+  // Desarmar manualmente la fecha para evitar desfase UTC
+  const [y, m, d] = dateStr.split('-').map(Number)
+  const [hh, mm] = timeStr?.split(':').map(Number) || [0, 0]
+  return new Date(y, m - 1, d, hh, mm, 0) // fecha/hora en local
 }
+
 function statusFor(conf, now = new Date()) {
+  if (!conf?.fecha || !conf?.horaEmpieza || !conf?.horaTermina) {
+    return 'upcoming'
+  }
   const start = buildDate(conf.fecha, conf.horaEmpieza)
-  const end   = buildDate(conf.fecha, conf.horaTermina)
-  if (now < start) return 'upcoming'   // Próxima
-  if (now > end)   return 'finished'   // Finalizada
-  return 'live'                         // En curso
+  const end = buildDate(conf.fecha, conf.horaTermina)
+  if (now < start) return 'upcoming'
+  if (now > end) return 'finished'
+  return 'live'
 }
 
 const LS_ALL = 'conf:all'
-const LS_ENR = (uid) => `conf:enrolled:${uid}`     // Set de ids (stringificados)
-const LS_VOT = (uid) => `conf:votes:${uid}`        // { [id]: 'up'|'down' }
+const LS_ENR = (uid) => `conf:enrolled:${uid}`
+const LS_VOT = (uid) => `conf:votes:${uid}`
 
 export const useConferenciasStore = defineStore('conf', {
   state: () => ({
     loaded: false,
-    list: [],             // array de charlas
+    list: [],
   }),
 
   getters: {
-    // Lista ordenada por fecha/hora
-    ordered: (s) => [...s.list].sort((a,b) => {
-      const A = buildDate(a.fecha, a.horaEmpieza).getTime()
-      const B = buildDate(b.fecha, b.horaEmpieza).getTime()
-      return A - B
-    }),
-    getById: (s) => (id) => s.list.find(c => String(c.idConferencia) === String(id)),
+    ordered: (s) =>
+      [...s.list].sort((a, b) => {
+        const A = buildDate(a.fecha, a.horaEmpieza).getTime()
+        const B = buildDate(b.fecha, b.horaEmpieza).getTime()
+        return A - B
+      }),
+    getById: (s) => (id) => s.list.find((c) => String(c.idConferencia) === String(id)),
     statusOf: () => (conf) => statusFor(conf),
-    byOrador: (s) => (oradorId) => s.ordered.filter(c => String(c.idOrador) === String(oradorId)),
-    // Filtrados por estado
-    upcomingList: (s) => s.ordered.filter(c => statusFor(c) === 'upcoming'),
-    liveList:     (s) => s.ordered.filter(c => statusFor(c) === 'live'),
-    finishedList: (s) => s.ordered.filter(c => statusFor(c) === 'finished'),
+    byOrador: (s) => (oradorId) => s.ordered.filter((c) => String(c.idOrador) === String(oradorId)),
+
+    upcomingList: (s) => s.ordered.filter((c) => statusFor(c) === 'upcoming'),
+    liveList: (s) => s.ordered.filter((c) => statusFor(c) === 'live'),
+    finishedList: (s) => s.ordered.filter((c) => statusFor(c) === 'finished'),
+
+    activeList: (s) =>
+      s.ordered.filter((c) => {
+        const st = statusFor(c)
+        return st === 'upcoming' || st === 'live'
+      }),
   },
 
   actions: {
-    // --- Persistencia base
     _saveAll() {
       localStorage.setItem(LS_ALL, JSON.stringify(this.list))
     },
@@ -52,7 +63,7 @@ export const useConferenciasStore = defineStore('conf', {
       this.loaded = true
     },
 
-    // --- Enrolamientos por usuario
+    // Enrolamientos
     _getEnrollSet(userId) {
       const raw = localStorage.getItem(LS_ENR(userId))
       return new Set(raw ? JSON.parse(raw) : [])
@@ -65,21 +76,37 @@ export const useConferenciasStore = defineStore('conf', {
       return set.has(String(confId))
     },
     toggleEnroll(userId, confId) {
+      this._loadAll()
+      const conf = this.getById(confId)
+      if (!conf) return { ok: false, reason: 'not_found' }
+
+      const st = statusFor(conf)
+      if (st !== 'upcoming') {
+        return { ok: false, reason: 'time_locked', status: st }
+      }
+
       const set = this._getEnrollSet(userId)
       const key = String(confId)
-      if (set.has(key)) set.delete(key); else set.add(key)
+      let enrolled
+      if (set.has(key)) {
+        set.delete(key)
+        enrolled = false
+      } else {
+        set.add(key)
+        enrolled = true
+      }
       this._saveEnrollSet(userId, set)
-      return set.has(key)
+      return { ok: true, enrolled }
     },
     enrolledForUser(userId) {
       const set = this._getEnrollSet(userId)
-      return this.ordered.filter(c => set.has(String(c.idConferencia)))
+      return this.ordered.filter((c) => set.has(String(c.idConferencia)))
     },
 
-    // --- Votos por usuario
+    // Votos
     _getVotesMap(userId) {
       const raw = localStorage.getItem(LS_VOT(userId))
-      return raw ? JSON.parse(raw) : {} // { [confId]: 'up'|'down' }
+      return raw ? JSON.parse(raw) : {}
     },
     _saveVotesMap(userId, map) {
       localStorage.setItem(LS_VOT(userId), JSON.stringify(map))
@@ -91,28 +118,34 @@ export const useConferenciasStore = defineStore('conf', {
     vote(userId, confId, like = true) {
       this._loadAll()
       const conf = this.getById(confId)
-      if (!conf) return { ok:false, reason:'not_found' }
+      if (!conf) return { ok: false, reason: 'not_found' }
+
       const st = statusFor(conf)
-      if (st !== 'finished') return { ok:false, reason:'not_finished' }
+      if (!['live', 'finished'].includes(st)) {
+        return { ok: false, reason: 'not_live_or_finished' }
+      }
+
+      if (!this.isEnrolled(userId, confId)) {
+        return { ok: false, reason: 'not_enrolled' }
+      }
 
       const map = this._getVotesMap(userId)
       const key = String(confId)
-      if (map[key]) return { ok:false, reason:'already_voted' }
+      if (map[key]) return { ok: false, reason: 'already_voted' }
 
-      if (like) conf.votosAFavor += 1; else conf.votosEnContra += 1
+      if (like) conf.votosAFavor += 1
+      else conf.votosEnContra += 1
       map[key] = like ? 'up' : 'down'
 
       this._saveAll()
       this._saveVotesMap(userId, map)
-      return { ok:true }
+      return { ok: true }
     },
 
-    // --- Crear charla (orador)
+    // Crear charla
     createFromOrador(payload, oradorId) {
       this._loadAll()
-
-      const nextId =
-        this.list.length ? Math.max(...this.list.map(i => i.idConferencia)) + 1 : 1
+      const nextId = this.list.length ? Math.max(...this.list.map((i) => i.idConferencia)) + 1 : 1
 
       const conf = {
         idConferencia: nextId,
@@ -123,18 +156,42 @@ export const useConferenciasStore = defineStore('conf', {
         idTipoConferencia: Number(payload.idTipoConferencia),
         votosAFavor: 0,
         votosEnContra: 0,
-        fecha: payload.fecha,                // 'YYYY-MM-DD'
-        horaEmpieza: payload.horaEmpieza,    // 'HH:mm'
-        horaTermina: payload.horaTermina,    // 'HH:mm'
+        fecha: payload.fecha, // mantener como string "YYYY-MM-DD"
+        horaEmpieza: payload.horaEmpieza,
+        horaTermina: payload.horaTermina,
         sala: payload.sala,
-        evaluacion: payload.evaluacion || '', // URL Google Forms
-        materialUrl: payload.materialUrl || '', // por ahora URL (BLOB más adelante)
-        zoomUrl: payload.zoomUrl || '',        // enlace a Zoom
+        evaluacion: payload.evaluacion || '',
+        zoomUrl: payload.zoomUrl || '',
+        materiales: payload.materialUrl
+          ? [
+              {
+                id: Date.now(),
+                nombre: payload.nombreArchivo || 'material',
+                url: payload.materialUrl,
+              },
+            ]
+          : [],
       }
 
       this.list.push(conf)
       this._saveAll()
       return conf
     },
-  }
+
+    addMaterial(confId, archivo) {
+      this._loadAll()
+      const conf = this.getById(confId)
+      if (!conf) return { ok: false, reason: 'not_found' }
+      if (!conf.materiales) conf.materiales = []
+
+      conf.materiales.push({
+        id: Date.now(),
+        nombre: archivo.nombre,
+        url: archivo.url,
+      })
+
+      this._saveAll()
+      return { ok: true }
+    },
+  },
 })

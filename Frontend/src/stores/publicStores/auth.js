@@ -22,20 +22,16 @@ const mapRole = (v) => {
 // Normaliza la forma del usuario venga como venga del backend
 const normalizeUser = (raw) => {
   if (!raw) return null
-  const id =
-    raw.id_usuario ?? raw.id ?? raw.ID_USUARIO
-  const usuario =
-    raw.usuario ?? raw.username ?? raw.USUARIO
+  const id = raw.id_usuario ?? raw.id ?? raw.ID_USUARIO
+  const usuario = raw.usuario ?? raw.username ?? raw.USUARIO
   const tu = raw.TIPO_USUARIO ?? raw.userType ?? {}
-  const id_tipo_usuario =
-    tu.id_tipo_usuario ?? tu.idTipoUsuario
-  const tipo_usuario =
-    tu.tipo_usuario ?? tu.tipoUsuario
+  const id_tipo_usuario = tu.id_tipo_usuario ?? tu.idTipoUsuario
+  const tipo_usuario = tu.tipo_usuario ?? tu.tipoUsuario
 
   const role = mapRole(tipo_usuario)
 
   return {
-    id: id,                 
+    id: id,
     id_usuario: id,
     usuario,
     TIPO_USUARIO: { id_tipo_usuario, tipo_usuario },

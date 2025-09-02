@@ -1,0 +1,39 @@
+@baseURL = http://localhost:3000/api/asistenteConferenciaVotacion
+
+### Obtener todos los votos de asistentes
+GET {{baseURL}}/
+Accept: application/json
+
+### Obtener un voto por ID
+GET {{baseURL}}/1
+Accept: application/json
+
+### Registrar un nuevo voto
+POST {{baseURL}}/
+Content-Type: application/json
+
+{
+  "asistente_conferencia": {
+    "id_asistente_conferencia": 1
+  },
+  "votacion": {
+    "id_votacion": 1
+  }
+}
+
+### Actualizar un voto
+PUT {{baseURL}}/1
+Content-Type: application/json
+
+{
+  "asistente_conferencia": {
+    "id_asistente_conferencia": 1
+  },
+  "votacion": {
+    "id_votacion": 2
+  }
+}
+
+### Eliminar un voto
+DELETE {{baseURL}}/1
+Accept: application/json

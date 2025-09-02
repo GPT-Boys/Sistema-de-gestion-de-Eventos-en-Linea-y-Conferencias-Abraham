@@ -14,11 +14,11 @@ import Register from '@/views/Register.vue'
 
 // Helpers de roles
 const R = {
-  all:       ['admin', 'staff', 'orador', 'asistente'],
+  all: ['admin', 'staff', 'orador', 'asistente'],
   adminOnly: ['admin'],
   staffOnly: ['staff'],
-  adminStaff:['admin', 'staff'],
-  orador:    ['orador'],
+  adminStaff: ['admin', 'staff'],
+  orador: ['orador'],
   asistente: ['asistente'],
 }
 
@@ -29,8 +29,18 @@ const routes = [
     component: PublicLayout,
     children: [
       { path: '', name: 'Home', component: HomeView, meta: { public: true, title: 'Inicio' } },
-      { path: 'login', name: 'Login', component: Login, meta: { public: true, title: 'Iniciar sesión' } },
-      { path: 'register', name: 'Register', component: Register, meta: { public: true, title: 'Crear cuenta' } },
+      {
+        path: 'login',
+        name: 'Login',
+        component: Login,
+        meta: { public: true, title: 'Iniciar sesión' },
+      },
+      {
+        path: 'register',
+        name: 'Register',
+        component: Register,
+        meta: { public: true, title: 'Crear cuenta' },
+      },
     ],
   },
 
@@ -50,28 +60,86 @@ const routes = [
       },
 
       // Gestión (admin / staff)
-      { path: 'agenda',     name: 'Agenda',     component: () => import('@/views/Agenda.vue'),     meta: { title: 'Agenda',     roles: R.adminStaff } },
-      { path: 'charlas',    name: 'Charlas',    component: () => import('@/views/Charlas.vue'),    meta: { title: 'Charlas',    roles: R.adminStaff } },
-      { path: 'oradores',   name: 'Oradores',   component: () => import('@/views/Oradores.vue'),   meta: { title: 'Oradores',   roles: R.adminStaff } },
-      { path: 'materiales', name: 'Materiales', component: () => import('@/views/Materiales.vue'), meta: { title: 'Materiales', roles: R.adminStaff } },
-      { path: 'votaciones', name: 'Votaciones', component: () => import('@/views/Votaciones.vue'), meta: { title: 'Votaciones', roles: R.adminStaff } },
-      { path: 'asistentes', name: 'Asistentes', component: () => import('@/views/Asistentes.vue'), meta: { title: 'Asistentes', roles: R.adminStaff } },
+      {
+        path: 'agenda',
+        name: 'Agenda',
+        component: () => import('@/views/Agenda.vue'),
+        meta: { title: 'Agenda', roles: R.adminStaff },
+      },
+      {
+        path: 'charlas',
+        name: 'Charlas',
+        component: () => import('@/views/Charlas.vue'),
+        meta: { title: 'Charlas', roles: R.adminStaff },
+      },
+      {
+        path: 'oradores',
+        name: 'Oradores',
+        component: () => import('@/views/Oradores.vue'),
+        meta: { title: 'Oradores', roles: R.adminStaff },
+      },
+      {
+        path: 'materiales',
+        name: 'Materiales',
+        component: () => import('@/views/Materiales.vue'),
+        meta: { title: 'Materiales', roles: R.adminStaff },
+      },
+      {
+        path: 'asistentes',
+        name: 'Asistentes',
+        component: () => import('@/views/Asistentes.vue'),
+        meta: { title: 'Asistentes', roles: R.adminStaff },
+      },
 
       // Orador
       // Vista “Mi agenda” (dos formas: menú/agenda dentro del componente)
-      { path: 'orador/mi-agenda', name: 'OradorMiAgenda', component: () => import('@/views/orador/MiAgenda.vue'), meta: { title: 'Mi agenda', roles: R.orador } },
-      { path: 'orador/nueva-charla', name: 'NuevaCharla', component: () => import('@/views/orador/NuevaCharla.vue'), meta: { title: 'Crear charla', roles: R.orador } },
-      { path: 'orador/mis-materiales', name: 'MisMateriales', component: () => import('@/views/orador/MisMateriales.vue'), meta: { title: 'Mis materiales', roles: R.orador } },
+      {
+        path: 'orador/mi-agenda',
+        name: 'OradorMiAgenda',
+        component: () => import('@/views/orador/MiAgenda.vue'),
+        meta: { title: 'Mi agenda', roles: R.orador },
+      },
+      {
+        path: 'orador/nueva-charla',
+        name: 'NuevaCharla',
+        component: () => import('@/views/orador/NuevaCharla.vue'),
+        meta: { title: 'Crear charla', roles: R.orador },
+      },
+      {
+        path: 'orador/mis-materiales',
+        name: 'MisMateriales',
+        component: () => import('@/views/orador/MisMateriales.vue'),
+        meta: { title: 'Mis materiales', roles: R.orador },
+      },
 
       // Asistente
-      { path: 'asistente/explorar',          name: 'Explorar',         component: () => import('@/views/asistente/Explorar.vue'),         meta: { title: 'Explorar agenda', roles: R.asistente } },
-      { path: 'asistente/mis-inscripciones', name: 'MisInscripciones', component: () => import('@/views/asistente/MisInscripciones.vue'), meta: { title: 'Mis inscripciones', roles: R.asistente } },
-      { path: 'asistente/votaciones',        name: 'VotacionesAsis',   component: () => import('@/views/asistente/Votaciones.vue'),       meta: { title: 'Votaciones', roles: R.asistente } },
+      {
+        path: 'asistente/explorar',
+        name: 'Explorar',
+        component: () => import('@/views/asistente/Explorar.vue'),
+        meta: { title: 'Explorar agenda', roles: R.asistente },
+      },
+      {
+        path: 'asistente/mis-inscripciones',
+        name: 'MisInscripciones',
+        component: () => import('@/views/asistente/MisInscripciones.vue'),
+        meta: { title: 'Mis inscripciones', roles: R.asistente },
+      },
       // Historial de charlas finalizadas (asistente)
-      { path: 'asistente/historial',         name: 'HistorialAsis',    component: () => import('@/views/asistente/Historial.vue'),        meta: { title: 'Historial', roles: R.asistente } },
+      {
+        path: 'asistente/historial',
+        name: 'HistorialAsis',
+        component: () => import('@/views/asistente/Historial.vue'),
+        meta: { title: 'Historial', roles: R.asistente },
+      },
 
       // Común
-      { path: 'ajustes', name: 'Ajustes', component: () => import('@/views/Ajustes.vue'), meta: { title: 'Ajustes', roles: R.all } },
+      {
+        path: 'ajustes',
+        name: 'Ajustes',
+        component: () => import('@/views/Ajustes.vue'),
+        meta: { title: 'Ajustes', roles: R.all },
+      },
     ],
   },
 
@@ -107,11 +175,13 @@ router.beforeEach(async (to, from, next) => {
   // Restaurar sesión 1 vez
   if (!firstStatusCheck) {
     firstStatusCheck = true
-    try { await auth.fetchStatus() } catch {}
+    try {
+      await auth.fetchStatus()
+    } catch {}
   }
 
   // Rutas públicas
-  if (to.matched.some(r => r.meta?.public)) {
+  if (to.matched.some((r) => r.meta?.public)) {
     if (auth.user && (to.name === 'Login' || to.name === 'Register')) {
       return next({ name: 'Dashboard' })
     }
@@ -119,12 +189,12 @@ router.beforeEach(async (to, from, next) => {
   }
 
   // Requiere sesión
-  if (to.matched.some(r => r.meta?.requiresAuth) && !auth.user) {
+  if (to.matched.some((r) => r.meta?.requiresAuth) && !auth.user) {
     return next({ name: 'Login', query: { redirect: to.fullPath } })
   }
 
   // Chequear roles
-  const allowedRoles = to.matched.flatMap(r => r.meta?.roles || [])
+  const allowedRoles = to.matched.flatMap((r) => r.meta?.roles || [])
   if (allowedRoles.length && auth.role && !allowedRoles.includes(auth.role)) {
     return next({ name: 'Dashboard' })
   }

@@ -66,9 +66,19 @@ export const useAgendaStore = defineStore('agenda', {
   },
 
   actions: {
-    enroll(id)    { this.myRegistrations.add(id); this.persist() },
-    unenroll(id)  { this.myRegistrations.delete(id); this.persist() },
-    toggleEnroll(id){ this.isEnrolled(id) ? this.unenroll(id) : this.enroll(id) },
-    persist()     { localStorage.setItem(LS_KEY, JSON.stringify([...this.myRegistrations])) },
+    enroll(id) {
+      this.myRegistrations.add(id)
+      this.persist()
+    },
+    unenroll(id) {
+      this.myRegistrations.delete(id)
+      this.persist()
+    },
+    toggleEnroll(id) {
+      this.isEnrolled(id) ? this.unenroll(id) : this.enroll(id)
+    },
+    persist() {
+      localStorage.setItem(LS_KEY, JSON.stringify([...this.myRegistrations]))
+    },
   },
 })

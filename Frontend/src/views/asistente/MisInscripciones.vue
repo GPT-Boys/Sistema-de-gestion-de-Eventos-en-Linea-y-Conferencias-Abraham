@@ -1,44 +1,40 @@
-<!-- src/views/asistente/MisInscripciones.vue -->
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useConferenciasStore } from '@/stores/app/conferencias.js'
 import { useAuthStore } from '@/stores/publicStores/auth.js'
 import CharlaModal from '@/components/CharlaModal.vue'
+import VoteWidget from '@/components/VoteWidget.vue'
 
 const store = useConferenciasStore()
-const auth  = useAuthStore()
+const auth = useAuthStore()
 
 const q = ref(localStorage.getItem('mi-q') || '')
-const viewMode = ref(localStorage.getItem('mi-view') || 'grid') // 'grid' | 'agenda'
-const tab = ref(localStorage.getItem('mi-tab') || 'actual') // 'actual' | 'historial'
+const viewMode = ref(localStorage.getItem('mi-view') || 'grid')
+const tab = ref(localStorage.getItem('mi-tab') || 'actual')
 const openModal = ref(false)
-const selected  = ref(null)
+const selected = ref(null)
 
 onMounted(() => {
   store._loadAll()
 })
 
-const uid = computed(() =>
-  auth.user?.id_usuario ?? auth.user?.id ?? null
-)
+const uid = computed(() => auth.user?.id_usuario ?? auth.user?.id ?? null)
 
+// Charlas inscritas
 const baseList = computed(() => {
   const all = uid.value ? store.enrolledForUser(uid.value) : []
-  if (tab.value === 'historial') {
-    return all.filter(c => store.statusOf(c) === 'finished')
-  } else {
-    return all.filter(c => store.statusOf(c) !== 'finished')
-  }
+  return tab.value === 'historial'
+    ? all.filter((c) => store.statusOf(c) === 'finished')
+    : all.filter((c) => store.statusOf(c) !== 'finished')
 })
 
 const filtered = computed(() => {
   const term = q.value.trim().toLowerCase()
-  const base = Array.isArray(baseList.value) ? baseList.value : []
-  if (!term) return base
-  return base.filter(c =>
+  if (!term) return baseList.value
+  return baseList.value.filter((c) =>
     [c.titulo, c.descripcion, c.sala]
       .filter(Boolean)
-      .some(v => String(v).toLowerCase().includes(term))
+      .some((v) => String(v).toLowerCase().includes(term)),
   )
 })
 
@@ -49,11 +45,11 @@ const groupedByDate = computed(() => {
     if (!map.has(key)) map.set(key, [])
     map.get(key).push(c)
   }
-  for (const [k, arr] of map.entries()) {
-    arr.sort((a,b) => (a.horaEmpieza||'').localeCompare(b.horaEmpieza||'')); map.set(k, arr)
+  for (const arr of map.values()) {
+    arr.sort((a, b) => (a.horaEmpieza || '').localeCompare(b.horaEmpieza || ''))
   }
   return [...map.entries()]
-    .sort((a,b) => (a[0]||'').localeCompare(b[0]||''))
+    .sort((a, b) => (a[0] || '').localeCompare(b[0] || ''))
     .map(([date, items]) => ({ date, items }))
 })
 
@@ -65,44 +61,86 @@ const canJoinZoom = (c) => {
   const s = store.statusOf(c)
   return (s === 'live' || s === 'upcoming') && !!c.zoomUrl
 }
-const canEvaluate = (c) =>
-  store.statusOf(c) === 'finished' && !!c.evaluacion
+const canEvaluate = (c) => store.statusOf(c) === 'finished' && !!c.evaluacion
 
-function isEnrolled(c){
+function isEnrolled(c) {
   return uid.value ? store.isEnrolled(uid.value, c.idConferencia) : false
 }
-function toggleEnroll(c){
+function toggleEnroll(c) {
   if (!uid.value) return
-  store.toggleEnroll(uid.value, c.idConferencia)
+  const res = store.toggleEnroll(uid.value, c.idConferencia)
+  if (!res.ok && res.reason === 'time_locked') {
+    alert('Solo puedes desinscribirte antes de que la charla empiece.')
+  }
 }
 
-function show(charla){ selected.value = charla; openModal.value = true }
-function closeModal(){ openModal.value = false }
+function show(charla) {
+  selected.value = charla
+  openModal.value = true
+}
+function closeModal() {
+  openModal.value = false
+}
 
-function setViewMode(m){ viewMode.value = m; localStorage.setItem('mi-view', m) }
-function onQueryInput(){ localStorage.setItem('mi-q', q.value) }
-function setTab(t){ tab.value = t; localStorage.setItem('mi-tab', t) }
+function setViewMode(m) {
+  viewMode.value = m
+  localStorage.setItem('mi-view', m)
+}
+function onQueryInput() {
+  localStorage.setItem('mi-q', q.value)
+}
+function setTab(t) {
+  tab.value = t
+  localStorage.setItem('mi-tab', t)
+}
 
 const fmtFechaHead = (d) =>
   d && !isNaN(Date.parse(d))
-    ? new Date(d).toLocaleDateString(undefined,{weekday:'long', day:'2-digit', month:'long', year:'numeric'})
+    ? new Date(d).toLocaleDateString(undefined, {
+        weekday: 'long',
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric',
+      })
     : d || 'Sin fecha'
+
+// 🔹 Descargar material en base64
+function downloadFile(m) {
+  try {
+    const base64 = m.url
+    const byteString = atob(base64.split(',')[1])
+    const mimeString = base64.split(',')[0].split(':')[1].split(';')[0]
+    const ab = new ArrayBuffer(byteString.length)
+    const ia = new Uint8Array(ab)
+    for (let i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i)
+    }
+    const blob = new Blob([ab], { type: mimeString })
+
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
+    link.download = m.nombre || 'archivo'
+    link.click()
+    URL.revokeObjectURL(link.href)
+  } catch (e) {
+    console.error('Error al descargar archivo:', e)
+    alert('No se pudo descargar el archivo')
+  }
+}
 </script>
 
 <template>
   <div class="page">
-    <header class="head">
-      <div>
-        <h1>Mis inscripciones</h1>
-        <p class="muted">Charlas a las que te suscribiste. Cambia entre próximas/en curso y tu historial.</p>
-      </div>
+    <!-- Header -->
+    <header class="page-header">
+      <h1><i class="bi bi-bookmark-check"></i> Mis inscripciones</h1>
 
       <div class="toolbar">
-        <div class="tabs" role="tablist" aria-label="Filtrar">
-          <button :class="['tab',{active:tab==='actual'}]" role="tab" aria-selected="tab==='actual'" @click="setTab('actual')">
+        <div class="tabs">
+          <button :class="['tab', { active: tab === 'actual' }]" @click="setTab('actual')">
             Próximas / En curso
           </button>
-          <button :class="['tab',{active:tab==='historial'}]" role="tab" aria-selected="tab==='historial'" @click="setTab('historial')">
+          <button :class="['tab', { active: tab === 'historial' }]" @click="setTab('historial')">
             Historial
           </button>
         </div>
@@ -110,13 +148,19 @@ const fmtFechaHead = (d) =>
         <div class="right-tools">
           <div class="search">
             <i class="bi bi-search"></i>
-            <input v-model="q" type="search" placeholder="Buscar…" @input="onQueryInput"/>
+            <input v-model="q" type="search" placeholder="Buscar…" @input="onQueryInput" />
           </div>
           <div class="view-toggle">
-            <button :class="['toggle-btn',{active:viewMode==='grid'}]" @click="setViewMode('grid')" title="Vista tarjetas">
+            <button
+              :class="['toggle-btn', { active: viewMode === 'grid' }]"
+              @click="setViewMode('grid')"
+            >
               <i class="bi bi-grid-3x3-gap"></i>
             </button>
-            <button :class="['toggle-btn',{active:viewMode==='agenda'}]" @click="setViewMode('agenda')" title="Vista agenda">
+            <button
+              :class="['toggle-btn', { active: viewMode === 'agenda' }]"
+              @click="setViewMode('agenda')"
+            >
               <i class="bi bi-calendar2-week"></i>
             </button>
           </div>
@@ -124,17 +168,23 @@ const fmtFechaHead = (d) =>
       </div>
     </header>
 
-    <div v-if="filtered.length===0" class="empty">
+    <!-- Empty -->
+    <div v-if="filtered.length === 0" class="empty">
       <i class="bi bi-collection"></i>
       <p>No tienes charlas en esta categoría.</p>
     </div>
 
-    <!-- GRID -->
-    <section v-else-if="viewMode==='grid'" class="grid">
-      <article v-for="c in filtered" :key="c.idConferencia" class="card" :data-status="store.statusOf(c)">
-        <header class="card-head">
-          <span class="status">{{ statusText(c) }}</span>
-          <h3 class="title" :title="c.titulo">{{ c.titulo }}</h3>
+    <!-- Grid -->
+    <section v-else-if="viewMode === 'grid'" class="grid">
+      <article
+        v-for="c in filtered"
+        :key="c.idConferencia"
+        class="q-card"
+        :data-status="store.statusOf(c)"
+      >
+        <header class="q-head">
+          <span class="badge" :class="store.statusOf(c)">{{ statusText(c) }}</span>
+          <h3>{{ c.titulo }}</h3>
         </header>
 
         <p class="desc">{{ c.descripcion }}</p>
@@ -143,59 +193,90 @@ const fmtFechaHead = (d) =>
           <li><i class="bi bi-calendar-event"></i> {{ c.fecha }}</li>
           <li><i class="bi bi-clock"></i> {{ c.horaEmpieza }} – {{ c.horaTermina }}</li>
           <li><i class="bi bi-geo"></i> Sala: {{ c.sala }}</li>
-          <li><i class="bi bi-person"></i> Orador #{{ c.idOrador }}</li>
         </ul>
+
+        <!-- 🔹 MATERIALES -->
+        <div v-if="c.materiales && c.materiales.length" class="files">
+          <h4>Materiales</h4>
+          <ul>
+            <li v-for="m in c.materiales" :key="m.id">
+              <i class="bi bi-file-earmark-text"></i>
+              <button class="btn-link" @click="downloadFile(m)">Descargar {{ m.nombre }}</button>
+            </li>
+          </ul>
+        </div>
+        <div v-else class="no-files"><i class="bi bi-exclamation-circle"></i> Sin materiales</div>
 
         <div class="actions">
           <button class="btn" @click="show(c)"><i class="bi bi-eye"></i> Detalles</button>
 
-          <a v-if="canJoinZoom(c)" class="btn primary" :href="c.zoomUrl" target="_blank" rel="noopener">
+          <a v-if="canJoinZoom(c)" class="btn primary" :href="c.zoomUrl" target="_blank">
             <i class="bi bi-camera-video"></i> Unirme
           </a>
-          <a v-else-if="canEvaluate(c)" class="btn" :href="c.evaluacion" target="_blank" rel="noopener">
+          <a v-else-if="canEvaluate(c)" class="btn" :href="c.evaluacion" target="_blank">
             <i class="bi bi-ui-checks-grid"></i> Evaluación
           </a>
 
-          <button class="btn enroll" :class="{ on:isEnrolled(c) }" @click="toggleEnroll(c)">
+          <button
+            v-if="store.statusOf(c) === 'upcoming'"
+            class="btn enroll"
+            :class="{ on: isEnrolled(c) }"
+            @click="toggleEnroll(c)"
+          >
             <i class="bi" :class="isEnrolled(c) ? 'bi-bookmark-x' : 'bi-bookmark-plus'"></i>
             {{ isEnrolled(c) ? 'Cancelar' : 'Inscribirme' }}
           </button>
         </div>
+
+        <VoteWidget
+          v-if="isEnrolled(c) && ['live', 'finished'].includes(store.statusOf(c))"
+          :charla-id="c.idConferencia"
+          :status="store.statusOf(c)"
+        />
       </article>
     </section>
 
-    <!-- AGENDA -->
+    <!-- Agenda -->
     <section v-else class="timeline">
       <div v-for="group in groupedByDate" :key="group.date" class="day-group">
         <h4 class="day-title">{{ fmtFechaHead(group.date) }}</h4>
         <ul class="line">
-          <li v-for="c in group.items" :key="c.idConferencia" class="slot" :data-status="store.statusOf(c)">
-            <span class="dot" :title="statusText(c)"></span>
+          <li v-for="c in group.items" :key="c.idConferencia" class="slot">
+            <span class="dot"></span>
             <div class="slot-content">
               <div class="slot-head">
-                <div class="left">
+                <div>
                   <div class="time">{{ c.horaEmpieza }} – {{ c.horaTermina }}</div>
-                  <h3 class="title">{{ c.titulo }}</h3>
+                  <h3>{{ c.titulo }}</h3>
                 </div>
                 <div class="right">
-                  <button class="btn sm" @click="show(c)"><i class="bi bi-eye"></i> <span class="hide-sm">Detalles</span></button>
-                  <a v-if="canJoinZoom(c)" class="btn sm primary" :href="c.zoomUrl" target="_blank" rel="noopener">
-                    <i class="bi bi-camera-video"></i> <span class="hide-sm">Unirme</span>
-                  </a>
-                  <a v-else-if="canEvaluate(c)" class="btn sm" :href="c.evaluacion" target="_blank" rel="noopener">
-                    <i class="bi bi-ui-checks-grid"></i> <span class="hide-sm">Evaluación</span>
-                  </a>
-                  <button class="btn sm enroll" :class="{ on:isEnrolled(c) }" @click="toggleEnroll(c)">
-                    <i class="bi" :class="isEnrolled(c) ? 'bi-bookmark-x' : 'bi-bookmark-plus'"></i>
-                    <span class="hide-sm">{{ isEnrolled(c) ? 'Cancelar' : 'Inscribirme' }}</span>
+                  <button class="btn sm" @click="show(c)">
+                    <i class="bi bi-eye"></i> Detalles
                   </button>
+                  <a v-if="canJoinZoom(c)" class="btn sm primary" :href="c.zoomUrl" target="_blank">
+                    <i class="bi bi-camera-video"></i> Unirme
+                  </a>
+                  <a v-else-if="canEvaluate(c)" class="btn sm" :href="c.evaluacion" target="_blank">
+                    <i class="bi bi-ui-checks-grid"></i> Evaluación
+                  </a>
                 </div>
               </div>
-
               <p class="desc">{{ c.descripcion }}</p>
-              <div class="meta-row">
-                <span><i class="bi bi-geo"></i> Sala: {{ c.sala }}</span>
-                <span><i class="bi bi-person"></i> Orador #{{ c.idOrador }}</span>
+
+              <!-- 🔹 MATERIALES EN TIMELINE -->
+              <div v-if="c.materiales && c.materiales.length" class="files">
+                <strong>Materiales:</strong>
+                <ul>
+                  <li v-for="m in c.materiales" :key="m.id">
+                    <i class="bi bi-file-earmark-text"></i>
+                    <button class="btn-link" @click="downloadFile(m)">
+                      Descargar {{ m.nombre }}
+                    </button>
+                  </li>
+                </ul>
+              </div>
+              <div v-else class="no-files">
+                <i class="bi bi-exclamation-circle"></i> Sin materiales
               </div>
             </div>
           </li>
@@ -203,67 +284,279 @@ const fmtFechaHead = (d) =>
       </div>
     </section>
 
-    <CharlaModal v-if="openModal && selected" v-model:open="openModal" :charla="selected" @close="closeModal" />
+    <CharlaModal
+      v-if="openModal && selected"
+      v-model:open="openModal"
+      :charla="selected"
+      @close="closeModal"
+    />
   </div>
 </template>
 
 <style scoped>
-:root{
-  --b:#eef0f4; --grad: linear-gradient(135deg, #7c3aed, #8b5cf6);
-  --live:#0ea5b7; --up:#5b6bff; --fin:#64748b;
+.files {
+  margin-top: 8px;
 }
-.page{ display:grid; gap:14px; }
-.head h1{ margin:0; }
-.muted{ color:#64748b; margin-top:2px; }
-
-.toolbar{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:space-between; }
-.tabs{ display:flex; gap:8px; }
-.tab{ border:1px solid var(--b); background:#fff; padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:800; }
-.tab.active{ background:var(--grad); color:#fff; border:none; }
-.right-tools{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
-.search{ display:flex; align-items:center; gap:8px; background:#fff; border:1px solid var(--b); border-radius:12px; padding:8px 10px; width:min(420px,100%); }
-.search input{ border:none; outline:none; background:transparent; width:100%; }
-.view-toggle{ display:flex; gap:8px; }
-.toggle-btn{ border:1px solid var(--b); background:#fff; width:42px; height:42px; border-radius:12px; cursor:pointer; display:grid; place-items:center; }
-.toggle-btn.active{ background:var(--grad); color:#fff; border:none; }
-
-.empty{ display:grid; place-items:center; gap:6px; padding:30px; border:1px dashed var(--b); border-radius:14px; color:#6b7280; }
-.empty i{ font-size:28px; }
-
-.grid{ display:grid; gap:14px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
-@media (max-width:1200px){ .grid{ grid-template-columns: repeat(2, minmax(0,1fr)); } }
-@media (max-width:760px){ .grid{ grid-template-columns: 1fr; } }
-.card{
-  position:relative; background:#fff; border:1px solid var(--b); border-radius:16px; box-shadow:0 12px 36px rgba(17,24,39,.06);
-  padding:12px; display:grid; gap:10px; overflow:hidden;
+.files h4 {
+  margin: 0 0 4px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--morado-base);
 }
-.card::before{ content:''; position:absolute; inset:0 0 auto 0; height:4px; background:var(--up); opacity:.75; }
-.card[data-status="live"]::before{ background:var(--live); }
-.card[data-status="finished"]::before{ background:var(--fin); }
-.card-head{ display:grid; gap:6px; }
-.status{ font-size:12px; font-weight:800; width:max-content; padding:3px 8px; border-radius:999px; background:#eef2ff; color:#3730a3; }
-.card[data-status="live"] .status{ background:#ecfeff; color:#0e7490; }
-.card[data-status="finished"] .status{ background:#f1f5f9; color:#334155; }
-.title{ margin:0; font-size:17px; font-weight:800; }
-.desc{ margin:0; color:#475569; min-height:40px; }
-.meta{ list-style:none; padding:0; margin:0; display:grid; gap:4px; color:#334155; font-size:14px; }
+.files ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+.files li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+}
+.btn-link {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--morado-base);
+  font-weight: 500;
+  text-decoration: none;
+}
+.btn-link:hover {
+  text-decoration: underline;
+}
 
-.timeline{ display:grid; gap:18px; }
-.day-group{ background:#fff; border:1px solid var(--b); border-radius:16px; padding:12px; }
-.day-title{ margin:0 0 8px; font-size:15px; text-transform:capitalize; }
-.line{ list-style:none; padding:0; margin:0; }
-.slot{ display:flex; gap:12px; padding:12px 6px; border-left:3px solid #e2e8f0; margin-left:10px; position:relative; }
-.slot + .slot{ border-top:1px dashed #eef0f4; }
-.dot{ position:absolute; left:-7px; top:18px; width:12px; height:12px; border-radius:50%; background:var(--up); box-shadow:0 0 0 3px #eef2ff; }
-.slot[data-status="live"] .dot{ background:var(--live); box-shadow: 0 0 0 3px #dff9ff; }
-.slot[data-status="finished"] .dot{ background:var(--fin); box-shadow: 0 0 0 3px #e2e8f0; }
-.slot-content{ flex:1; display:grid; gap:6px; }
-.slot-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
-.time{ font-weight:800; color:#374151; min-width:120px; }
-.meta-row{ display:flex; gap:14px; flex-wrap:wrap; color:#334155; font-size:14px; }
-.btn{ border:1px solid var(--b); background:#fff; padding:10px 12px; border-radius:10px; cursor:pointer; font-weight:700; display:inline-flex; gap:8px; align-items:center; }
-.btn.sm{ padding:8px 10px; border-radius:10px; }
-.btn.sm.primary{ background:var(--grad); color:#fff; border:none; }
-.btn.enroll.on{ background:#fff; color:#7c3aed; border:1px solid #e9d5ff; }
-.hide-sm{ display:inline; } @media (max-width:640px){ .hide-sm{ display:none; } }
+.no-files {
+  font-size: 13px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+/* …resto de estilos igual que antes… */
+.page {
+  display: grid;
+  gap: 20px;
+  padding: 20px;
+  background: white;
+  min-height: 100vh;
+}
+.page-header h1 {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--morado-oscuro);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* toolbar */
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.tabs {
+  display: flex;
+  gap: 8px;
+}
+.tab {
+  border: 1px solid var(--morado-suave);
+  background: #fff;
+  padding: 10px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 700;
+}
+.tab.active {
+  background: var(--morado-base);
+  color: #fff;
+  border: none;
+}
+
+.right-tools {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+  border: 1px solid var(--morado-suave);
+  border-radius: 14px;
+  padding: 8px 12px;
+}
+.search input {
+  border: none;
+  outline: none;
+  background: transparent;
+}
+
+.view-toggle {
+  display: flex;
+  gap: 6px;
+}
+.toggle-btn {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--morado-suave);
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: #fff;
+  cursor: pointer;
+}
+.toggle-btn.active {
+  background: var(--morado-base);
+  color: #fff;
+  border: none;
+}
+
+/* Empty */
+.empty {
+  text-align: center;
+  color: #6b7280;
+  padding: 40px;
+  border: 1px dashed var(--morado-suave);
+  border-radius: 16px;
+  background: #fff;
+}
+
+/* Grid cards */
+.q-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  padding: 16px;
+  display: grid;
+  gap: 12px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+}
+.q-card:hover {
+  transform: translateY(-3px);
+  transition: 0.2s;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+.q-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.badge {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+.badge.upcoming {
+  background: #eef2ff;
+  color: #3730a3;
+}
+.badge.live {
+  background: #ecfeff;
+  color: #0e7490;
+}
+.badge.finished {
+  background: #f3f4f6;
+  color: #334155;
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.btn {
+  border: 1px solid var(--morado-suave);
+  background: #fff;
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn.primary {
+  background: linear-gradient(135deg, var(--morado-base), var(--morado-intermedio));
+  color: #fff;
+  border: none;
+}
+.btn.enroll.on {
+  background: #faf5ff;
+  color: var(--morado-base);
+  border: 1px solid #e9d5ff;
+}
+.btn.sm {
+  padding: 6px 10px;
+  font-size: 13px;
+}
+
+/* Timeline */
+.timeline {
+  display: grid;
+  gap: 20px;
+}
+.day-group {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  padding: 16px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.04);
+}
+.day-title {
+  margin: 0 0 10px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--morado-intermedio);
+}
+.line {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.slot {
+  display: flex;
+  gap: 12px;
+  padding: 12px 0;
+  border-left: 3px solid #e5e7eb;
+  margin-left: 14px;
+  position: relative;
+}
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--morado-base);
+  position: absolute;
+  left: -7px;
+  top: 18px;
+}
+.slot-content {
+  flex: 1;
+  display: grid;
+  gap: 6px;
+}
+</style>
+
+<style>
+:root {
+  --morado-base: #6d28d9;
+  --morado-oscuro: #310176;
+  --morado-intermedio: #624399;
+  --morado-suave: #9b85bc;
+  --gris-fondo: #ebeceb;
+}
 </style>

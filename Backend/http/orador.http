@@ -1,0 +1,35 @@
+@baseURL = http://localhost:3000/api/orador
+
+### Obtener todos los oradores
+GET {{baseURL}}/
+Accept: application/json
+
+### Obtener un orador por ID
+GET {{baseURL}}/1
+Accept: application/json
+
+### Crear un nuevo orador
+POST {{baseURL}}/
+Content-Type: application/json
+
+{
+  "usuario": {
+    "id_usuario": 1
+  },
+  "descripcion": "Orador de prueba",
+  "experiencia": "10 años",
+  "contacto": "orador@example.com"
+}
+
+### Actualizar un orador
+PUT {{baseURL}}/1
+Content-Type: application/json
+
+{
+  "descripcion": "Orador actualizado",
+  "experiencia": "12 años"
+}
+
+### Eliminar un orador
+DELETE {{baseURL}}/1
+Accept: application/json

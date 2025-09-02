@@ -1,55 +1,84 @@
-<!-- src/components/VoteWidget.vue -->
 <script setup>
-import { ref } from 'vue'
+import { computed } from 'vue'
+import { useConferenciasStore } from '@/stores/app/conferencias.js'
+import { useAuthStore } from '@/stores/publicStores/auth.js'
 
-// props: estado inicial y si el usuario puede votar
 const props = defineProps({
-  canVote: { type: Boolean, default: false },     // p.ej. solo asistentes
-  closed:  { type: Boolean, default: false },     // charla finalizada
-  initial: { type: String, default: null },       // 'up' | 'down' | null
-  upCount: { type: Number, default: 0 },
-  downCount:{ type: Number, default: 0 },
+  charlaId: { type: [String, Number], required: true },
+  status: { type: String, required: true }, // 'upcoming'|'live'|'finished'
 })
 
-const up   = ref(props.upCount)
-const down = ref(props.downCount)
-const my   = ref(props.initial) // 'up'|'down'|null
+const store = useConferenciasStore()
+const auth = useAuthStore()
 
-function vote(kind){
-  if (!props.canVote || !props.closed) return
-  if (my.value === kind) {
-    // quitar voto
-    if (kind==='up') up.value-- ; else down.value--
-    my.value = null
-  } else {
-    // cambiar voto
-    if (kind==='up') { up.value++ ; if (my.value==='down') down.value-- }
-    else { down.value++ ; if (my.value==='up') up.value-- }
-    my.value = kind
-  }
-  // TODO: aquí llamarías a tu API cuando la tengas
+const uid = computed(() => auth.user?.id_usuario ?? auth.user?.id ?? null)
+const alreadyVoted = computed(() => (uid.value ? !!store.myVote(uid.value, props.charlaId) : false))
+const enrolled = computed(() => (uid.value ? store.isEnrolled(uid.value, props.charlaId) : false))
+
+const showWidget = computed(() => {
+  // Solo si está inscrito, charla live/finished y NO votó aún
+  return enrolled.value && ['live', 'finished'].includes(props.status) && !alreadyVoted.value
+})
+
+function onVote(like) {
+  if (!uid.value) return
+  const res = store.vote(uid.value, props.charlaId, like)
+  // Tras votar, alreadyVoted pasará a true y el widget desaparecerá solo
 }
 </script>
 
 <template>
-  <div class="vote">
-    <button class="vbtn" :class="{ on: my==='up', disabled: !canVote || !closed }" @click="vote('up')" :disabled="!canVote || !closed">
-      👍 <span>{{ up }}</span>
-    </button>
-    <button class="vbtn" :class="{ on: my==='down', disabled: !canVote || !closed }" @click="vote('down')" :disabled="!canVote || !closed">
-      👎 <span>{{ down }}</span>
-    </button>
-    <small v-if="!closed" class="muted">Disponible al finalizar</small>
+  <div v-if="showWidget" class="vote">
+    <span class="tag">Valora esta charla</span>
+    <div class="btns">
+      <button class="btn up" @click="onVote(true)">
+        <i class="bi bi-hand-thumbs-up-fill"></i> Me gustó
+      </button>
+      <button class="btn down" @click="onVote(false)">
+        <i class="bi bi-hand-thumbs-down-fill"></i> No me gustó
+      </button>
+    </div>
   </div>
 </template>
 
 <style scoped>
-.vote{ display:flex; align-items:center; gap:8px; }
-.vbtn{
-  border:1px solid #e5e7eb; background:#fff; border-radius:12px; padding:6px 10px;
-  display:flex; align-items:center; gap:6px; cursor:pointer; font-weight:700;
+.vote {
+  margin-top: 10px;
+  border: 1px dashed #e5e7eb;
+  border-radius: 12px;
+  padding: 10px;
+  background: #fff;
 }
-.vbtn.on{ background:#ecfdf5; border-color:#10b981; }
-.vbtn.disabled{ opacity:.6; cursor:default; }
-.muted{ color:#6b7280; }
+.tag {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 700;
+}
+.btns {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+.btn {
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+}
+.btn.up {
+  color: #065f46;
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+}
+.btn.down {
+  color: #7f1d1d;
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+.btn:hover {
+  filter: brightness(0.98);
+}
 </style>

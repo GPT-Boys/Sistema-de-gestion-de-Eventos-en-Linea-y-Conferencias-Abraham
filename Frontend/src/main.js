@@ -17,9 +17,11 @@ app.use(pinia)
 app.use(router)
 
 // Opcional A: hacer el check aquí (y QUITAR el fetch del router guard)
-useAuthStore(pinia).fetchStatus().finally(() => {
-  app.mount('#app')
-})
+useAuthStore(pinia)
+  .fetchStatus()
+  .finally(() => {
+    app.mount('#app')
+  })
 
 // Opcional B: si prefieres hacerlo en el router guard, entonces:
 // app.mount('#app')

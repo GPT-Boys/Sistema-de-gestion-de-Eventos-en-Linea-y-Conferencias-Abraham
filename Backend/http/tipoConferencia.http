@@ -1,0 +1,29 @@
+@baseURL = http://localhost:3000/api/tipoConferencia
+
+### Obtener todos los tipos de conferencias
+GET {{baseURL}}/
+Accept: application/json
+
+### Obtener un tipo de conferencia por ID
+GET {{baseURL}}/1
+Accept: application/json
+
+### Crear un nuevo tipo de conferencia
+POST {{baseURL}}/
+Content-Type: application/json
+
+{
+  "tipo_conferencia": "Virtual/Presencial"
+}
+
+### Actualizar un tipo de conferencia
+PUT {{baseURL}}/1
+Content-Type: application/json
+
+{
+  "tipo_conferencia": "Virtual"
+}
+
+### Eliminar un tipo de conferencia
+DELETE {{baseURL}}/1
+Accept: application/json

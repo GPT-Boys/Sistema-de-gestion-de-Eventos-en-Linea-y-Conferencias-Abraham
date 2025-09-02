@@ -1,0 +1,54 @@
+@baseURL = http://localhost:3000/api/conferencia
+
+### Obtener todas las conferencias
+GET {{baseURL}}/
+Accept: application/json
+
+### Obtener una conferencia por ID
+GET {{baseURL}}/1
+Accept: application/json
+
+### Crear una nueva conferencia
+POST {{baseURL}}/
+Content-Type: application/json
+
+{
+  "titulo": "Conferencia de Prueba",
+  "descripcion": "Descripción de prueba",
+  "marca_conferencia": {
+    "id_marca_conferencia": 1
+  },
+  "orador": {
+    "id_orador": 1
+  },
+  "tipo_conferencia": {
+    "id_tipo_conferencia": 1
+  },
+  "fecha": "2025-09-01",
+  "hora_empieza": "09:00",
+  "hora_termina": "10:00",
+  "sala": "https://us06web.zoom.us/j/867288",
+  "evaluacion": "https://docs.google.com/",
+  "material": "Material.pdf"
+}
+
+### Actualizar una conferencia
+PUT {{baseURL}}/1
+Content-Type: application/json
+
+{
+  "titulo": "ConnectUp | Speed Networking",
+  "fecha": "2025-09-02"
+}
+
+### Actualizar votos de una conferencia
+PUT {{baseURL}}/1/voto
+Content-Type: application/json
+
+{
+  "positivo": true
+}
+
+### Eliminar una conferencia
+DELETE {{baseURL}}/1
+Accept: application/json

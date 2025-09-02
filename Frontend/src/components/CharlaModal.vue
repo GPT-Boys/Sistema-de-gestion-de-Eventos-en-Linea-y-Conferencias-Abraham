@@ -1,20 +1,26 @@
-<!-- src/components/CharlaModal.vue -->
 <script setup>
-import { ref, computed, watch, onMounted, nextTick } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 
 const props = defineProps({
-  open:   { type: Boolean, default: false },
-  charla: { type: Object,  default: null },
+  open: { type: Boolean, default: false },
+  charla: { type: Object, default: null },
 })
 const emit = defineEmits(['close', 'update:open'])
 
 const dialogRef = ref(null)
-const snack = ref('') // micro-notificación (copiado, etc.)
+const snack = ref('')
 
-// --- helpers ---
+// helpers
 const toDate = (d, t = '00:00') => new Date(`${d}T${t}:00`)
 const fmtFecha = (d) =>
-  d ? new Date(d).toLocaleDateString(undefined, { weekday:'short', day:'2-digit', month:'short', year:'numeric' }) : ''
+  d
+    ? new Date(d).toLocaleDateString(undefined, {
+        weekday: 'short',
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      })
+    : ''
 const fmtHora = (t) => t || ''
 
 const status = computed(() => {
@@ -30,18 +36,22 @@ const canJoinZoom = computed(() => status.value === 'live' || status.value === '
 const canEvaluate = computed(() => status.value === 'finished' && !!props.charla?.evaluacion)
 const hasMaterial = computed(() => !!props.charla?.materialUrl)
 
-// --- open/close ---
-function close () {
+function lockBody() {
+  document.body.style.overflow = 'hidden'
+}
+function unlockBody() {
+  document.body.style.overflow = ''
+}
+
+function close() {
   emit('update:open', false)
   emit('close')
 }
 
-// backdrop click
 function onBackdropClick(e) {
   if (e.target === e.currentTarget) close()
 }
 
-// Esc + focus trap
 function onKeydown(e) {
   if (e.key === 'Escape') {
     e.preventDefault()
@@ -49,44 +59,58 @@ function onKeydown(e) {
     return
   }
   if (e.key !== 'Tab') return
-
-  // Focus trap muy simple
   const root = dialogRef.value
   if (!root) return
   const focusables = root.querySelectorAll(
-    'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+    'a[href],button:not([disabled]),textarea,input,select,[tabindex]:not([tabindex="-1"])',
   )
   if (!focusables.length) return
-  const first = focusables[0]
-  const last  = focusables[focusables.length - 1]
-  const active = document.activeElement
-
+  const first = focusables[0],
+    last = focusables[focusables.length - 1],
+    active = document.activeElement
   if (e.shiftKey && active === first) {
-    e.preventDefault(); last.focus(); return
+    e.preventDefault()
+    last.focus()
+    return
   }
   if (!e.shiftKey && active === last) {
-    e.preventDefault(); first.focus(); return
+    e.preventDefault()
+    first.focus()
+    return
   }
 }
 
-// Lock scroll y enfocar primer elemento
-watch(() => props.open, async (v) => {
-  document.body.style.overflow = v ? 'hidden' : ''
-  if (v) {
-    await nextTick()
-    // enfoca el título o primer botón
-    const h = dialogRef.value?.querySelector('.modal-title')
-    if (h) h.focus({ preventScroll: true })
-  }
+// ✅ Bloqueo/Desbloqueo robusto
+watch(
+  () => props.open,
+  async (v) => {
+    if (v) {
+      lockBody()
+      await nextTick()
+      dialogRef.value?.querySelector('.modal-title')?.focus({ preventScroll: true })
+    } else {
+      unlockBody()
+    }
+  },
+)
+
+onMounted(() => {
+  // si el modal ya viene abierto por estado inicial
+  if (props.open) lockBody()
 })
 
-// snack (autocierre)
+onUnmounted(() => {
+  // ✅ pase lo que pase, restaurar scroll al desmontar
+  unlockBody()
+})
+
+// snack
 function toast(msg) {
   snack.value = msg
-  setTimeout(() => { snack.value = '' }, 1800)
+  setTimeout(() => {
+    snack.value = ''
+  }, 1800)
 }
-
-// copiar link zoom
 async function copyZoom() {
   try {
     await navigator.clipboard.writeText(props.charla?.zoomUrl || '')
@@ -95,11 +119,6 @@ async function copyZoom() {
     toast('No se pudo copiar')
   }
 }
-
-onMounted(() => {
-  // si el modal ya viene abierto
-  if (props.open) document.body.style.overflow = 'hidden'
-})
 </script>
 
 <template>
@@ -118,17 +137,17 @@ onMounted(() => {
             <!-- Header -->
             <header class="aes-modal__head">
               <div class="title-wrap">
-                <h3
-                  class="modal-title"
-                  tabindex="0"
-                >
-                  {{ charla.titulo }}
-                </h3>
+                <h3 class="modal-title" tabindex="0">{{ charla.titulo }}</h3>
                 <span class="badge" :class="status">
-                  {{ status === 'live' ? 'En curso' : status === 'upcoming' ? 'Próxima' : 'Finalizada' }}
+                  {{
+                    status === 'live'
+                      ? 'En curso'
+                      : status === 'upcoming'
+                        ? 'Próxima'
+                        : 'Finalizada'
+                  }}
                 </span>
               </div>
-
               <button class="icon-btn" @click="close" aria-label="Cerrar">
                 <i class="bi bi-x-lg"></i>
               </button>
@@ -137,27 +156,17 @@ onMounted(() => {
             <!-- Body -->
             <section class="aes-modal__body">
               <p class="desc">{{ charla.descripcion }}</p>
-
               <ul class="meta">
+                <li><i class="bi bi-calendar-event"></i>{{ fmtFecha(charla.fecha) }}</li>
                 <li>
-                  <i class="bi bi-calendar-event"></i>
-                  <span>{{ fmtFecha(charla.fecha) }}</span>
+                  <i class="bi bi-clock"></i>{{ fmtHora(charla.horaEmpieza) }} –
+                  {{ fmtHora(charla.horaTermina) }}
                 </li>
-                <li>
-                  <i class="bi bi-clock"></i>
-                  <span>{{ fmtHora(charla.horaEmpieza) }} – {{ fmtHora(charla.horaTermina) }}</span>
-                </li>
-                <li>
-                  <i class="bi bi-geo"></i>
-                  <span>Sala: {{ charla.sala }}</span>
-                </li>
-                <li>
-                  <i class="bi bi-person"></i>
-                  <span>Orador #{{ charla.idOrador }}</span>
-                </li>
-                <li v-if="typeof charla.votosAFavor === 'number' && typeof charla.votosEnContra === 'number'">
-                  <i class="bi bi-hand-thumbs-up"></i>
-                  <span>Valoración: {{ charla.votosAFavor }} 👍 · {{ charla.votosEnContra }} 👎</span>
+                <li><i class="bi bi-geo"></i>Sala: {{ charla.sala }}</li>
+                <li><i class="bi bi-person"></i>Orador #{{ charla.idOrador }}</li>
+                <li v-if="typeof charla.votosAFavor === 'number'">
+                  <i class="bi bi-hand-thumbs-up"></i>{{ charla.votosAFavor }} 👍 ·
+                  {{ charla.votosEnContra }} 👎
                 </li>
               </ul>
 
@@ -167,8 +176,8 @@ onMounted(() => {
                     v-if="charla.zoomUrl && canJoinZoom"
                     class="btn primary"
                     :href="charla.zoomUrl"
-                    target="_blank" rel="noopener"
-                    aria-label="Abrir reunión en Zoom"
+                    target="_blank"
+                    rel="noopener"
                   >
                     <i class="bi bi-camera-video"></i> Unirse por Zoom
                   </a>
@@ -180,21 +189,21 @@ onMounted(() => {
                   >
                     <i class="bi bi-clipboard"></i> Copiar enlace
                   </button>
-
                   <a
                     v-if="canEvaluate"
                     class="btn"
                     :href="charla.evaluacion"
-                    target="_blank" rel="noopener"
+                    target="_blank"
+                    rel="noopener"
                   >
                     <i class="bi bi-ui-checks-grid"></i> Evaluación
                   </a>
-
                   <a
                     v-if="hasMaterial"
                     class="btn"
                     :href="charla.materialUrl"
-                    target="_blank" rel="noopener"
+                    target="_blank"
+                    rel="noopener"
                   >
                     <i class="bi bi-file-earmark-arrow-down"></i> Material
                   </a>
@@ -204,12 +213,9 @@ onMounted(() => {
 
             <!-- Footer -->
             <footer class="aes-modal__foot">
-              <button class="btn" type="button" @click="close">
-                Cerrar
-              </button>
+              <button class="btn" type="button" @click="close">Cerrar</button>
             </footer>
 
-            <!-- Snack micro aviso -->
             <div v-if="snack" class="snack">{{ snack }}</div>
           </div>
         </Transition>
@@ -219,97 +225,180 @@ onMounted(() => {
 </template>
 
 <style scoped>
-/* ===== Animaciones ===== */
-.fade-enter-active,.fade-leave-active{ transition: opacity .18s ease; }
-.fade-enter-from,.fade-leave-to{ opacity: 0; }
-.pop-enter-active,.pop-leave-active{ transition: transform .2s ease, opacity .2s ease; }
-.pop-enter-from,.pop-leave-to{ transform: scale(.98); opacity: 0; }
-
-/* ===== Contenedor ===== */
-.aes-modal{
-  position: fixed; inset: 0;
-  background: rgba(12, 13, 20, .55);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
-  display: grid; place-items: center;
-  z-index: 99999;
-  padding: 18px;
+/* animaciones */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+.pop-enter-active,
+.pop-leave-active {
+  transition:
+    transform 0.25s ease,
+    opacity 0.25s ease;
+}
+.pop-enter-from,
+.pop-leave-to {
+  transform: scale(0.97);
+  opacity: 0;
 }
 
-/* ===== Diálogo ===== */
-.aes-modal__dialog{
-  width: min(780px, 96vw);
-  background: linear-gradient(180deg, #ffffff 0%, #fbfbff 100%);
+/* contenedor */
+.aes-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 24, 39, 0.6);
+  backdrop-filter: blur(6px);
+  display: grid;
+  place-items: center;
+  z-index: 9999;
+  padding: 20px;
+}
+.aes-modal__dialog {
+  width: min(720px, 95vw);
+  background: #fff;
   border-radius: 18px;
-  box-shadow: 0 30px 80px rgba(7, 11, 30, .35);
-  border: 1px solid #eef0f4;
-  display: grid; gap: 12px;
-  padding: 16px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
+  border: 1px solid #e5e7eb;
+  display: grid;
+  gap: 16px;
+  padding: 20px;
   position: relative;
 }
 
-/* Head */
-.aes-modal__head{
-  display:flex; align-items:center; justify-content:space-between; gap:12px;
+/* header */
+.aes-modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
-.title-wrap{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-.modal-title{
-  margin:0; font-size:20px; font-weight:800; outline:none;
+.title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
 }
-.icon-btn{
-  border:none; background:transparent; cursor:pointer; color:#0f172a;
-  width:38px; height:38px; display:grid; place-items:center; border-radius:12px;
+.modal-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  color: #4c1d95;
+  outline: none;
 }
-.icon-btn:hover{ background:#f1f5f9; }
-
-/* Body */
-.aes-modal__body{ display:grid; gap:12px; }
-.desc{ margin:0; color:#334155; line-height:1.6; }
-.meta{
-  display:grid; gap:8px; list-style:none; padding:0; margin:0;
-  color:#334155; font-size:14px;
+.icon-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  color: #374151;
 }
-.meta li{ display:flex; gap:8px; align-items:center; }
-.meta i{ width:18px; text-align:center; }
-
-.badge{
-  padding:3px 10px; border-radius:999px; font-size:12px; font-weight:800; text-transform:capitalize;
-  background:#eef2ff; color:#3730a3; border:1px solid #e9e8ff;
-}
-.badge.live{ background:#ecfeff; color:#0e7490; border-color:#c0f4ff; }
-.badge.finished{ background:#f1f5f9; color:#334155; border-color:#e2e8f0; }
-
-/* CTAs */
-.cta{ display:flex; justify-content:space-between; align-items:center; }
-.cta-left{ display:flex; gap:10px; flex-wrap:wrap; }
-
-.btn{
-  border:1px solid #e5e7eb; background:#fff; padding:10px 14px;
-  border-radius:12px; cursor:pointer; font-weight:700; display:inline-flex; gap:8px; align-items:center;
-}
-.btn:hover{ background:#f8fafc; }
-.btn.primary{
-  background: linear-gradient(135deg, #7c3aed, #8b5cf6);
-  color:#fff; border:none;
-}
-.btn.primary:hover{ filter:brightness(1.05); }
-.btn.ghost{
-  background:#fff; color:#7c3aed; border:1px solid #e9d5ff;
+.icon-btn:hover {
+  background: #f3f4f6;
 }
 
-/* Foot */
-.aes-modal__foot{ display:flex; justify-content:flex-end; gap:8px; }
-
-/* Snack */
-.snack{
-  position:absolute; left:50%; bottom:12px; transform:translateX(-50%);
-  background:#111827; color:#fff; font-size:12px; padding:6px 10px; border-radius:8px;
-  box-shadow: 0 10px 30px rgba(0,0,0,.25);
+/* body */
+.aes-modal__body {
+  display: grid;
+  gap: 12px;
+}
+.desc {
+  margin: 0;
+  color: #374151;
+  line-height: 1.6;
+}
+.meta {
+  display: grid;
+  gap: 6px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  color: #4b5563;
+  font-size: 14px;
+}
+.meta li {
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }
 
-/* Responsive */
-@media (max-width: 640px){
-  .aes-modal__dialog{ padding: 14px; }
-  .modal-title{ font-size: 18px; }
+.badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  background: #eef2ff;
+  color: #3730a3;
+}
+.badge.live {
+  background: #ecfeff;
+  color: #0e7490;
+}
+.badge.finished {
+  background: #f1f5f9;
+  color: #334155;
+}
+
+/* cta */
+.cta {
+  display: flex;
+  justify-content: flex-start;
+}
+.cta-left {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.btn {
+  border: 1px solid #d1d5db;
+  background: #fff;
+  padding: 9px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #111827;
+}
+.btn:hover {
+  background: #f9fafb;
+}
+.btn.primary {
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  color: #fff;
+  border: none;
+  box-shadow: 0 3px 10px rgba(124, 58, 237, 0.3);
+}
+.btn.primary:hover {
+  filter: brightness(1.07);
+}
+.btn.ghost {
+  background: #fff;
+  color: #7c3aed;
+  border: 1px solid #e9d5ff;
+}
+
+/* foot */
+.aes-modal__foot {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* snack */
+.snack {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  background: #111827;
+  color: #fff;
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 8px;
 }
 </style>

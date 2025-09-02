@@ -1,6 +1,15 @@
 @baseURL = http://localhost:3000/api/usuario
 
-### User POST
+### Obtener todos los usuarios
+GET {{baseURL}}/
+Accept: application/json
+
+### Obtener un usuario por ID
+GET {{baseURL}}/1
+Accept: application/json
+
+### Crear un nuevo usuario
+### Orador User POST
 POST {{baseURL}}/ HTTP/1.1
 Content-Type: application/json
 Accept: application/json
@@ -9,7 +18,7 @@ Accept: application/json
   "usuario": "orador1",
   "contrasenia": "orador1",
   "tipo_usuario": {
-    "id_tipo_usuario": 2
+    "id_tipo_usuario": 3
   },
   "nombres": "Oscar Alfredo",
   "apellidos": "Menacho Silva",
@@ -21,5 +30,65 @@ Accept: application/json
   "correo_electronico": "osqui@gmail.com"
 }
 
+### Personal User POST
+POST {{baseURL}}/ HTTP/1.1
+Content-Type: application/json
+Accept: application/json
 
+{
+  "usuario": "personal1",
+  "contrasenia": "personal1",
+  "tipo_usuario": {
+    "id_tipo_usuario": 2
+  },
+  "nombres": "Rodrigo Gabriel",
+  "apellidos": "Rivera Mayan",
+  "fecha_nacimiento": "04/20/2002",
+  "ciudad": {
+    "id_ciudad": 3
+  },
+  "telefono": 71289034,
+  "correo_electronico": "rodri@gmail.com"
+}
 
+### Asistente User POST
+POST {{baseURL}}/ HTTP/1.1
+Content-Type: application/json
+Accept: application/json
+
+{
+  "usuario": "asistente1",
+  "contrasenia": "asistente1",
+  "tipo_usuario": {
+    "id_tipo_usuario": 4
+  },
+  "nombres": "José Andrés",
+  "apellidos": "Manzaneda",
+  "fecha_nacimiento": "03/15/2002",
+  "ciudad": {
+    "id_ciudad": 3
+  },
+  "telefono": 67859402,
+  "correo_electronico": "jose@gmail.com"
+}
+
+### Actualizar un usuario
+PUT {{baseURL}}/1
+Content-Type: application/json
+
+{
+  "nombres": "Juan José",
+  "telefono": "70026473"
+}
+
+### Actualizar contraseña de un usuario
+PUT {{baseURL}}/password
+Content-Type: application/json
+
+{
+  "contrasenia": "newPassword123"
+}
+
+### Eliminar un usuario
+DELETE {{baseURL}}/1
+Accept: application/json
