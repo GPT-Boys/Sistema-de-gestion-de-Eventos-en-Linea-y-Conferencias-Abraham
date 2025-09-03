@@ -1,20 +1,45 @@
+
 /* ==== Base global & tokens ==== */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
 
+html {
+  scroll-behavior: smooth;
+}
 :root {
-  --bg: #ffffff;
-  --ink: #0b0b0d;
-  --muted: #6b7280;
-  --paper: #ffffff;
+  
+  --morado-base: #6D28D9;
+  --morado-oscuro: #310176;
+  --morado-intermedio: #624399;
+  --morado-suave: #9B85BC;
+  --gris-fondo: #f9f9fb;
+  --blanco: #ffffff;
+  --negro: #000000;
 
-  --purple-900: #4c1d95;
-  --purple-700: #6d28d9;
-  --purple-600: #7c3aed; /* necesario para los gradientes de botones */
-  --purple-500: #8b5cf6;
-
+  --text-primary: var(--negro);
+  --text-secondary: #4b5563;
   --ring: 0 0 0 3px rgba(109, 40, 217, 0.25);
   --header-h: 80px; /* altura consistente en todo el sitio */
+  --card-bg: #ffffff;
+  --footer-bg: var(--morado-oscuro);
 }
+
+[data-theme="dark"] {
+  --morado-base: #9B85BC;       /* un morado claro para contrastar */
+  --morado-oscuro: #1b0b33;     /* fondo oscuro principal */
+  --morado-intermedio: #6D28D9; /* hover */
+  --morado-suave: #624399;
+
+  --gris-fondo: #111827;        /* background general */
+  --blanco: #e5e7eb;            /* texto claro */
+  --negro: #f9fafb;
+
+  --text-primary: var(--blanco);
+  --text-secondary: #d1d5db;
+
+  --card-bg: #1f2937;           /* cartas en dark */
+  --footer-bg: #0d0d15;
+}
+
 
 /* Reset mínimo */
 * {
