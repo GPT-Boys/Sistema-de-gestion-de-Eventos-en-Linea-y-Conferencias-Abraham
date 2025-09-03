@@ -1,5 +1,6 @@
+@ -1,204 +1,220 @@
 <template>
-  <header class="header" role="banner">
+  <header class="header header-auth" role="banner">
     <div class="container header-inner">
       <!-- Logo -->
       <RouterLink to="/" class="brand" aria-label="AbrahamEventSphere — Inicio" @click="closeMenu">
@@ -45,6 +46,11 @@
 
         <!-- En cualquier ruta -->
         <RouterLink to="/login" @click="closeMenu">Iniciar Sesión</RouterLink>
+
+        <!-- Botón de tema -->
+        <button class="btn-ghost theme-toggle" @click="toggleTheme">
+          {{ theme === 'light' ? '🌙' : '☀️' }}
+        </button>
       </nav>
     </div>
   </header>
@@ -62,15 +68,24 @@ const route = useRoute()
 const onHome = computed(() => route.path === '/')
 
 const menuOpen = ref(false)
-const toggleMenu = () => {
-  menuOpen.value = !menuOpen.value
-}
-const closeMenu = () => {
-  menuOpen.value = false
+
+
+const toggleMenu = () => { menuOpen.value = !menuOpen.value }
+const closeMenu = () => { menuOpen.value = false }
+
+// Tema claro/oscuro
+const theme = ref(localStorage.getItem('theme') || 'light')
+onMounted(() => {
+  document.documentElement.setAttribute('data-theme', theme.value)
+})
+const toggleTheme = () => {
+  theme.value = theme.value === 'light' ? 'dark' : 'light'
+  document.documentElement.setAttribute('data-theme', theme.value)
+  localStorage.setItem('theme', theme.value)
 }
 
-let io // IntersectionObserver para scroll-spy
-
+// Scroll-spy
+let io
 const handleResize = () => {
   if (window.innerWidth > 900 && menuOpen.value) menuOpen.value = false
 }
@@ -108,16 +123,23 @@ onBeforeUnmount(() => {
 
 <style scoped>
 /* Header igual que en landing */
+.header-auth .logo {
+  height: clamp(140px, 12vw, 180px);
+  width: auto;
+  max-width: none;
+}
 .header {
   position: sticky;
   top: 0;
   z-index: 20;
   background: #fff;
+  background: var(--gris-fondo);
   box-shadow: 0 2px 8px rgba(17, 24, 39, 0.06);
 }
 .header-inner {
   /* usa el mismo contenedor que landing */
-  height: var(--header-h, 140px);
+
+  height: var(--header-h, 100px);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -130,8 +152,8 @@ onBeforeUnmount(() => {
   gap: 10px;
 }
 .logo {
-  height: clamp(140px, 12vw, 180px);
-  max-width: none;
+
+  height: clamp(100px, 10vw, 140px);
   width: auto;
 }
 
@@ -139,11 +161,13 @@ onBeforeUnmount(() => {
 .nav {
   display: flex;
   gap: 26px;
+  align-items: center;
 }
 .nav a,
 .nav :deep(a) {
   font-weight: 600;
-  color: #1f2937;
+ 
+  color: var(--text-primary);
   position: relative;
   padding: 4px 0;
 }
@@ -155,7 +179,8 @@ onBeforeUnmount(() => {
   bottom: -6px;
   width: 0;
   height: 2px;
-  background: var(--purple-700, #6d28d9);
+
+  background: var(--morado-base);
   transition: width 0.2s;
 }
 .nav a:hover::after,
@@ -165,13 +190,27 @@ onBeforeUnmount(() => {
 
 /* Estado activo de scroll-spy */
 .nav a.active {
-  color: var(--purple-700, #6d28d9);
+
+  color: var(--morado-base);
 }
 .nav a.active::after {
   width: 100%;
 }
 
 /* Toggle (solo móvil) */
+/* Botón de tema */
+.btn-ghost.theme-toggle {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: var(--text-primary);
+}
+.btn-ghost.theme-toggle:hover {
+  color: var(--morado-base);
+}
+
+/* Toggle móvil */
 .nav-toggle {
   display: none;
   font-size: 26px;
@@ -185,12 +224,14 @@ onBeforeUnmount(() => {
   .nav {
     display: none;
     flex-direction: column;
-    background: #fff;
+    
+    background: var(--gris-fondo);
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     padding: 12px;
     border-radius: 8px;
     position: absolute;
-    top: var(--header-h, 140px);
+   
+    top: var(--header-h, 100px);
     right: 10px;
   }
   .nav.is-open {
