@@ -1,114 +1,89 @@
 <template>
-  <div class="login-page">
-    <HeaderAuth />
+  <AuthLayout>
+    <header class="head">
+      <h1>Iniciar sesión</h1>
+      <p class="sub">Accede a tu panel para gestionar tus eventos.</p>
+    </header>
 
-    <div class="viewport">
-      <div class="login-card">
-        <header class="head">
-          <h1>Iniciar sesión</h1>
-          <p class="sub">Accede a tu panel para gestionar tus eventos.</p>
-        </header>
+    <transition name="fade">
+      <div
+        v-if="notification.message"
+        class="notice"
+        :class="notification.type === 'error' ? 'notice-error' : 'notice-ok'"
+        role="status"
+      >
+        {{ notification.message }}
+        <button class="notice-close" @click="notification.message = ''" aria-label="Cerrar">×</button>
+      </div>
+    </transition>
 
-        <transition name="fade">
-          <div
-            v-if="notification.message"
-            class="notice"
-            :class="notification.type === 'error' ? 'notice-error' : 'notice-ok'"
-            role="status"
-          >
-            {{ notification.message }}
-            <button class="notice-close" @click="notification.message = ''" aria-label="Cerrar">
-              ×
-            </button>
-          </div>
-        </transition>
-
-        <form @submit.prevent="onSubmit" novalidate>
-          <!-- Usuario -->
-          <label class="label" for="user">Usuario</label>
-          <div class="control">
-            <span class="icon left" aria-hidden="true">
-              <svg viewBox="0 0 24 24">
-                <path
-                  d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-4.42 0-8 2.24-8 5v2h16v-2c0-2.76-3.58-5-8-5Z"
-                />
-              </svg>
-            </span>
-            <input
-              id="user"
-              v-model.trim="usuario"
-              type="text"
-              placeholder="Tu usuario"
-              autocomplete="username"
-              required
-            />
-          </div>
-
-          <!-- Password -->
-          <label class="label" for="password">Contraseña</label>
-          <div class="control">
-            <span class="icon left" aria-hidden="true">
-              <svg viewBox="0 0 24 24">
-                <path
-                  d="M12 1a5 5 0 0 0-5 5v3H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-2V6a5 5 0 0 0-5-5Zm-3 8V6a3 3 0 1 1 6 0v3H9Z"
-                />
-              </svg>
-            </span>
-            <input
-              id="password"
-              :type="showPassword ? 'text' : 'password'"
-              v-model="password"
-              placeholder="Tu contraseña"
-              autocomplete="current-password"
-              required
-            />
-            <button
-              type="button"
-              class="icon right btn-icon"
-              :aria-label="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
-              @click="showPassword = !showPassword"
-            >
-              <svg v-if="!showPassword" viewBox="0 0 24 24">
-                <path
-                  d="M12 5C7 5 2.73 8.11 1 12c1.73 3.89 6 7 11 7s9.27-3.11 11-7c-1.73-3.89-6-7-11-7Zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10Z"
-                />
-              </svg>
-              <svg v-else viewBox="0 0 24 24">
-                <path
-                  d="M2 5.27 3.28 4 20 20.72 18.73 22l-2.27-2.27A11.9 11.9 0 0 1 12 19C7 19 2.73 15.89 1 12a13.1 13.1 0 0 1 5.11-5.92L2 5.27Z"
-                />
-              </svg>
-            </button>
-          </div>
-
-          <!-- Recordar -->
-          <label class="check">
-            <input type="checkbox" v-model="remember" />
-            <span> Mantener sesión iniciada </span>
-          </label>
-
-          <!-- Acciones -->
-          <button class="aes-btn aes-btn--primary" type="submit" :disabled="loading">
-            <span v-if="!loading">Entrar</span>
-            <span v-else class="spinner">Entrando…</span>
-          </button>
-        </form>
-
-        <footer class="foot-links">
-          <router-link class="a" to="/register">¿No tienes cuenta? Crear una</router-link>
-        </footer>
+    <form @submit.prevent="onSubmit" novalidate>
+      <!-- Usuario -->
+      <label class="label" for="user">Usuario</label>
+      <div class="control">
+        <span class="icon left" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-4.42 0-8 2.24-8 5v2h16v-2c0-2.76-3.58-5-8-5Z"/>
+          </svg>
+        </span>
+        <input id="user" v-model.trim="usuario" type="text" placeholder="Tu usuario" autocomplete="username" required />
       </div>
 
-      <footer class="mini-foot">© 2025 AbrahamEventSphere. Todos los derechos reservados.</footer>
-    </div>
-  </div>
+      <!-- Password -->
+      <label class="label" for="password">Contraseña</label>
+      <div class="control">
+        <span class="icon left" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 1a5 5 0 0 0-5 5v3H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-2V6a5 5 0 0 0-5-5Zm-3 8V6a3 3 0 1 1 6 0v3H9Z"/>
+          </svg>
+        </span>
+        <input
+          id="password"
+          :type="showPassword ? 'text' : 'password'"
+          v-model="password"
+          placeholder="Tu contraseña"
+          autocomplete="current-password"
+          required
+        />
+        <button
+          type="button"
+          class="icon right btn-icon"
+          :aria-label="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+          @click="showPassword = !showPassword"
+        >
+          <svg v-if="!showPassword" viewBox="0 0 24 24">
+            <path d="M12 5C7 5 2.73 8.11 1 12c1.73 3.89 6 7 11 7s9.27-3.11 11-7c-1.73-3.89-6-7-11-7Zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10Z"/>
+          </svg>
+          <svg v-else viewBox="0 0 24 24">
+            <path d="M2 5.27 3.28 4 20 20.72 18.73 22l-2.27-2.27A11.9 11.9 0 0 1 12 19C7 19 2.73 15.89 1 12a13.1 13.1 0 0 1 5.11-5.92L2 5.27Z"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Recordar -->
+      <label class="check">
+        <input type="checkbox" v-model="remember" />
+        <span> Mantener sesión iniciada </span>
+      </label>
+
+      <!-- Acciones -->
+      <button class="aes-btn aes-btn--primary" type="submit" :disabled="loading">
+        <span v-if="!loading">Entrar</span>
+        <span v-else class="spinner">Entrando…</span>
+      </button>
+    </form>
+
+    <footer class="foot-links">
+      <router-link class="a" to="/register">¿No tienes cuenta? Crear una</router-link>
+    </footer>
+  </AuthLayout>
 </template>
 
 <script setup>
+import AuthLayout from '@/layouts/AuthLayout.vue'
 import { useAuthStore } from '@/stores/publicStores/auth.js'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import HeaderAuth from '@/components/HeaderAuth.vue'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -135,8 +110,11 @@ const onSubmit = async () => {
 
   loading.value = true
   try {
-    // auth.login debe devolver true/false y NUNCA lanzar sin capturar
-    const ok = await auth.login({ usuario: usuario.value, password: password.value, remember: remember.value })
+    const ok = await auth.login({
+      usuario: usuario.value,
+      password: password.value,
+      remember: remember.value
+    })
     if (ok) {
       const redirect = router.currentRoute.value.query.redirect ?? '/app/dashboard'
       router.push(typeof redirect === 'string' ? redirect : '/app/dashboard')
@@ -151,26 +129,17 @@ const onSubmit = async () => {
 }
 </script>
 
-<style scoped>
-:root {
-  --header-h: 80px; /* alto del header */
-  --purple-700: #6d28d9;
-  --purple-600: #7c3aed;
-  --purple-500: #8b5cf6;
-  --ring: 0 0 0 3px rgba(124, 58, 237, 0.25);
-}
 
-/* === Página sin scroll === */
+<style scoped>
 .login-page {
   min-height: 100svh;
   background:
     radial-gradient(900px 400px at 15% 10%, rgba(255, 255, 255, 0.06), transparent 60%),
     radial-gradient(700px 320px at 85% 85%, rgba(255, 255, 255, 0.05), transparent 60%),
     linear-gradient(135deg, #3a3b3e 0%, #111214 100%);
-  overflow: hidden; /* <- clave: evita scroll global */
+  overflow: hidden;
 }
 
-/* zona visible bajo el header */
 .viewport {
   height: calc(100svh - var(--header-h));
   display: grid;
@@ -178,51 +147,60 @@ const onSubmit = async () => {
   padding: 12px;
 }
 
-/* Card adaptable; si falta alto, scroll interno */
 .login-card {
   width: min(640px, 92vw);
-  max-height: calc(100svh - var(--header-h) - 32px); /* 32 = padding .viewport */
-  background: rgba(255, 255, 255, 0.98);
+  max-height: calc(100svh - var(--header-h) - 32px);
+  background: var(--card-bg);
   backdrop-filter: blur(10px);
   border-radius: 20px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
-  overflow: auto; /* sólo si es necesario */
-  overscroll-behavior: contain;
+  overflow: auto;
   padding: 22px;
+  color: var(--text-primary);
 }
 
+[data-theme="dark"] .login-card {
+  background: var(--card-bg);
+  color: var(--text-primary);
+}
+
+/* Encabezado */
 .head h1 {
   margin: 0 0 4px;
   font-size: 26px;
   font-weight: 800;
-  color: #111827;
   text-align: center;
+  color: var(--text-primary);
 }
 .sub {
   margin: 0 0 12px;
-  color: #6b7280;
+  color: var(--text-secondary);
   text-align: center;
 }
 
+/* Labels */
 .label {
   display: block;
   font-size: 13px;
-  color: #374151;
+  color: var(--text-primary);
   margin: 10px 0 6px;
 }
+
+/* Checkbox */
 .check {
   display: flex;
   align-items: center;
   gap: 10px;
   margin: 8px 0 12px;
-  color: #374151;
   font-size: 14px;
+  color: var(--text-secondary);
 }
 .check input {
   width: 16px;
   height: 16px;
 }
 
+/* Inputs */
 .control {
   position: relative;
   margin-bottom: 8px;
@@ -232,17 +210,26 @@ const onSubmit = async () => {
   padding: 12px 42px;
   border-radius: 14px;
   border: 1px solid #e5e7eb;
-  background: #fff;
+  background: var(--blanco);
   font-size: 14px;
   outline: none;
-  transition:
-    box-shadow 0.15s ease,
-    border-color 0.15s ease;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+  color: var(--text-primary);
 }
 .control input:focus {
-  border-color: var(--purple-600);
+  border-color: var(--morado-base);
   box-shadow: var(--ring);
 }
+[data-theme="dark"] .control input {
+  background: #111827;
+  border: 1px solid #374151;
+  color: var(--blanco);
+}
+[data-theme="dark"] .control input:focus {
+  border-color: var(--morado-intermedio);
+}
+
+/* Iconos */
 .icon {
   position: absolute;
   top: 50%;
@@ -256,7 +243,10 @@ const onSubmit = async () => {
 .icon svg {
   width: 18px;
   height: 18px;
-  fill: #6b7280;
+  fill: var(--text-secondary);
+}
+[data-theme="dark"] .icon svg {
+  fill: #9ca3af;
 }
 .icon.left {
   left: 12px;
@@ -271,6 +261,7 @@ const onSubmit = async () => {
   padding: 0;
 }
 
+/* Botones */
 .aes-btn {
   width: 100%;
   border: none;
@@ -278,40 +269,48 @@ const onSubmit = async () => {
   font-weight: 700;
   padding: 12px 18px;
   cursor: pointer;
-  transition:
-    transform 0.15s ease,
-    filter 0.15s ease,
-    box-shadow 0.15s ease;
-  color: #fff;
+  transition: transform 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease;
   margin-top: 8px;
-  background: linear-gradient(135deg, var(--purple-600), var(--purple-500));
 }
-.aes-btn:hover {
+
+/* Variante principal */
+.aes-btn--primary {
+  color: var(--blanco);
+  background: linear-gradient(135deg, var(--morado-base), var(--morado-intermedio));
+}
+.aes-btn--primary:hover {
   transform: translateY(-2px);
   filter: brightness(1.05);
 }
-.aes-btn:disabled {
-  opacity: 0.7;
-  cursor: default;
-}
-.aes-btn:focus-visible {
-  outline: none;
-  box-shadow: var(--ring);
+[data-theme="dark"] .aes-btn--primary {
+  background: linear-gradient(135deg, var(--morado-oscuro), var(--morado-base));
 }
 
+/* Variante secundaria (ej. link a registro) */
+.aes-btn--secondary {
+  background: var(--blanco);
+  color: var(--morado-base);
+  border: 1px solid var(--morado-base);
+}
+.aes-btn--secondary:hover {
+  background: var(--morado-base);
+  color: var(--blanco);
+}
+
+/* Links */
 .foot-links {
   margin-top: 10px;
   text-align: center;
 }
 .foot-links .a {
-  color: var(--purple-700);
+  color: var(--morado-base);
   font-weight: 600;
-  text-decoration: none;
 }
 .foot-links .a:hover {
   text-decoration: underline;
 }
 
+/* Avisos */
 .notice {
   border-radius: 12px;
   padding: 11px 14px;
@@ -322,12 +321,20 @@ const onSubmit = async () => {
   align-items: center;
 }
 .notice-ok {
-  background: #ecfdf5;
+  background: #d1fae5;
   color: #065f46;
 }
 .notice-error {
-  background: #fef2f2;
+  background: #fee2e2;
   color: #7f1d1d;
+}
+[data-theme="dark"] .notice-ok {
+  background: #064e3b;
+  color: #a7f3d0;
+}
+[data-theme="dark"] .notice-error {
+  background: #7f1d1d;
+  color: #fecaca;
 }
 .notice-close {
   background: transparent;
@@ -338,6 +345,7 @@ const onSubmit = async () => {
   color: inherit;
 }
 
+/* Animación fade */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.18s ease;
@@ -347,14 +355,18 @@ const onSubmit = async () => {
   opacity: 0;
 }
 
+/* Footer mini */
 .mini-foot {
   margin-top: 10px;
   font-size: 12px;
-  color: #6b7280;
+  color: var(--text-secondary);
   text-align: center;
 }
+[data-theme="dark"] .mini-foot {
+  color: #9ca3af;
+}
 
-/* Compacta si la pantalla es baja */
+/* Responsive */
 @media (max-height: 760px) {
   .login-card {
     padding: 16px 18px;
