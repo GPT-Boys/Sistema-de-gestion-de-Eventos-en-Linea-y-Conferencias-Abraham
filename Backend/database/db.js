@@ -4,7 +4,7 @@ const sequelize = new Sequelize({
   dialect: "mysql",
   host: "localhost",
   username: "root",
-  password: "root",
+  password: "",
   database: "AbrahamEventSphere_Database",
   port: 3306,
   timezone: "-04:00",
