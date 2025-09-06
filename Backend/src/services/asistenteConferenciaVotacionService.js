@@ -77,8 +77,7 @@ const createAsistenteConferenciaVotacion = async (data) => {
       id_votacion: data.votacion.id_votacion,
     });
 
-    const assistantConferenceID =
-      newRecord.asistente_conferencia.id_asistente_conferencia;
+    const assistantConferenceID = newRecord.id_asistente_conferencia;
     const assistantConferenceValues = await AsistenteConferenciaENT.findByPk(
       assistantConferenceID
     );
@@ -88,7 +87,7 @@ const createAsistenteConferenciaVotacion = async (data) => {
       assistantConferenceValues.id_asistente
     );
 
-    const voteID = newRecord.votacion.id_votacion;
+    const voteID = newRecord.id_votacion;
     const voteValues = await VotacionENT.findByPk(voteID);
     const votacionDTO = new VotacionDTO(voteID, voteValues.votacion);
 
@@ -121,8 +120,7 @@ const updateAsistenteConferenciaVotacion = async (id, data) => {
       id_votacion: data.votacion.id_votacion,
     });
 
-    const assistantConferenceID =
-      record.asistente_conferencia.id_asistente_conferencia;
+    const assistantConferenceID = record.id_asistente_conferencia;
     const assistantConferenceValues = await AsistenteConferenciaENT.findByPk(
       assistantConferenceID
     );
@@ -132,7 +130,7 @@ const updateAsistenteConferenciaVotacion = async (id, data) => {
       assistantConferenceValues.id_asistente
     );
 
-    const voteID = record.votacion.id_votacion;
+    const voteID = record.id_votacion;
     const voteValues = await VotacionENT.findByPk(voteID);
     const votacionDTO = new VotacionDTO(voteID, voteValues.votacion);
 

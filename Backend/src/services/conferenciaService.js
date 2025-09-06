@@ -86,7 +86,7 @@ const getAllConferencias = async () => {
       "C-101",
       500,
       null,
-      `Error Getting All Conferencias: ${error}`
+      `Error Getting All Conferencias: ${error}.`
     );
   }
 };
@@ -150,7 +150,7 @@ const getConferenciaById = async (id) => {
       "C-102",
       500,
       null,
-      `Error Getting Conferencia: ${error}`
+      `Error Getting Conferencia: ${error}.`
     );
   }
 };
@@ -175,8 +175,7 @@ const createConferencia = async (conferenciaData) => {
       material: conferenciaData.material,
     });
 
-    const brandConferenceID =
-      newConferencia.marca_conferencia.id_marca_conferencia;
+    const brandConferenceID = newConferencia.id_marca_conferencia;
     const brandConferenceValues = await MarcaConferenciaENT.findByPk(
       brandConferenceID
     );
@@ -185,7 +184,7 @@ const createConferencia = async (conferenciaData) => {
       brandConferenceValues.marca_conferencia
     );
 
-    const oradorID = newConferencia.orador.id_orador;
+    const oradorID = newConferencia.id_orador;
     const oradorValues = await OradorENT.findByPk(oradorID);
     const oradorDTO = new OradorDTO(
       oradorID,
@@ -195,8 +194,7 @@ const createConferencia = async (conferenciaData) => {
       oradorValues.contacto
     );
 
-    const typeConferenceID =
-      newConferencia.tipo_conferencia.id_tipo_conferencia;
+    const typeConferenceID = newConferencia.id_tipo_conferencia;
     const typeConferenceValues = await TipoConferenciaENT.findByPk(
       typeConferenceID
     );
@@ -232,22 +230,98 @@ const createConferencia = async (conferenciaData) => {
       "C-103",
       500,
       null,
-      `Error Creating Conferencia: ${error}`
+      `Error Creating Conferencia: ${error}.`
     );
   }
 };
 
 // Obtener asistentes inscritos
 const getAsistentesInscritos = async (conferenciaId) => {
+  const AsistenteConferenciaDTO = require("../DTO/AsistenteConferenciaDTO");
   const AsistenteConferenciaENT = require("../ENT/AsistenteConferenciaENT");
+  const UsuarioDTO = require("../DTO/UsuarioDTO");
   const UsuarioENT = require("../ENT/UsuarioENT");
-  const asistentes = await AsistenteConferenciaENT.findAll({
-    where: { id_conferencia: conferenciaId },
-    include: [
-      { model: UsuarioENT, attributes: ["correo_electronico", "telefono"] },
-    ],
-  });
-  return asistentes.map((ac) => ac.usuario);
+  const AsistenteDTO = require("../DTO/AsistenteDTO");
+  const AsistenteENT = require("../ENT/AsistenteENT");
+
+  console.log(`Getting Asistentes for Conferencia ID: ${conferenciaId}...`);
+  try {
+    const asistentes = await AsistenteConferenciaENT.findAll({
+      where: { id_conferencia: conferenciaId },
+      include: [
+        { model: UsuarioENT, as: "usuario" },
+        { model: ConferenciaENT, as: "conferencia" },
+        { model: AsistenteENT, as: "asistente" },
+      ],
+    });
+    const asistentesInscritosDTO = await Promise.all(
+      asistentes.map(async (record) => {
+        const conferenciaDTO = new ConferenciaDTO(
+          record.conferencia.id_conferencia,
+          record.conferencia.titulo,
+          record.conferencia.descripcion,
+          record.conferencia.id_marca_conferencia,
+          record.conferencia.id_orador,
+          record.conferencia.id_tipo_conferencia,
+          record.conferencia.votos_a_favor,
+          record.conferencia.votos_en_contra,
+          record.conferencia.fecha,
+          record.conferencia.hora_empieza,
+          record.conferencia.hora_termina,
+          record.conferencia.sala,
+          record.conferencia.evaluacion,
+          record.conferencia.material
+        );
+
+        const assistantID = record.id_asistente;
+        const assistantValues = await AsistenteENT.findByPk(assistantID);
+
+        const usuarioDTO = new UsuarioDTO(
+          assistantValues.usuario.id_usuario,
+          assistantValues.usuario.usuario,
+          assistantValues.usuario.id_tipo_usuario,
+          assistantValues.usuario.nombres,
+          assistantValues.usuario.apellidos,
+          assistantValues.usuario.fecha_nacimiento,
+          assistantValues.usuario.id_ciudad,
+          assistantValues.usuario.telefono,
+          assistantValues.usuario.correo_electronico,
+          assistantValues.usuario.fecha_creacion
+        );
+
+        const asistenteDTO = new AsistenteDTO(
+          record.asistente.id_asistente,
+          usuarioDTO,
+          record.asistente.descripcion
+        );
+
+        return new AsistenteConferenciaDTO(
+          record.id_asistente_conferencia,
+          conferenciaDTO,
+          asistenteDTO
+        );
+      })
+    );
+    console.log(
+      `Assistants Successfully Obtained. Found ${asistentesInscritosDTO.length} Assistants.`
+    );
+    return new ResponseDTO(
+      "C-000",
+      200,
+      asistentesInscritosDTO,
+      `Assistants Successfully Obtained. Found ${asistentesInscritosDTO.length} Assistants.`
+    );
+  } catch (error) {
+    console.error(
+      `Error Getting Assistants for Conference ID: ${conferenciaId}: ${error}.`
+    );
+    return new ResponseDTO(
+      "C-0101",
+      500,
+      null,
+      `Error Getting Assistants for Conference ID: ${conferenciaId}: ${error}.`
+    );
+  }
 };
 
 const updateConferencia = async (id, conferenciaData) => {
@@ -281,8 +355,7 @@ const updateConferencia = async (id, conferenciaData) => {
       material: conferenciaData.material || conferencia.material,
     });
 
-    const brandConferenceID =
-      conferencia.marca_conferencia.id_marca_conferencia;
+    const brandConferenceID = conferencia.id_marca_conferencia;
     const brandConferenceValues = await MarcaConferenciaENT.findByPk(
       brandConferenceID
     );
@@ -291,7 +364,7 @@ const updateConferencia = async (id, conferenciaData) => {
       brandConferenceValues.marca_conferencia
     );
 
-    const oradorID = conferencia.orador.id_orador;
+    const oradorID = conferencia.id_orador;
     const oradorValues = await OradorENT.findByPk(oradorID);
     const oradorDTO = new OradorDTO(
       oradorID,
@@ -301,7 +374,7 @@ const updateConferencia = async (id, conferenciaData) => {
       oradorValues.contacto
     );
 
-    const typeConferenceID = conferencia.tipo_conferencia.id_tipo_conferencia;
+    const typeConferenceID = conferencia.id_tipo_conferencia;
     const typeConferenceValues = await TipoConferenciaENT.findByPk(
       typeConferenceID
     );
@@ -358,30 +431,28 @@ const updateConferencia = async (id, conferenciaData) => {
       });
 
       // Enviar correos electrónicos
-      const emailPromises = asistentes.map((asistente) =>
+      const emailPromises = asistentes.data.map((asistente) =>
         transporter.sendMail({
           from: process.env.EMAIL_USER,
-          to: asistente.correo_electronico,
+          to: asistente.id_asistente.id_usuario.correo_electronico,
           subject: "Actualización de Conferencia",
           text: message,
-          html: `<p>${message}</p><p>Fecha: ${
-            conferenciaData.fecha || conferencia.fecha
-          }</p>`,
+          html: `<p>${message}</p><p>Fecha: ${new Date().toISOString()}</p>`,
         })
       );
       await Promise.all(emailPromises);
-      console.log(`Emails sent to ${asistentes.length} asistentes.`);
+      console.log(`Emails sent to ${asistentes.data.length} asistentes.`);
 
       // Enviar SMS
-      const smsPromises = asistentes.map((asistente) =>
+      const smsPromises = asistentes.data.map((asistente) =>
         twilioClient.messages.create({
           body: message,
           from: process.env.TWILIO_PHONE_NUMBER,
-          to: asistente.telefono, // +1234567890
+          to: asistente.id_asistente.id_usuario.telefono, // +1234567890
         })
       );
       await Promise.all(smsPromises);
-      console.log(`SMS sent to ${asistentes.length} asistentes.`);
+      console.log(`SMS sent to ${asistentes.data.length} asistentes.`);
     }
 
     return new ResponseDTO(
@@ -395,7 +466,7 @@ const updateConferencia = async (id, conferenciaData) => {
       "C-104",
       500,
       null,
-      `Error Updating Conferencia: ${error}`
+      `Error Updating Conferencia: ${error}.`
     );
   }
 };
@@ -418,7 +489,7 @@ const deleteConferencia = async (id) => {
       "C-105",
       500,
       null,
-      `Error Deleting Conferencia: ${error}`
+      `Error Deleting Conferencia: ${error}.`
     );
   }
 };
@@ -487,7 +558,7 @@ const updateCharla = async (id, charlaData) => {
       "C-107",
       500,
       null,
-      `Error Updating Charla: ${error}`
+      `Error Updating Charla: ${error}.`
     );
   }
 };
@@ -508,7 +579,12 @@ const getVotos = async (id) => {
       "Votos Obtained."
     );
   } catch (error) {
-    return new ResponseDTO("C-108", 500, null, `Error Getting Votos: ${error}`);
+    return new ResponseDTO(
+      "C-108",
+      500,
+      null,
+      `Error Getting Votos: ${error}.`
+    );
   }
 };
 
@@ -526,7 +602,7 @@ const addMaterial = async (id, material) => {
       "C-109",
       500,
       null,
-      `Error Adding Material: ${error}`
+      `Error Adding Material: ${error}.`
     );
   }
 };
@@ -550,7 +626,7 @@ const addEvaluacion = async (id, evaluacion) => {
       "C-110",
       500,
       null,
-      `Error Adding Evaluacion: ${error}`
+      `Error Adding Evaluacion: ${error}.`
     );
   }
 };
@@ -580,7 +656,7 @@ const getMateriales = async (id, asistenteId) => {
       "C-111",
       500,
       null,
-      `Error Getting Materiales: ${error}`
+      `Error Getting Materiales: ${error}.`
     );
   }
 };
@@ -617,7 +693,7 @@ const getConferenciasByOrador = async (oradorId) => {
       "Conferencias Obtained."
     );
   } catch (error) {
-    return new ResponseDTO("C-113", 500, null, `Error: ${error}`);
+    return new ResponseDTO("C-113", 500, null, `Error: ${error}.`);
   }
 };
 
@@ -625,6 +701,7 @@ module.exports = {
   getAllConferencias,
   getConferenciaById,
   createConferencia,
+  getAsistentesInscritos,
   updateConferencia,
   deleteConferencia,
   updateVotos,

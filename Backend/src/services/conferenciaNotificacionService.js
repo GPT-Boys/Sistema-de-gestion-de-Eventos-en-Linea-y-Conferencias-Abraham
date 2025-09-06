@@ -82,7 +82,7 @@ const createConferenciaNotificacion = async (data) => {
       notificacion: data.notificacion,
     });
 
-    const conferenceID = newRecord.conferencia.id_conferencia;
+    const conferenceID = newRecord.id_conferencia;
     const conferenceValues = await ConferenciaENT.findByPk(conferenceID);
     const conferenciaDTO = new ConferenciaDTO(
       conferenceID,
@@ -126,7 +126,7 @@ const updateConferenciaNotificacion = async (id, data) => {
       notificacion: data.notificacion,
     });
 
-    const conferenceID = record.conferencia.id_conferencia;
+    const conferenceID = record.id_conferencia;
     const conferenceValues = await ConferenciaENT.findByPk(conferenceID);
     const conferenciaDTO = new ConferenciaDTO(
       conferenceID,

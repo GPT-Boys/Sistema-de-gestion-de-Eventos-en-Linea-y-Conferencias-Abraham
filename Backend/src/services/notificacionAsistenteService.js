@@ -34,7 +34,7 @@ const getAllNotificacionAsistente = async () => {
     });
     return new ResponseDTO("NA-000", 200, recordsDTO, "Records Obtained.");
   } catch (error) {
-    return new ResponseDTO("NA-101", 500, null, `Error: ${error}`);
+    return new ResponseDTO("NA-101", 500, null, `Error: ${error}.`);
   }
 };
 
@@ -66,7 +66,7 @@ const getNotificacionAsistenteById = async (id) => {
     );
     return new ResponseDTO("NA-000", 200, recordDTO, "Record Obtained.");
   } catch (error) {
-    return new ResponseDTO("NA-102", 500, null, `Error: ${error}`);
+    return new ResponseDTO("NA-102", 500, null, `Error: ${error}.`);
   }
 };
 
@@ -79,8 +79,7 @@ const createNotificacionAsistente = async (data) => {
       id_asistente: data.asistente.id_asistente,
     });
 
-    const conferenceNotificationID =
-      newRecord.conferencia_notificacion.id_conferencia_notificacion;
+    const conferenceNotificationID = newRecord.id_conferencia_notificacion;
     const conferenceNotificationValues =
       await ConferenciaNotificacionENT.findByPk(conferenceNotificationID);
     const conferenciaNotificacionDTO = new ConferenciaNotificacionDTO(
@@ -89,7 +88,7 @@ const createNotificacionAsistente = async (data) => {
       conferenceNotificationValues.notificacion
     );
 
-    const assistantID = newRecord.asistente.id_asistente;
+    const assistantID = newRecord.id_asistente;
     const assistantValues = await AsistenteENT.findByPk(assistantID);
     const asistenteDTO = new AsistenteDTO(
       assistantID,
@@ -105,7 +104,7 @@ const createNotificacionAsistente = async (data) => {
     // Placeholder para notificación real-time
     return new ResponseDTO("NA-000", 201, recordDTO, "Record Created.");
   } catch (error) {
-    return new ResponseDTO("NA-103", 500, null, `Error: ${error}`);
+    return new ResponseDTO("NA-103", 500, null, `Error: ${error}.`);
   }
 };
 
@@ -126,8 +125,7 @@ const updateNotificacionAsistente = async (id, data) => {
       id_asistente: data.asistente.id_asistente,
     });
 
-    const conferenceNotificationID =
-      record.conferencia_notificacion.id_conferencia_notificacion;
+    const conferenceNotificationID = record.id_conferencia_notificacion;
     const conferenceNotificationValues =
       await ConferenciaNotificacionENT.findByPk(conferenceNotificationID);
     const conferenciaNotificacionDTO = new ConferenciaNotificacionDTO(
@@ -136,7 +134,7 @@ const updateNotificacionAsistente = async (id, data) => {
       conferenceNotificationValues.notificacion
     );
 
-    const assistantID = record.asistente.id_asistente;
+    const assistantID = record.id_asistente;
     const assistantValues = await AsistenteENT.findByPk(assistantID);
     const asistenteDTO = new AsistenteDTO(
       assistantID,
@@ -151,7 +149,7 @@ const updateNotificacionAsistente = async (id, data) => {
     );
     return new ResponseDTO("NA-000", 200, updatedDTO, "Record Updated.");
   } catch (error) {
-    return new ResponseDTO("NA-104", 500, null, `Error: ${error}`);
+    return new ResponseDTO("NA-104", 500, null, `Error: ${error}.`);
   }
 };
 
@@ -164,7 +162,7 @@ const deleteNotificacionAsistente = async (id) => {
     await record.destroy();
     return new ResponseDTO("NA-000", 200, null, "Record Deleted.");
   } catch (error) {
-    return new ResponseDTO("NA-105", 500, null, `Error: ${error}`);
+    return new ResponseDTO("NA-105", 500, null, `Error: ${error}.`);
   }
 };
 
@@ -202,7 +200,7 @@ const getNotificacionesByAsistente = async (asistenteId) => {
       "Notificaciones Obtained."
     );
   } catch (error) {
-    return new ResponseDTO("NA-106", 500, null, `Error: ${error}`);
+    return new ResponseDTO("NA-106", 500, null, `Error: ${error}.`);
   }
 };
 
@@ -223,7 +221,7 @@ const enviarNotificacionGlobal = async (message) => {
     await Promise.all(promises);
     return new ResponseDTO("NA-000", 200, null, "Notificacion Global Enviada.");
   } catch (error) {
-    return new ResponseDTO("NA-107", 500, null, `Error: ${error}`);
+    return new ResponseDTO("NA-107", 500, null, `Error: ${error}.`);
   }
 };
 
