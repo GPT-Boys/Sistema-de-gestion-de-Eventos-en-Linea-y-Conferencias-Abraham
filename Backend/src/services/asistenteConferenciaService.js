@@ -105,7 +105,7 @@ const createAsistenteConferencia = async (data) => {
       id_asistente: data.asistente.id_asistente,
     });
 
-    const conferenceID = newRecord.conferencia.id_conferencia;
+    const conferenceID = newRecord.id_conferencia;
     const conferenceValues = await ConferenciaENT.findByPk(conferenceID);
     const conferenciaDTO = new ConferenciaDTO(
       conferenceID,
@@ -124,7 +124,7 @@ const createAsistenteConferencia = async (data) => {
       conferenceValues.material
     );
 
-    const assistantID = newRecord.asistente.id_asistente;
+    const assistantID = newRecord.id_asistente;
     const assistantValues = await AsistenteENT.findByPk(assistantID);
     const asistenteDTO = new AsistenteDTO(
       assistantID,
@@ -159,7 +159,7 @@ const updateAsistenteConferencia = async (id, data) => {
       id_asistente: data.asistente.id_asistente,
     });
 
-    const conferenceID = record.conferencia.id_conferencia;
+    const conferenceID = record.id_conferencia;
     const conferenceValues = await ConferenciaENT.findByPk(conferenceID);
     const conferenciaDTO = new ConferenciaDTO(
       conferenceID,
@@ -178,7 +178,7 @@ const updateAsistenteConferencia = async (id, data) => {
       conferenceValues.material
     );
 
-    const assistantID = record.asistente.id_asistente;
+    const assistantID = record.id_asistente;
     const assistantValues = await AsistenteENT.findByPk(assistantID);
     const asistenteDTO = new AsistenteDTO(
       assistantID,

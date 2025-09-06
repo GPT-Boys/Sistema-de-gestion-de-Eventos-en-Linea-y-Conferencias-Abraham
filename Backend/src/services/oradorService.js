@@ -42,7 +42,7 @@ const getAllOradores = async () => {
       "O-101",
       500,
       null,
-      `Error Getting All Oradores: ${error}`
+      `Error Getting All Oradores: ${error}.`
     );
   }
 };
@@ -90,7 +90,7 @@ const getOradorById = async (id) => {
       "O-102",
       500,
       null,
-      `Error Getting Orador: ${error}`
+      `Error Getting Orador: ${error}.`
     );
   }
 };
@@ -104,7 +104,7 @@ const createOrador = async (oradorData) => {
       experiencia: oradorData.experiencia,
       contacto: oradorData.contacto,
     });
-    const oradorUserID = newOrador.usuario.id_usuario;
+    const oradorUserID = newOrador.id_usuario;
     const oradorUserValues = await UsuarioENT.findByPk(oradorUserID);
     const usuarioDTO = new UsuarioDTO(
       oradorUserID,
@@ -136,7 +136,7 @@ const createOrador = async (oradorData) => {
       "O-103",
       500,
       null,
-      `Error Creating Orador: ${error}`
+      `Error Creating Orador: ${error}.`
     );
   }
 };
@@ -154,7 +154,7 @@ const updateOrador = async (id, oradorData) => {
       experiencia: oradorData.experiencia,
       contacto: oradorData.contacto,
     });
-    const oradorUserID = orador.usuario.id_usuario;
+    const oradorUserID = orador.id_usuario;
     const oradorUserValues = await UsuarioENT.findByPk(oradorUserID);
     const usuarioDTO = new UsuarioDTO(
       oradorUserID,
@@ -186,7 +186,7 @@ const updateOrador = async (id, oradorData) => {
       "O-104",
       500,
       null,
-      `Error Updating Orador: ${error}`
+      `Error Updating Orador: ${error}.`
     );
   }
 };
@@ -204,7 +204,7 @@ const deleteOrador = async (id) => {
       "O-105",
       500,
       null,
-      `Error Deleting Orador: ${error}`
+      `Error Deleting Orador: ${error}.`
     );
   }
 };

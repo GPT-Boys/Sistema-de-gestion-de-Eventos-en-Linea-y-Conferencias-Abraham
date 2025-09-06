@@ -182,7 +182,12 @@ const createUser = async (userData) => {
 const updateUser = async (id, userData) => {
   console.log(`Updating User with ID: ${id}...`);
   try {
-    const user = await UsuarioENT.findByPk(id);
+    const user = await UsuarioENT.findByPk(id, {
+      include: [
+        { model: TipoUsuarioENT, as: "tipo_usuario" },
+        { model: CiudadENT, as: "ciudad" },
+      ],
+    });
 
     if (!user) {
       console.log(`User with ID: ${id} Does Not Exist.`);
@@ -209,14 +214,12 @@ const updateUser = async (id, userData) => {
     });
 
     const tipoUsuarioDTO = new TipoUsuarioDTO(
-      user.tipo_usuario.id_tipo_usuario,
-      (
-        await TipoUsuarioENT.findByPk(user.tipo_usuario.id_tipo_usuario)
-      ).tipo_usuario
+      user.id_tipo_usuario,
+      (await TipoUsuarioENT.findByPk(user.id_tipo_usuario)).tipo_usuario
     );
     const ciudadDTO = new CiudadDTO(
-      user.ciudad.id_ciudad,
-      (await CiudadENT.findByPk(user.ciudad.id_ciudad)).ciudad
+      user.id_ciudad,
+      (await CiudadENT.findByPk(user.id_ciudad)).ciudad
     );
     const updatedDTO = new UsuarioDTO(
       user.id_usuario,
@@ -268,7 +271,7 @@ const updatePassword = async (req) => {
       "U-106",
       500,
       null,
-      `Error Updating Password: ${error}`
+      `Error Updating Password: ${error}.`
     );
   }
 };
@@ -338,7 +341,7 @@ const getUserByUsuario = async (usuario) => {
     return new ResponseDTO(
       "U-000",
       200,
-      userDTO,
+      null,
       `User with USUARIO: '${usuario}' Successfully Obtained.`
     );
   } catch (error) {

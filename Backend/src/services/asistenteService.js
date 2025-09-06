@@ -99,7 +99,7 @@ const createAsistente = async (asistenteData) => {
       descripcion: asistenteData.descripcion,
     });
 
-    const assistantUserID = newAsistente.usuario.id_usuario;
+    const assistantUserID = newAsistente.id_usuario;
     const assistantUserValues = await UsuarioENT.findByPk(assistantUserID);
     const usuarioDTO = new UsuarioDTO(
       assistantUserID,
@@ -145,7 +145,7 @@ const updateAsistente = async (id, asistenteData) => {
       return new ResponseDTO("A-104", 404, null, "Asistente Not Found.");
     await asistente.update({ descripcion: asistenteData.descripcion });
 
-    const assistantUserID = asistente.usuario.id_usuario;
+    const assistantUserID = asistente.id_usuario;
     const assistantUserValues = await UsuarioENT.findByPk(assistantUserID);
     const usuarioDTO = new UsuarioDTO(
       assistantUserID,
