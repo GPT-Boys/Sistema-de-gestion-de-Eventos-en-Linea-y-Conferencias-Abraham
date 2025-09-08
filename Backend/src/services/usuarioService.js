@@ -140,6 +140,24 @@ const createUser = async (userData) => {
       correo_electronico: userData.correo_electronico,
     });
 
+    // Si el usuario es de tipo "Orador" (ID = 3), crear automáticamente el registro en la tabla ORADOR
+    if (userData.tipo_usuario.id_tipo_usuario === 3) {
+      console.log("Creating Orador record automatically...");
+      try {
+        await OradorENT.create({
+          id_usuario: newUser.id_usuario,
+          descripcion: `${userData.nombres} ${userData.apellidos}`,
+          experiencia: "Aprobado",
+          contacto: userData.correo_electronico,
+        });
+        console.log("Orador record created successfully.");
+      } catch (oradorError) {
+        console.error(`Error creating Orador record: ${oradorError}`);
+        // No lanzamos error aquí para no interrumpir la creación del usuario
+        // pero registramos el error
+      }
+    }
+
     const tipoUsuarioDTO = new TipoUsuarioDTO(
       newUser.id_tipo_usuario,
       (await TipoUsuarioENT.findByPk(newUser.id_tipo_usuario)).tipo_usuario
@@ -200,6 +218,8 @@ const updateUser = async (id, userData) => {
     }
 
     const hashedPassword = await bcrypt.hash(userData.contrasenia, 10);
+    const oldTipoUsuario = user.id_tipo_usuario;
+    const newTipoUsuario = userData.tipo_usuario.id_tipo_usuario;
 
     await user.update({
       usuario: userData.usuario,
@@ -212,6 +232,30 @@ const updateUser = async (id, userData) => {
       telefono: userData.telefono,
       correo_electronico: userData.correo_electronico,
     });
+
+    // Si el tipo de usuario cambió a "Orador" (ID = 3), crear automáticamente el registro en la tabla ORADOR
+    if (oldTipoUsuario !== 3 && newTipoUsuario === 3) {
+      console.log("User type changed to Orador, creating Orador record automatically...");
+      try {
+        // Verificar si ya existe un registro de orador para este usuario
+        const existingOrador = await OradorENT.findOne({
+          where: { id_usuario: user.id_usuario }
+        });
+        
+        if (!existingOrador) {
+          await OradorENT.create({
+            id_usuario: user.id_usuario,
+            descripcion: `${userData.nombres} ${userData.apellidos}`,
+            experiencia: "Aprobado",
+            contacto: userData.correo_electronico,
+          });
+          console.log("Orador record created successfully.");
+        }
+      } catch (oradorError) {
+        console.error(`Error creating Orador record: ${oradorError}`);
+        // No lanzamos error aquí para no interrumpir la actualización del usuario
+      }
+    }
 
     const tipoUsuarioDTO = new TipoUsuarioDTO(
       user.id_tipo_usuario,

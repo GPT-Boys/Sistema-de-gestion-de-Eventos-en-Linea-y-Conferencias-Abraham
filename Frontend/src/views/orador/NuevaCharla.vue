@@ -80,7 +80,7 @@ async function onSubmit() {
     nombreArchivo = file.name
   }
 
-  store.createFromOrador(
+  const result = await store.createFromOradorRemoto(
     {
       titulo: titulo.value,
       descripcion: descripcion.value,
@@ -98,7 +98,11 @@ async function onSubmit() {
     auth.uid,
   )
 
-  router.push('/app/orador/mi-agenda')
+  if (result.ok) {
+    router.push('/app/orador/mi-agenda')
+  } else {
+    alert('Error al crear la charla: ' + (result.error || 'Error desconocido'))
+  }
 }
 
 function fileToBase64(file) {

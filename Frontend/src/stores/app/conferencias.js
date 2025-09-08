@@ -142,40 +142,60 @@ export const useConferenciasStore = defineStore('conf', {
       return { ok: true }
     },
 
-    // Crear charla
-    createFromOrador(payload, oradorId) {
-      this._loadAll()
-      const nextId = this.list.length ? Math.max(...this.list.map((i) => i.idConferencia)) + 1 : 1
 
-      const conf = {
-        idConferencia: nextId,
+    // Crear charla en backend y actualizar store si es exitosa
+    async createFromOradorRemoto(payload, oradorId) {
+      // Construir el objeto esperado por el backend
+      const conferencia = {
         titulo: payload.titulo,
         descripcion: payload.descripcion,
-        idMarcaConferencia: Number(payload.idMarcaConferencia),
-        idOrador: Number(oradorId),
-        idTipoConferencia: Number(payload.idTipoConferencia),
-        votosAFavor: 0,
-        votosEnContra: 0,
-        fecha: payload.fecha, // mantener como string "YYYY-MM-DD"
-        horaEmpieza: payload.horaEmpieza,
-        horaTermina: payload.horaTermina,
+        marca_conferencia: { id_marca_conferencia: Number(payload.idMarcaConferencia) },
+        orador: { id_orador: Number(oradorId) },
+        tipo_conferencia: { id_tipo_conferencia: Number(payload.idTipoConferencia) },
+        fecha: payload.fecha,
+        hora_empieza: payload.horaEmpieza,
+        hora_termina: payload.horaTermina,
         sala: payload.sala,
         evaluacion: payload.evaluacion || '',
-        zoomUrl: payload.zoomUrl || '',
-        materiales: payload.materialUrl
-          ? [
-              {
-                id: Date.now(),
-                nombre: payload.nombreArchivo || 'material',
-                url: payload.materialUrl,
-              },
-            ]
-          : [],
+        material: payload.materialUrl || '',
+        zoom_url: payload.zoomUrl || '',
       }
-
-      this.list.push(conf)
-      this._saveAll()
-      return conf
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/conferencia`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(conferencia),
+        })
+        const text = await res.text()
+        let data
+        try {
+          data = JSON.parse(text)
+        } catch (err) {
+          throw new Error('Respuesta inesperada del backend: ' + text)
+        }
+        if (!res.ok || data.code !== 'C-000') throw new Error(data.message || 'Error al crear conferencia')
+        this.list.push({
+          idConferencia: data.data.id_conferencia,
+          titulo: data.data.titulo,
+          descripcion: data.data.descripcion,
+          idMarcaConferencia: data.data.id_marca_conferencia,
+          idOrador: data.data.id_orador,
+          idTipoConferencia: data.data.id_tipo_conferencia,
+          votosAFavor: data.data.votos_a_favor,
+          votosEnContra: data.data.votos_en_contra,
+          fecha: data.data.fecha,
+          horaEmpieza: data.data.hora_empieza,
+          horaTermina: data.data.hora_termina,
+          sala: data.data.sala,
+          evaluacion: data.data.evaluacion,
+          materiales: data.data.material ? [{ id: Date.now(), nombre: payload.nombreArchivo || 'material', url: data.data.material }] : [],
+          zoomUrl: data.data.zoom_url || '',
+        })
+        this._saveAll()
+        return { ok: true, data: data.data }
+      } catch (e) {
+        return { ok: false, error: e.message }
+      }
     },
 
     addMaterial(confId, archivo) {
