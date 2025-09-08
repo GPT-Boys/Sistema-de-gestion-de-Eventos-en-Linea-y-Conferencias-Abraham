@@ -28,6 +28,8 @@ export const useConferenciasStore = defineStore('conf', {
   state: () => ({
     loaded: false,
     list: [],
+  loadingRemote: false,
+  errorRemote: null,
   }),
 
   getters: {
@@ -53,6 +55,93 @@ export const useConferenciasStore = defineStore('conf', {
   },
 
   actions: {
+    // --- Normalizador de conferencias recibidas del backend ---
+    _normalizeApiConf(raw) {
+      if (!raw) return null
+      const toId = (v, key) => {
+        if (v == null) return null
+        if (typeof v === 'object') {
+          // intenta extraer id_* dentro
+            const k = Object.keys(v).find((n) => /id_?/.test(n) || n.startsWith('id_'))
+            if (k && typeof v[k] !== 'object') return v[k]
+            // casos específicos
+            if (v.id_marca_conferencia) return v.id_marca_conferencia
+            if (v.id_orador) return v.id_orador
+            if (v.id_tipo_conferencia) return v.id_tipo_conferencia
+        }
+        return v
+      }
+      return {
+        idConferencia: raw.id_conferencia,
+        titulo: raw.titulo,
+        descripcion: raw.descripcion,
+        idMarcaConferencia: toId(raw.id_marca_conferencia, 'marca'),
+        idOrador: toId(raw.id_orador, 'orador'),
+        idTipoConferencia: toId(raw.id_tipo_conferencia, 'tipo'),
+        votosAFavor: raw.votos_a_favor ?? 0,
+        votosEnContra: raw.votos_en_contra ?? 0,
+        fecha: raw.fecha,
+        horaEmpieza: raw.hora_empieza,
+        horaTermina: raw.hora_termina,
+        sala: raw.sala,
+        evaluacion: raw.evaluacion || '',
+        materiales: raw.material
+          ? [
+              {
+                id: Date.now() + Math.random(),
+                nombre: 'material',
+                url: raw.material,
+              },
+            ]
+          : [],
+        zoomUrl: raw.zoom_url || raw.zoomUrl || '',
+      }
+    },
+
+    // Carga desde backend y sincroniza el store/localStorage
+    async fetchAllRemote({ force = false } = {}) {
+      this.loadingRemote = true
+      this.errorRemote = null
+      // Evitar recargas innecesarias si ya tenemos datos
+      if (!force && this.list.length > 0) {
+        // aún así podríamos querer refrescar; se controla con force
+      }
+      try {
+        const base = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+        const res = await fetch(`${base}/api/conferencia`)
+        const text = await res.text()
+        let payload
+        try {
+          payload = JSON.parse(text)
+        } catch (e) {
+          console.error('Respuesta no JSON de conferencias:', text)
+          this.errorRemote = 'Respuesta inválida del servidor'
+          this.loadingRemote = false
+          return { ok: false, error: 'Respuesta inválida del servidor' }
+        }
+        if (!res.ok || payload.code !== 'C-000') {
+          this.errorRemote = payload.message || 'Error al obtener conferencias'
+          this.loadingRemote = false
+          return { ok: false, error: this.errorRemote }
+        }
+        const incoming = Array.isArray(payload.data) ? payload.data.map(this._normalizeApiConf) : []
+        // Merge: crear mapa actual
+        const map = new Map(this.list.map((c) => [String(c.idConferencia), c]))
+        for (const conf of incoming) {
+          map.set(String(conf.idConferencia), { ...map.get(String(conf.idConferencia)), ...conf })
+        }
+        this.list = [...map.values()]
+        this._saveAll()
+        this.loadingRemote = false
+        return { ok: true, total: this.list.length }
+      } catch (e) {
+        console.error('Error fetchAllRemote conferencias:', e)
+        this.errorRemote = e.message
+        this.loadingRemote = false
+        return { ok: false, error: this.errorRemote }
+      }
+    },
+
     _saveAll() {
       localStorage.setItem(LS_ALL, JSON.stringify(this.list))
     },

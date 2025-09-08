@@ -21,6 +21,12 @@ const filterTipo = ref('')
 
 onMounted(() => {
   store._loadAll()
+  // sincronizar con backend
+  store.fetchAllRemote().then((r) => {
+    if (!r?.ok) {
+      console.warn('No se pudieron cargar conferencias remotas:', r?.error)
+    }
+  })
 })
 
 const uid = computed(() => auth.user?.id_usuario ?? auth.user?.id ?? null)
@@ -201,11 +207,24 @@ const fmtFechaHead = (d) =>
     </header>
 
     <div v-if="filtered.length === 0" class="empty">
-      <i class="bi bi-calendar2-x"></i>
-      <p>No tienes charlas en esta categoría.</p>
-      <button class="btn primary" @click="goCreate">
-        <i class="bi bi-plus-lg"></i> Crear charla
-      </button>
+      <template v-if="store.loadingRemote">
+        <i class="bi bi-arrow-repeat spin"></i>
+        <p>Cargando conferencias...</p>
+      </template>
+      <template v-else-if="store.errorRemote">
+        <i class="bi bi-exclamation-triangle"></i>
+        <p>Error: {{ store.errorRemote }}</p>
+        <button class="btn secondary" @click="store.fetchAllRemote({ force: true })">
+          <i class="bi bi-arrow-clockwise"></i> Reintentar
+        </button>
+      </template>
+      <template v-else>
+        <i class="bi bi-calendar2-x"></i>
+        <p>No tienes charlas en esta categoría.</p>
+        <button class="btn primary" @click="goCreate">
+          <i class="bi bi-plus-lg"></i> Crear charla
+        </button>
+      </template>
     </div>
 
     <!-- GRID -->
@@ -443,6 +462,8 @@ const fmtFechaHead = (d) =>
   border-radius: 14px;
   color: #6b7280;
 }
+.spin { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
 .grid {
   display: grid;

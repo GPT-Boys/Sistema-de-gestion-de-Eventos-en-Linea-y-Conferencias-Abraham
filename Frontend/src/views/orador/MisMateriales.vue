@@ -30,32 +30,74 @@ const fmtFecha = (d) =>
     ? new Date(d).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })
     : d || 'Sin fecha'
 
-// 🔹 Asegurar carga de datos al entrar directo
+// Estado de descarga
+const downloadingId = ref(null)
+const downloadError = ref(null)
+
+// 🔹 Asegurar carga de datos al entrar directo (local + remoto)
 onMounted(() => {
   if (!store.loaded) store._loadAll()
+  store.fetchAllRemote().catch(() => {})
 })
 
-// 🔹 Función para descargar material (base64 → Blob)
-function downloadFile(m) {
-  try {
-    const base64 = m.url
-    const byteString = atob(base64.split(',')[1])
-    const mimeString = base64.split(',')[0].split(':')[1].split(';')[0]
-    const ab = new ArrayBuffer(byteString.length)
-    const ia = new Uint8Array(ab)
-    for (let i = 0; i < byteString.length; i++) {
-      ia[i] = byteString.charCodeAt(i)
-    }
-    const blob = new Blob([ab], { type: mimeString })
+// Utilidad: descarga Blob a disco
+function triggerDownload(blob, filename) {
+  const link = document.createElement('a')
+  link.href = URL.createObjectURL(blob)
+  link.download = filename || 'archivo'
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  setTimeout(() => URL.revokeObjectURL(link.href), 2000)
+}
 
-    const link = document.createElement('a')
-    link.href = URL.createObjectURL(blob)
-    link.download = m.nombre || 'archivo'
-    link.click()
-    URL.revokeObjectURL(link.href)
+// Detecta si es DataURL
+function isDataUrl(u) {
+  return typeof u === 'string' && u.startsWith('data:') && u.includes(',')
+}
+
+// Obtiene Blob desde data URL
+function blobFromDataUrl(dataUrl) {
+  const [meta, dataPart] = dataUrl.split(',')
+  const mime = meta.match(/data:(.*?);/)?.[1] || 'application/octet-stream'
+  const byteString = atob(dataPart)
+  const ab = new ArrayBuffer(byteString.length)
+  const ia = new Uint8Array(ab)
+  for (let i = 0; i < byteString.length; i++) ia[i] = byteString.charCodeAt(i)
+  return new Blob([ab], { type: mime })
+}
+
+// 🔹 Función unificada para descargar material (dataURL o URL remota)
+async function downloadFile(m) {
+  downloadError.value = null
+  downloadingId.value = m.id
+  try {
+    if (!m?.url) throw new Error('URL vacía')
+    // Caso 1: Data URL (base64 inline)
+    if (isDataUrl(m.url)) {
+      const blob = blobFromDataUrl(m.url)
+      triggerDownload(blob, m.nombre || 'material')
+      return
+    }
+    // Caso 2: URL directa -> intentar fetch para forzar descarga (maneja CORS si permitido)
+    const res = await fetch(m.url, { credentials: 'omit' })
+    if (!res.ok) {
+      // Fallback: abrir en nueva pestaña
+      window.open(m.url, '_blank', 'noopener')
+      throw new Error('No se pudo descargar directamente, se abrió en otra pestaña.')
+    }
+    const ct = res.headers.get('Content-Type') || 'application/octet-stream'
+    const blob = await res.blob()
+    const fileName = m.nombre || m.url.split('/').pop()?.split('?')[0] || 'material'
+    // Asegurar extensión básica si falta
+    const finalName = /\./.test(fileName) ? fileName : fileName + (ct.includes('pdf') ? '.pdf' : '')
+    triggerDownload(blob, finalName)
   } catch (e) {
     console.error('Error al descargar archivo:', e)
-    alert('No se pudo descargar el archivo')
+    downloadError.value = e.message || 'Error desconocido'
+    alert('No se pudo descargar el archivo: ' + downloadError.value)
+  } finally {
+    downloadingId.value = null
   }
 }
 </script>
@@ -101,7 +143,10 @@ function downloadFile(m) {
           <ul>
             <li v-for="m in c.materiales" :key="m.id">
               <i class="bi bi-file-earmark-text"></i>
-              <button class="btn-link" @click="downloadFile(m)">Descargar {{ m.nombre }}</button>
+              <button class="btn-link" @click="downloadFile(m)" :disabled="downloadingId === m.id">
+                <span v-if="downloadingId === m.id"><i class="bi bi-arrow-repeat spin"></i> Descargando...</span>
+                <span v-else>Descargar {{ m.nombre }}</span>
+              </button>
             </li>
           </ul>
         </div>
@@ -243,6 +288,13 @@ function downloadFile(m) {
 .btn-link:hover {
   text-decoration: underline;
 }
+.btn-link[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+  text-decoration: none;
+}
+.spin { animation: spin 1s linear infinite; display: inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
 .no-files {
   font-size: 13px;
